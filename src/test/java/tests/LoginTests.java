@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import common.config.ConfigFactory;
 import common.data.Credentials;
+import common.data.TestGroups;
 import common.pageobject.LoginPage;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeMethod;
@@ -37,7 +38,7 @@ public class LoginTests extends BaseTestCase {
 
   @Test(
       testName = "Verify login error messages",
-      groups = {"login"},
+      groups = {TestGroups.LOGIN},
       dataProvider = "invalidUsers")
   public void verifyLoginShowsExpectedErrorMessage(
       Credentials credentials, String expectedErrorMessage) {

@@ -1,5 +1,6 @@
 package common.pageobject;
 
+import common.pageobject.component.InventoryListComponent;
 import io.qameta.allure.Step;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +12,15 @@ import org.openqa.selenium.WebElement;
 @Slf4j
 public class CartPage extends BasePage {
 
+  private final InventoryListComponent inventoryList;
+
   public CartPage(WebDriver driver) {
     super(driver);
+    this.inventoryList = new InventoryListComponent(driver, this.waitUtils);
+  }
+
+  public InventoryListComponent getInventoryList() {
+    return inventoryList;
   }
 
   private final By productQuantityElement = By.cssSelector("[data-test='item-quantity']");

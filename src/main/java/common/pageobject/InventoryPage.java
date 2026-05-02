@@ -1,5 +1,6 @@
 package common.pageobject;
 
+import common.pageobject.component.InventoryListComponent;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -8,8 +9,15 @@ import org.openqa.selenium.WebDriver;
 @Slf4j
 public class InventoryPage extends BasePage {
 
+  private final InventoryListComponent inventoryList;
+
   public InventoryPage(WebDriver driver) {
     super(driver);
+    this.inventoryList = new InventoryListComponent(driver, this.waitUtils);
+  }
+
+  public InventoryListComponent getInventoryList() {
+    return inventoryList;
   }
 
   private final By primaryHeader = By.className("app_logo");
