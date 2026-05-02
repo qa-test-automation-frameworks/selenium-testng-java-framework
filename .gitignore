@@ -1,0 +1,28 @@
+# Compiled class files
+**/target/
+*.class
+
+# Log files
+*.log
+
+# Allure artifacts
+allure-results/
+.allure/
+allure-report/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment/Local Properties
+# config.properties is included as it is a template, but usually secrets would be ignored
+# src/main/resources/dev.properties
+# src/main/resources/qa.properties
