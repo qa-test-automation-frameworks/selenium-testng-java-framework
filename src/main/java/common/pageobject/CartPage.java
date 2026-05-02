@@ -1,14 +1,12 @@
 package common.pageobject;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import io.qameta.allure.Step;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-
-import java.util.List;
 
 @Slf4j
 public class CartPage extends BasePage {
@@ -23,10 +21,11 @@ public class CartPage extends BasePage {
   public int getProductQuantityByIndex(int index) {
     log.info("Retrieving product quantity for item at index {} in the cart", index);
     List<WebElement> items = getItemList();
-    
-    assertThat(items)
-        .as("Cart should have at least %d items to check index %d", index + 1, index)
-        .hasSizeGreaterThan(index);
+    if (index < 0 || index >= items.size()) {
+      throw new NoSuchElementException(
+          String.format(
+              "Cart has %d items; cannot read quantity at index %d", items.size(), index));
+    }
 
     String quantityText = items.get(index).findElement(productQuantityElement).getText();
     int quantity = Integer.parseInt(quantityText);

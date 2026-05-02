@@ -21,6 +21,7 @@ The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**
 - **BasePage**: The foundation for all page objects, providing common interaction methods and wait strategies.
 - **Stateless Design**: Page Objects represent the UI state and actions but do not contain assertions (delegated to the test layer).
 - **Component Model**: Complex UI elements (like Headers) are extracted into reusable components.
+- **Source Set**: Framework and orchestration code lives under `src/main/java`; concrete TestNG scenarios stay under `src/test/java`.
 
 ### 4. Test Layer (`tests`)
 - **BaseTestCase**: Handles setup (`BeforeMethod`) and teardown (`AfterMethod`) of the driver.
@@ -28,10 +29,10 @@ The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**
 - **AssertJ**: Used for fluent, descriptive assertions with business-level error messages.
 
 ### 5. Reporting Layer (`common.listener`)
-- **Allure Reporting**: Integrated via a custom listener to capture screenshots, page source, and environment details on failure.
+- **Allure Reporting**: Integrated via a custom listener to capture screenshots, URL, page source, browser capabilities, console logs, and environment details on failure.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
 ## Design Principles
 - **Fail-Fast**: Configuration and environment checks happen at startup.
 - **Deterministic Waits**: Only explicit waits are used (no `Thread.sleep` or implicit waits).
-- **Clean Code**: Code style is enforced via Checkstyle (Google Checks) and Spotless.
+- **Clean Code**: Code style is enforced via Checkstyle (Google Checks), Spotless, and Maven Enforcer during `verify`.

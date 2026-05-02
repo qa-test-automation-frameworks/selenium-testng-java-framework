@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.MutableCapabilities;
@@ -14,13 +15,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
 
 /**
- * Factory class for managing WebDriver instances.
- * Utilizes ThreadLocal to ensure thread-safety during parallel execution.
+ * Factory class for managing WebDriver instances. Utilizes ThreadLocal to ensure thread-safety
+ * during parallel execution.
  */
 @Slf4j
 public class WebDriverFactory {
@@ -31,9 +35,7 @@ public class WebDriverFactory {
     /*Singleton pattern*/
   }
 
-  /**
-   * Supported browser types.
-   */
+  /** Supported browser types. */
   public enum DriverType {
     CHROME,
     FIREFOX,
@@ -48,7 +50,7 @@ public class WebDriverFactory {
    */
   private static WebDriver getDriver() {
     FrameworkConfig config = ConfigFactory.getConfig();
-    DriverType driverType = DriverType.valueOf(config.browser().toUpperCase());
+    DriverType driverType = parseDriverType(config.browser());
     String executionType = config.executionType().toLowerCase();
 
     WebDriver driver;
@@ -78,8 +80,8 @@ public class WebDriverFactory {
     log.info("Creating local WebDriver for type {}", driverType);
     return switch (driverType) {
       case CHROME -> new ChromeDriver(getChromeOptions());
-      case FIREFOX -> new FirefoxDriver();
-      case EDGE -> new EdgeDriver();
+      case FIREFOX -> new FirefoxDriver(getFirefoxOptions());
+      case EDGE -> new EdgeDriver(getEdgeOptions());
       case SAFARI -> new SafariDriver();
     };
   }
@@ -108,9 +110,29 @@ public class WebDriverFactory {
     return chromeOptions;
   }
 
-  /**
-   * Quits the current thread's WebDriver and removes it from ThreadLocal storage.
-   */
+  private static FirefoxOptions getFirefoxOptions() {
+    FirefoxOptions firefoxOptions = new FirefoxOptions();
+    if (ConfigFactory.getConfig().headless()) {
+      firefoxOptions.addArguments("-headless");
+      firefoxOptions.addArguments("--width=1920");
+      firefoxOptions.addArguments("--height=1080");
+    }
+    return firefoxOptions;
+  }
+
+  private static EdgeOptions getEdgeOptions() {
+    EdgeOptions edgeOptions = new EdgeOptions();
+    if (ConfigFactory.getConfig().headless()) {
+      edgeOptions.addArguments("--headless=new");
+      edgeOptions.addArguments("--disable-gpu");
+      edgeOptions.addArguments("--no-sandbox");
+      edgeOptions.addArguments("--disable-dev-shm-usage");
+      edgeOptions.addArguments("--window-size=1920,1080");
+    }
+    return edgeOptions;
+  }
+
+  /** Quits the current thread's WebDriver and removes it from ThreadLocal storage. */
   public static void cleanUpDriver() {
     try {
       if (webDriver.get() != null) {
@@ -126,7 +148,7 @@ public class WebDriverFactory {
    * Creates a remote WebDriver instance for execution on Selenium Grid.
    *
    * @param driverType The type of browser.
-   * @param remoteUrl  The Selenium Hub URL.
+   * @param remoteUrl The Selenium Hub URL.
    * @return A RemoteWebDriver instance.
    */
   private static WebDriver getRemoteDriver(DriverType driverType, String remoteUrl)
@@ -136,9 +158,9 @@ public class WebDriverFactory {
     MutableCapabilities capabilities =
         switch (driverType) {
           case CHROME -> getChromeOptions();
-          case FIREFOX -> new org.openqa.selenium.firefox.FirefoxOptions();
-          case EDGE -> new org.openqa.selenium.edge.EdgeOptions();
-          case SAFARI -> new org.openqa.selenium.safari.SafariOptions();
+          case FIREFOX -> getFirefoxOptions();
+          case EDGE -> getEdgeOptions();
+          case SAFARI -> new SafariOptions();
         };
     return new RemoteWebDriver(hubUrl.toURL(), capabilities);
   }
@@ -149,15 +171,25 @@ public class WebDriverFactory {
    * @param driver The WebDriver instance to configure.
    */
   private static void setTimeOut(WebDriver driver) {
-    Duration timeout = Duration.ofSeconds(30);
+    FrameworkConfig config = ConfigFactory.getConfig();
     driver.manage().timeouts().implicitlyWait(Duration.ZERO);
-    driver.manage().timeouts().pageLoadTimeout(timeout);
-    driver.manage().timeouts().scriptTimeout(timeout);
+    driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(config.pageLoadTimeoutSeconds()));
+    driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(config.scriptTimeoutSeconds()));
   }
 
-  /**
-   * Initializes a new driver for the current thread.
-   */
+  private static DriverType parseDriverType(String browser) {
+    try {
+      return DriverType.valueOf(browser.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Unsupported browser '%s'. Supported browsers: CHROME, FIREFOX, EDGE, SAFARI",
+              browser),
+          e);
+    }
+  }
+
+  /** Initializes a new driver for the current thread. */
   public static void initThreadLocalDriver() {
     try {
       webDriver.set(getDriver());

@@ -35,4 +35,28 @@ public interface FrameworkConfig extends Config {
 
   @Key("APP_PASSWORD")
   String appPassword();
+
+  @Key("retry.enabled")
+  @DefaultValue("false")
+  boolean retryEnabled();
+
+  @Key("retry.count")
+  @DefaultValue("2")
+  int retryCount();
+
+  @Key("explicit.wait.seconds")
+  @DefaultValue("10")
+  int explicitWaitSeconds();
+
+  @Key("page.load.timeout.seconds")
+  @DefaultValue("30")
+  int pageLoadTimeoutSeconds();
+
+  @Key("script.timeout.seconds")
+  @DefaultValue("30")
+  int scriptTimeoutSeconds();
+
+  @Key("polling.interval.ms")
+  @DefaultValue("500")
+  long pollingIntervalMs();
 }

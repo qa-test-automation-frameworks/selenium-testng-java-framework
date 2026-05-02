@@ -11,8 +11,11 @@
         <selenium.version>4.43.0</selenium.version>
         <testng.version>7.12.0</testng.version>
         <allure.version>2.34.0</allure.version>
-        <log4j.version>2.24.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
+        <lombok.version>1.18.44</lombok.version>
         <aspectj.version>1.9.25.1</aspectj.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <groups></groups>
     </properties>
 
     <dependencies>
@@ -27,12 +30,11 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- AssertJ-->
@@ -47,12 +49,11 @@
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-testng</artifactId>
             <version>${allure.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.16</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -150,9 +151,6 @@
                                 <fileset>
                                     <directory>${project.build.directory}/allure-results</directory>
                                 </fileset>
-                                <fileset>
-                                    <directory>allure-results</directory>
-                                </fileset>
                             </filesets>
                         </configuration>
                     </execution>
@@ -168,7 +166,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.36</version>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -184,8 +182,9 @@
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>
+                    <groups>${groups}</groups>
                     <systemPropertyVariables>
-                        <allure.results.directory>${project.basedir}/allure-results</allure.results.directory>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -204,8 +203,9 @@
                 </executions>
                 <configuration>
                     <reportVersion>${allure.version}</reportVersion>
-                    <resultsDirectory>${project.basedir}/allure-results</resultsDirectory>
-                    <reportDirectory>${project.basedir}/allure-report</reportDirectory>
+                    <installDirectory>${project.build.directory}/.allure</installDirectory>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                    <reportDirectory>${project.build.directory}/allure-report</reportDirectory>
                 </configuration>
             </plugin>
 
@@ -214,10 +214,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>checkstyle-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <configLocation>google_checks.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>false</failsOnError>
+                    <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
                 </configuration>
             </plugin>
@@ -226,12 +235,46 @@
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>2.44.3</version>
+                <executions>
+                    <execution>
+                        <id>spotless-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <java>
                         <googleJavaFormat/>
                     </java>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-toolchain</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,)</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>[3.9.0,4.0.0)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-</project>
+</project>

@@ -5,7 +5,6 @@ import common.config.FrameworkConfig;
 import common.driver.WebDriverFactory;
 import common.listener.FrameworkListener;
 import common.pageobject.LoginPage;
-import io.qameta.allure.Allure;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +18,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Listeners;
-import org.testng.annotations.Test;
 
 @Slf4j
 @Listeners(FrameworkListener.class)
@@ -57,7 +55,6 @@ public abstract class BaseTestCase {
   public void beforeMethod(ITestResult result) {
     log.info("BeforeMethod: Initializing driver for test: {}", result.getMethod().getMethodName());
     WebDriverFactory.initThreadLocalDriver();
-    setTestCaseNameInAllure(result);
   }
 
   @AfterMethod(alwaysRun = true)
@@ -76,7 +73,7 @@ public abstract class BaseTestCase {
     props.setProperty("OS", System.getProperty("os.name"));
     props.setProperty("Java Version", System.getProperty("java.version"));
 
-    String resultsDir = "allure-results";
+    String resultsDir = System.getProperty("allure.results.directory", "target/allure-results");
     try {
       Files.createDirectories(Paths.get(resultsDir));
       try (FileOutputStream fos = new FileOutputStream(resultsDir + "/environment.properties")) {
@@ -85,19 +82,6 @@ public abstract class BaseTestCase {
       }
     } catch (IOException e) {
       log.error("Failed to generate Allure environment.properties", e);
-    }
-  }
-
-  private static void setTestCaseNameInAllure(final ITestResult result) {
-    final var method = result.getMethod().getConstructorOrMethod().getMethod();
-    final var testAnnotation = method.getAnnotation(Test.class);
-    if (testAnnotation != null) {
-      String displayName =
-          testAnnotation.testName().isBlank()
-              ? result.getMethod().getMethodName()
-              : testAnnotation.testName();
-      log.debug("Updating Allure test case name to: {}", displayName);
-      Allure.getLifecycle().updateTestCase(testResult -> testResult.setName(displayName));
     }
   }
 }

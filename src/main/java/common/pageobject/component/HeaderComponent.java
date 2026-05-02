@@ -1,7 +1,5 @@
 package common.pageobject.component;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import common.pageobject.BasePage;
 import io.qameta.allure.Step;
 import java.util.List;
@@ -23,7 +21,8 @@ public class HeaderComponent extends BasePage {
   }
 
   public boolean isCartButtonVisible() {
-    boolean visible = driver.findElement(cartButton).isDisplayed();
+    boolean visible =
+        !driver.findElements(cartButton).isEmpty() && driver.findElement(cartButton).isDisplayed();
     log.debug("Cart button visibility: {}", visible);
     return visible;
   }
@@ -31,10 +30,7 @@ public class HeaderComponent extends BasePage {
   @Step("Navigate to cart via header")
   public void navigateToCart() {
     log.info("Navigating to cart page via header icon");
-    assertThat(isCartButtonVisible())
-        .as("Shopping cart button should be visible before clicking")
-        .isTrue();
-    driver.findElement(cartButton).click();
+    waitUtils.click(cartButton);
     waitUtils.waitForPageLoad();
     log.debug("Cart page load completed");
   }
@@ -47,7 +43,8 @@ public class HeaderComponent extends BasePage {
   }
 
   public boolean isMenuButtonVisible() {
-    boolean visible = driver.findElement(menuButton).isDisplayed();
+    boolean visible =
+        !driver.findElements(menuButton).isEmpty() && driver.findElement(menuButton).isDisplayed();
     log.debug("Menu button visibility: {}", visible);
     return visible;
   }
@@ -55,18 +52,14 @@ public class HeaderComponent extends BasePage {
   @Step("Open side menu via header")
   public void openMenu() {
     log.info("Opening the side menu");
-    assertThat(isMenuButtonVisible())
-        .as("Side menu burger button should be visible before clicking")
-        .isTrue();
-    driver.findElement(menuButton).click();
+    waitUtils.click(menuButton);
     log.debug("Side menu opened");
   }
 
   @Step("Click logout button in side menu")
   public void clickLogoutButton() {
     log.info("Clicking the logout button in the side menu");
-    waitUtils.waitUntilVisible(logoutButton);
-    driver.findElement(logoutButton).click();
+    waitUtils.click(logoutButton);
     log.debug("Successfully clicked logout button");
   }
 }

@@ -3,12 +3,13 @@
 Follow these guidelines when adding new tests or modifying existing ones.
 
 ## Adding a New Page Object
-1. Create a new class in `src/test/java/common/pageobject`.
+1. Create a new class in `src/main/java/common/pageobject`.
 2. Extend `BasePage`.
 3. Add a constructor that calls `super(driver)`.
 4. Define locators using private `By` variables.
 5. Implement action methods and use `@Step` for reporting.
-6. Use `assertThat` for pre-condition checks (e.g., verifying an element is visible before clicking).
+6. Use `WaitUtils` or existing BasePage helpers for pre-action readiness checks.
+7. Keep business assertions in test classes, not page objects.
 
 ## Adding a New Component
 If a UI element is shared across multiple pages (e.g., a Footer):
@@ -23,6 +24,7 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 4. Use the `testName` attribute in `@Test` for better reporting.
 5. Initialize Page Objects in a `@BeforeMethod` setup.
 6. Use **AssertJ** for assertions. Always include a descriptive message using `.as()`.
+7. Add meaningful TestNG groups such as `smoke`, `login`, `inventory`, `cart`, or `regression`.
 
 ### Example Assertion
 ```java

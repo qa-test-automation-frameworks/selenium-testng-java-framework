@@ -3,49 +3,58 @@ package tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import common.config.ConfigFactory;
+import common.data.Credentials;
 import common.pageobject.LoginPage;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 @Slf4j
 public class LoginTests extends BaseTestCase {
 
-  private LoginPage loginPage;
+  private final ThreadLocal<LoginPage> loginPage = new ThreadLocal<>();
 
   @BeforeMethod(alwaysRun = true)
   public void setupPages() {
     log.info("Initializing page objects for LoginTests");
-    loginPage = new LoginPage(getDriver());
+    loginPage.set(new LoginPage(getDriver()));
   }
 
-  @Test(testName = "Verify error message for locked out user")
-  public void testLockedOutUser() {
-    log.info("Starting test: testLockedOutUser");
-    loginPage.login(
-        ConfigFactory.getConfig().appUrl(),
-        "locked_out_user",
-        ConfigFactory.getConfig().appPassword());
-
-    log.info("Verifying error message for locked out user");
-    String error = getDriver().findElement(By.cssSelector("[data-test='error']")).getText();
-    assertThat(error)
-        .as("The login error message for a locked out user should be displayed")
-        .contains("Epic sadface: Sorry, this user has been locked out.");
-    log.info("Finished test successfully: testLockedOutUser");
+  @DataProvider(name = "invalidUsers", parallel = true)
+  public Object[][] invalidUsers() {
+    return new Object[][] {
+      {
+        new Credentials("locked_out_user", ConfigFactory.getConfig().appPassword()),
+        "Epic sadface: Sorry, this user has been locked out."
+      },
+      {
+        new Credentials("invalid_user", "invalid_password"),
+        "Epic sadface: Username and password do not match any user in this service"
+      }
+    };
   }
 
-  @Test(testName = "Verify error message for invalid credentials")
-  public void testInvalidLogin() {
-    log.info("Starting test: testInvalidLogin");
-    loginPage.login(ConfigFactory.getConfig().appUrl(), "invalid_user", "invalid_password");
+  @Test(
+      testName = "Verify login error messages",
+      groups = {"login"},
+      dataProvider = "invalidUsers")
+  public void login_should_show_expected_error_message(
+      Credentials credentials, String expectedErrorMessage) {
+    log.info(
+        "Starting test: login_should_show_expected_error_message for {}", credentials.username());
+    loginPage()
+        .login(ConfigFactory.getConfig().appUrl(), credentials.username(), credentials.password());
 
-    log.info("Verifying error message for invalid credentials");
-    String error = getDriver().findElement(By.cssSelector("[data-test='error']")).getText();
+    log.info("Verifying login error message");
+    String error = loginPage().getErrorMessage();
     assertThat(error)
-        .as("The login error message for invalid credentials should be displayed")
-        .contains("Epic sadface: Username and password do not match any user in this service");
-    log.info("Finished test successfully: testInvalidLogin");
+        .as("The login error message should match the expected scenario")
+        .contains(expectedErrorMessage);
+    log.info("Finished test successfully: login_should_show_expected_error_message");
+  }
+
+  private LoginPage loginPage() {
+    return loginPage.get();
   }
 }

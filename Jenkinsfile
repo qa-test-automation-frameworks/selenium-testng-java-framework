@@ -45,7 +45,7 @@ pipeline {
                    results: [[path: 'target/allure-results']]
             
             // Archive artifacts extracted from the container via volume mount
-            archiveArtifacts artifacts: 'target/*.jar, target/surefire-reports/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'target/allure-results/**, target/surefire-reports/**', allowEmptyArchive: true
         }
         
         failure {

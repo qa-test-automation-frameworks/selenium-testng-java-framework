@@ -1,0 +1,51 @@
+name: UI Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *' # Nightly at midnight
+
+jobs:
+  ui-tests:
+    name: Test on ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [CHROME, FIREFOX]
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Run UI Tests
+        run: mvn -B clean verify -Dheadless=true -Dbrowser=${{ matrix.browser }}
+        env:
+          APP_USERNAME: standard_user
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-${{ matrix.browser }}
+          path: target/allure-results
+          retention-days: 7
+
+      - name: Upload Surefire Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: surefire-reports-${{ matrix.browser }}
+          path: target/surefire-reports
+          retention-days: 7

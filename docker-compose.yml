@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   selenium-hub:
-    image: selenium/hub:4.25.0
+    image: selenium/hub:4.43.0
     container_name: selenium-hub
     ports:
       - "4444:4444"
@@ -13,7 +13,7 @@ services:
       retries: 5
 
   chrome:
-    image: selenium/node-chrome:4.25.0
+    image: selenium/node-chrome:4.43.0
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -23,7 +23,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.25.0
+    image: selenium/node-firefox:4.43.0
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -48,8 +48,8 @@ services:
       - browser=${BROWSER:-CHROME}
       - execution.type=remote
       - env=${ENV:-qa}
-      - APP_USERNAME=standard_user
-      - APP_PASSWORD=secret_sauce
+      - APP_USERNAME=${APP_USERNAME:-standard_user}
+      - APP_PASSWORD=${APP_PASSWORD:?APP_PASSWORD is required}
     # Override the Dockerfile entrypoint to run against the grid
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -60,4 +60,4 @@ services:
           sleep 2
         done
         echo "Grid is ready! Starting tests..."
-        mvn verify -Dremote.url=http://selenium-hub:4444/wd/hub -Dbrowser=$$browser
+        mvn verify -Dexecution.type=remote -Dremote.url=http://selenium-hub:4444/wd/hub -Dbrowser=$$browser -Denv=$$env -DAPP_USERNAME=$$APP_USERNAME -DAPP_PASSWORD=$$APP_PASSWORD -Dheadless=true
