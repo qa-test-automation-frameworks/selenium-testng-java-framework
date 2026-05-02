@@ -14,19 +14,7 @@ import org.testng.annotations.Test;
 @Slf4j
 public class UITests extends BaseTestCase {
 
-  private final ThreadLocal<CartPage> cartPage = new ThreadLocal<>();
-  private final ThreadLocal<InventoryPage> inventoryPage = new ThreadLocal<>();
-  private final ThreadLocal<LoginPage> loginPage = new ThreadLocal<>();
-  private final ThreadLocal<HeaderComponent> header = new ThreadLocal<>();
 
-  @BeforeMethod(alwaysRun = true)
-  public void setupPages() {
-    log.info("Initializing page objects for test: {}", getClass().getSimpleName());
-    cartPage.set(new CartPage(getDriver()));
-    inventoryPage.set(new InventoryPage(getDriver()));
-    loginPage.set(new LoginPage(getDriver()));
-    header.set(new HeaderComponent(getDriver()));
-  }
 
   @Test(
       testName = "Verify navigation and header visibility",
@@ -188,18 +176,18 @@ public class UITests extends BaseTestCase {
   }
 
   private CartPage cartPage() {
-    return cartPage.get();
+    return new CartPage(getDriver());
   }
 
   private InventoryPage inventoryPage() {
-    return inventoryPage.get();
+    return new InventoryPage(getDriver());
   }
 
   private LoginPage loginPage() {
-    return loginPage.get();
+    return new LoginPage(getDriver());
   }
 
   private HeaderComponent header() {
-    return header.get();
+    return new HeaderComponent(getDriver());
   }
 }

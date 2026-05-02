@@ -83,15 +83,14 @@ public abstract class BasePage {
    */
   public WebElement getProductByName(String name) {
     log.info("Searching for product by name: {}", name);
-    List<WebElement> items = waitUtils.waitUntilAllVisible(listItems);
-
-    return items.stream()
-        .filter(e -> e.findElement(productNameElement).getText().equalsIgnoreCase(name))
-        .findFirst()
-        .orElseThrow(
-            () ->
-                new NoSuchElementException(
-                    String.format("Product with name '%s' was not found on the page", name)));
+    waitUtils.waitUntilAllVisible(listItems);
+    String xpath = String.format("//div[@data-test='inventory-item' and descendant::div[@data-test='inventory-item-name' and text()='%s']]", name);
+    try {
+      return driver.findElement(By.xpath(xpath));
+    } catch (NoSuchElementException e) {
+      throw new NoSuchElementException(
+          String.format("Product with name '%s' was not found on the page", name));
+    }
   }
 
   /**

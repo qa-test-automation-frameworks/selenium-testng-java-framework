@@ -49,3 +49,40 @@ jobs:
           name: surefire-reports-${{ matrix.browser }}
           path: target/surefire-reports
           retention-days: 7
+
+  generate-report:
+    name: Generate & Publish Allure Report
+    needs: ui-tests
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: target/allure-results
+          merge-multiple: true
+
+      - name: Get Allure history
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Allure Report action from marketplace
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: target/allure-results
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history

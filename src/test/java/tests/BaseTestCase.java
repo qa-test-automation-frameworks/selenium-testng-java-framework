@@ -44,11 +44,7 @@ public abstract class BaseTestCase {
 
   protected void quitWebDriver() {
     log.info("Cleaning up WebDriver for thread: {}", Thread.currentThread().getName());
-    try {
-      WebDriverFactory.cleanUpDriver();
-    } catch (WebDriverException e) {
-      log.error("Failed to clean up WebDriver: {}", e.getMessage());
-    }
+    WebDriverFactory.cleanUpDriver();
   }
 
   @BeforeMethod(alwaysRun = true)

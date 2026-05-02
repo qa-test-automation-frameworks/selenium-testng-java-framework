@@ -24,5 +24,5 @@ Thumbs.db
 
 # Environment/Local Properties
 # config.properties is included as it is a template, but usually secrets would be ignored
-# src/main/resources/dev.properties
-# src/main/resources/qa.properties
+src/test/resources/dev.properties
+src/test/resources/qa.properties

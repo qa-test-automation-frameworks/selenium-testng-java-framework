@@ -1,11 +1,29 @@
 # Selenium Java TestNG Automation Framework
 
+![Build Status](https://img.shields.io/github/actions/workflow/status/user/ta-java-selenium-testng/ui-tests.yml?branch=main)
+![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+👉 [View Live Test Report Here](https://user.github.io/ta-java-selenium-testng/)
+
 Java 21 UI test automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, OWNER configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
 - [Execution Guide](docs/EXECUTION_GUIDE.md) - Local, headless, Docker Grid, and CI execution.
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
+
+## Architecture
+
+```mermaid
+graph TD;
+    CI[GitHub Actions] --> Maven;
+    Maven --> TestNG;
+    TestNG --> Config[OWNER Config];
+    TestNG --> Pages[Page Objects];
+    Pages --> WebDriver[ThreadLocal WebDriver];
+    WebDriver --> Grid[Docker Selenium Grid];
+```
 
 ## Features
 - Java 21 and Maven wrapper for repeatable local and CI execution.
