@@ -138,9 +138,11 @@ public class WebDriverFactory {
       if (webDriver.get() != null) {
         webDriver.get().quit();
       }
-      webDriver.remove();
     } catch (Exception e) {
       log.error("Error quitting driver", e);
+    } finally {
+      webDriver.remove();
+      log.debug("ThreadLocal WebDriver reference cleared.");
     }
   }
 

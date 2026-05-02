@@ -39,10 +39,9 @@ public class LoginTests extends BaseTestCase {
       testName = "Verify login error messages",
       groups = {"login"},
       dataProvider = "invalidUsers")
-  public void login_should_show_expected_error_message(
+  public void verifyLoginShowsExpectedErrorMessage(
       Credentials credentials, String expectedErrorMessage) {
-    log.info(
-        "Starting test: login_should_show_expected_error_message for {}", credentials.username());
+    log.info("Starting test: verifyLoginShowsExpectedErrorMessage for {}", credentials.username());
     loginPage()
         .login(ConfigFactory.getConfig().appUrl(), credentials.username(), credentials.password());
 
@@ -51,7 +50,7 @@ public class LoginTests extends BaseTestCase {
     assertThat(error)
         .as("The login error message should match the expected scenario")
         .contains(expectedErrorMessage);
-    log.info("Finished test successfully: login_should_show_expected_error_message");
+    log.info("Finished test successfully: verifyLoginShowsExpectedErrorMessage");
   }
 
   private LoginPage loginPage() {

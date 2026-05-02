@@ -20,7 +20,7 @@ public class CartPage extends BasePage {
   @Step("Get product quantity at index {0} in cart")
   public int getProductQuantityByIndex(int index) {
     log.info("Retrieving product quantity for item at index {} in the cart", index);
-    List<WebElement> items = getItemList();
+    List<WebElement> items = getInventoryList().getItemList();
     if (index < 0 || index >= items.size()) {
       throw new NoSuchElementException(
           String.format(

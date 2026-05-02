@@ -3,10 +3,24 @@
 ![Build Status](https://img.shields.io/github/actions/workflow/status/user/ta-java-selenium-testng/ui-tests.yml?branch=main)
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Allure Report](https://img.shields.io/badge/Allure_Report-Live-orange.svg)
 
 👉 [View Live Test Report Here](https://user.github.io/ta-java-selenium-testng/)
 
 Java 21 UI test automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, OWNER configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
+
+## Visual Showcase
+> **Note:** To make this repository portfolio-ready, you can replace the placeholder paths below with actual GIFs/screenshots.
+> 
+> *Test Execution Demo:*
+> `![Test Execution Demo](docs/assets/execution-demo.gif)`
+> 
+> *Allure Report Dashboard:*
+> `![Allure Report Dashboard](docs/assets/allure-report.png)`
+
+## Architecture Considerations
+- **Why OWNER?** Used for type-safe configuration loading from multiple sources, avoiding fragile `Properties` parsing.
+- **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.

@@ -4,7 +4,6 @@ import common.config.ConfigFactory;
 import common.config.FrameworkConfig;
 import common.driver.WebDriverFactory;
 import common.listener.FrameworkListener;
-import common.pageobject.LoginPage;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -34,12 +32,14 @@ public abstract class BaseTestCase {
   }
 
   protected void login() {
-    log.info("Performing global login for test setup");
-    new LoginPage(getDriver())
-        .login(
-            ConfigFactory.getConfig().appUrl(),
-            ConfigFactory.getConfig().appUsername(),
-            ConfigFactory.getConfig().appPassword());
+    log.info("Performing global login for test setup via cookie injection");
+    WebDriver driver = getDriver();
+    String url = ConfigFactory.getConfig().appUrl();
+    driver.navigate().to(url);
+    org.openqa.selenium.Cookie loginCookie =
+        new org.openqa.selenium.Cookie("session-username", ConfigFactory.getConfig().appUsername());
+    driver.manage().addCookie(loginCookie);
+    driver.navigate().to(url + "inventory.html");
   }
 
   protected void quitWebDriver() {

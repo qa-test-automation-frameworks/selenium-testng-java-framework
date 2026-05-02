@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -45,7 +46,13 @@ public class WaitUtils {
    */
   public WebElement waitUntilVisible(By locator) {
     log.debug("Waiting for visibility of element located by: {}", locator);
-    return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    try {
+      return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for visibility of element located by: {}", locator);
+      throw new TimeoutException(
+          String.format("Element not visible after timeout: %s", locator), e);
+    }
   }
 
   /**
@@ -56,7 +63,13 @@ public class WaitUtils {
    */
   public WebElement waitUntilVisible(WebElement element) {
     log.debug("Waiting for visibility of element: {}", element);
-    return wait.until(ExpectedConditions.visibilityOf(element));
+    try {
+      return wait.until(ExpectedConditions.visibilityOf(element));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for visibility of element: {}", element);
+      throw new TimeoutException(
+          String.format("Element not visible after timeout: %s", element), e);
+    }
   }
 
   /**
@@ -67,26 +80,50 @@ public class WaitUtils {
    */
   public WebElement waitUntilClickable(By locator) {
     log.debug("Waiting for clickability of element located by: {}", locator);
-    return wait.until(ExpectedConditions.elementToBeClickable(locator));
+    try {
+      return wait.until(ExpectedConditions.elementToBeClickable(locator));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for clickability of element located by: {}", locator);
+      throw new TimeoutException(
+          String.format("Element not clickable after timeout: %s", locator), e);
+    }
   }
 
   public WebElement waitUntilNestedClickable(WebElement parent, By childLocator) {
     log.debug("Waiting for nested element to be clickable: {}", childLocator);
-    return wait.until(
-        driver -> {
-          WebElement child = parent.findElement(childLocator);
-          return child.isDisplayed() && child.isEnabled() ? child : null;
-        });
+    try {
+      return wait.until(
+          driver -> {
+            WebElement child = parent.findElement(childLocator);
+            return child.isDisplayed() && child.isEnabled() ? child : null;
+          });
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for nested element to be clickable: {}", childLocator);
+      throw new TimeoutException(
+          String.format("Nested element not clickable after timeout: %s", childLocator), e);
+    }
   }
 
   public List<WebElement> waitUntilAllVisible(By locator) {
     log.debug("Waiting for all matching elements to be visible: {}", locator);
-    return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+    try {
+      return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for all matching elements to be visible: {}", locator);
+      throw new TimeoutException(
+          String.format("Not all elements visible after timeout: %s", locator), e);
+    }
   }
 
   public boolean waitUntilTextPresent(By locator, String text) {
     log.debug("Waiting for text '{}' to be present in element: {}", text, locator);
-    return wait.until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+    try {
+      return wait.until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for text '{}' to be present in element: {}", text, locator);
+      throw new TimeoutException(
+          String.format("Text '%s' not present in element %s after timeout", text, locator), e);
+    }
   }
 
   /**
@@ -97,7 +134,13 @@ public class WaitUtils {
    */
   public boolean waitUntilInvisible(By locator) {
     log.debug("Waiting for invisibility of element located by: {}", locator);
-    return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    try {
+      return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for invisibility of element located by: {}", locator);
+      throw new TimeoutException(
+          String.format("Element not invisible after timeout: %s", locator), e);
+    }
   }
 
   public void type(By locator, String text) {
@@ -113,10 +156,15 @@ public class WaitUtils {
   /** Waits for the browser's document ready state to be 'complete'. */
   public void waitForPageLoad() {
     log.debug("Waiting for page document ready state to be complete");
-    wait.until(
-        d ->
-            ((JavascriptExecutor) d)
-                .executeScript("return document.readyState")
-                .equals("complete"));
+    try {
+      wait.until(
+          d ->
+              ((JavascriptExecutor) d)
+                  .executeScript("return document.readyState")
+                  .equals("complete"));
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for page document ready state to be complete");
+      throw new TimeoutException("Page did not load completely within timeout", e);
+    }
   }
 }

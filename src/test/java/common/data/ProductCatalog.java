@@ -1,6 +1,6 @@
 package common.data;
 
-import common.pageobject.BasePage.ProductDetails;
+import common.pageobject.component.InventoryListComponent.ProductDetails;
 
 public class ProductCatalog {
 
