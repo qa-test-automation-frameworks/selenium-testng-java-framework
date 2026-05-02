@@ -1,56 +1,56 @@
 # Selenium Java TestNG Automation Framework
 
-A premium, containerized automation framework built with Java 21, Selenium 4, TestNG, and Allure Reports.
+A premium, containerized automation framework built with Java 21, Selenium 4, TestNG, and Allure Reports. Designed for scalability, parallel execution, and CI/CD readiness.
+
+## 📚 Documentation
+- [**Architecture Overview**](docs/ARCHITECTURE.md) - Deep dive into layers and design patterns.
+- [**Execution Guide**](docs/EXECUTION_GUIDE.md) - Detailed instructions for local and remote runs.
+- [**Test Writing Guide**](docs/TEST_WRITING_GUIDE.md) - Best practices for adding new tests and pages.
 
 ## ✨ Features
-
-- **Java 21 & Maven**: Modern Java features and dependency management.
+- **Java 21 & Maven**: Leverages modern Java features and robust dependency management.
 - **Dockerized Execution**: Run tests in isolated containers using Docker Compose.
-- **Selenium Grid Integration**: Built-in support for scaling tests on a remote grid.
-- **Environment Profiles**: Switch between `dev`, `qa`, and other environments using the OWNER library.
-- **Premium Logging**: Log4j 2 with color-coded, detailed output (Thread, Class, Method, Line).
-- **Allure Reports**: Rich reporting with Categories and persistent History/Trends.
-- **Jenkins Pipeline**: Declarative CI/CD pipeline with parameterized builds.
-- **Type-Safe Config**: Managed by the [OWNER library](https://github.com/aeonbits/owner).
+- **Selenium Grid Integration**: Native support for horizontal scaling via remote execution.
+- **Environment Management**: Dynamic switching via [OWNER library](https://github.com/aeonbits/owner).
+- **Stateless Page Object Model**: Clean separation of UI logic and test assertions.
+- **Allure Reporting**: Rich, interactive reports with screenshots, environment info, and execution trends.
+- **Static Analysis**: Integrated Checkstyle (Google) and Spotless formatting for code quality.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- JDK 21
-- Maven
-- Docker & Docker Compose (for containerized execution)
+- **JDK 21**
+- **Maven 3.8+**
+- **Docker & Docker Compose** (for remote execution)
 
-### Local Execution
-To run tests on your local machine:
+### Quick Run
+To run tests locally with the default configuration:
 ```bash
-mvn clean verify
-```
-To run on a specific environment:
-```bash
-mvn verify -Denv=dev
+mvn clean verify -DAPP_PASSWORD=your_secret_sauce
 ```
 
-### Containerized Execution
-To spin up a Selenium Grid and run tests inside a container:
-```bash
-docker-compose up --build --exit-code-from test-runner
-```
-
-## ⚙️ Configuration
-
-Configurations are managed via `src/main/resources/config.properties` and environment-specific files (`qa.properties`, `dev.properties`).
-
-| Property | Description | Default |
-|----------|-------------|---------|
-| `driverType` | Browser to use (CHROME, FIREFOX, EDGE) | `CHROME` |
-| `execution_type` | Where to run (local, remote) | `local` |
-| `env` | Target environment profile | `qa` |
-| `headless` | Run browser without UI | `false` |
-
-## 📊 Reporting
-
-After execution, generate and view the Allure report:
+### Allure Dashboard
+To generate and view the interactive report:
 ```bash
 mvn allure:serve
 ```
-The report includes **Trend analysis** and **Category classification** for easier debugging.
+
+## ⚙️ Configuration
+Configurations are managed via `src/test/resources/config.properties`.
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `browser` | Browser type (CHROME, FIREFOX, EDGE) | `CHROME` |
+| `execution.type` | local or remote | `local` |
+| `remote.url` | Selenium Grid URL | `http://localhost:4444/wd/hub` |
+| `headless` | Run in background | `false` |
+
+## 🛠️ Tech Stack
+- **Languages**: Java 21
+- **Test Runner**: TestNG
+- **Reporting**: Allure
+- **Assertions**: AssertJ
+- **Logging**: Log4j 2 / Slf4j
+- **Utilities**: Lombok, OWNER
+
+---

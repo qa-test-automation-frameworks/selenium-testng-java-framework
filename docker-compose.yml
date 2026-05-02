@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   selenium-hub:
-    image: selenium/hub:4.21.0
+    image: selenium/hub:4.25.0
     container_name: selenium-hub
     ports:
       - "4444:4444"
@@ -13,7 +13,7 @@ services:
       retries: 5
 
   chrome:
-    image: selenium/node-chrome:4.21.0
+    image: selenium/node-chrome:4.25.0
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -23,7 +23,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.21.0
+    image: selenium/node-firefox:4.25.0
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -44,14 +44,20 @@ services:
       # Mount target directory to extract allure-results and other artifacts back to the host/Jenkins workspace
       - ./target:/app/target
     environment:
-      - REMOTE_URL=http://selenium-hub:4444/wd/hub
-      - driverType=${BROWSER:-CHROME}
-      - execution_type=remote
+      - remote.url=http://selenium-hub:4444/wd/hub
+      - browser=${BROWSER:-CHROME}
+      - execution.type=remote
       - env=${ENV:-qa}
+      - APP_USERNAME=standard_user
+      - APP_PASSWORD=secret_sauce
     # Override the Dockerfile entrypoint to run against the grid
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         echo "Waiting for Grid to be fully ready..."
-        sleep 5
-        mvn verify -DREMOTE_URL=http://selenium-hub:4444/wd/hub -DdriverType=$$driverType
+        until curl -fsS http://selenium-hub:4444/status | grep -q '"ready": true'; do
+          echo "Grid is not ready yet - sleeping"
+          sleep 2
+        done
+        echo "Grid is ready! Starting tests..."
+        mvn verify -Dremote.url=http://selenium-hub:4444/wd/hub -Dbrowser=$$browser

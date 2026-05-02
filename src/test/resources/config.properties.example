@@ -1,0 +1,7 @@
+# Global Execution Configuration
+browser=CHROME
+execution.type=local
+headless=false
+
+# Remote Execution
+remote.url=
