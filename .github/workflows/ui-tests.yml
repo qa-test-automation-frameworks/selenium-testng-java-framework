@@ -1,88 +1,97 @@
 name: UI Tests
 
 on:
-  pull_request:
-    branches: [ main ]
   push:
-    branches: [ main ]
-  schedule:
-    - cron: '0 0 * * *' # Nightly at midnight
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  ui-tests:
-    name: Test on ${{ matrix.browser }}
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         browser: [CHROME, FIREFOX]
-    
+
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '21'
-          cache: 'maven'
+          distribution: temurin
+          cache: maven
 
-      - name: Run UI Tests
-        run: mvn -B clean verify -Dheadless=true -Dbrowser=${{ matrix.browser }}
-        env:
-          APP_USERNAME: standard_user
-          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+      - name: Run UI tests
+        run: ./mvnw clean verify -Dbrowser=${{ matrix.browser }} -Dheadless=true -DAPP_PASSWORD=${{ secrets.APP_PASSWORD || 'secret_sauce' }}
 
-      - name: Upload Allure Results
-        uses: actions/upload-artifact@v4
+      - name: Upload Allure results
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results-${{ matrix.browser }}
-          path: target/allure-results
-          retention-days: 7
+          path: target/allure-results/
 
-      - name: Upload Surefire Reports
-        uses: actions/upload-artifact@v4
+      - name: Upload Surefire reports
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: surefire-reports-${{ matrix.browser }}
-          path: target/surefire-reports
-          retention-days: 7
+          path: target/surefire-reports/
 
-  generate-report:
-    name: Generate & Publish Allure Report
-    needs: ui-tests
+      - name: Upload execution logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-logs-${{ matrix.browser }}
+          path: target/logs/
+
+  publish-allure-report:
+    needs: test
+    if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: always()
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - name: Download Allure Results
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Download Allure results
         uses: actions/download-artifact@v4
         with:
           pattern: allure-results-*
           path: target/allure-results
           merge-multiple: true
 
-      - name: Get Allure history
-        uses: actions/checkout@v4
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
+      - name: Generate Allure report
+        run: ./mvnw allure:report -DskipTests
 
-      - name: Allure Report action from marketplace
-        uses: simple-elf/allure-report-action@master
-        if: always()
-        with:
-          allure_results: target/allure-results
-          allure_history: allure-history
-          keep_reports: 20
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
-      - name: Deploy report to Github Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
+          path: target/allure-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

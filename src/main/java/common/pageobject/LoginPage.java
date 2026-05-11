@@ -17,21 +17,24 @@ public class LoginPage extends BasePage {
   private final By loginButton = By.id("login-button");
 
   @Step("Enter username: {0}")
-  public void enterUsername(String username) {
+  public LoginPage enterUsername(String username) {
     log.info("Entering username: {}", username);
     waitUtils.type(usernameField, username);
+    return this;
   }
 
   @Step("Enter password")
-  public void enterPassword(String password) {
+  public LoginPage enterPassword(String password) {
     log.info("Entering password");
     waitUtils.type(passwordField, password);
+    return this;
   }
 
   @Step("Click login button")
-  public void clickLoginButton() {
+  public LoginPage clickLoginButton() {
     log.info("Clicking login button");
     waitUtils.click(loginButton);
+    return this;
   }
 
   @Step("Login to {0} with username {1}")
@@ -45,20 +48,18 @@ public class LoginPage extends BasePage {
     log.info("Login process completed for user: {}", username);
   }
 
-  @Step("Logout from application")
-  public void logout() {
-    log.info("Starting logout process");
-    waitUtils.waitForPageLoad();
-    common.pageobject.component.HeaderComponent header =
-        new common.pageobject.component.HeaderComponent(driver);
-    header.openMenu();
-    header.clickLogoutButton();
-    log.info("Logout process completed");
-  }
-
   @Step("Get login error message")
   public String getErrorMessage() {
     log.info("Retrieving login error message");
     return waitUtils.waitUntilVisible(By.cssSelector("[data-test='error']")).getText();
+  }
+
+  @Step("Check login button visibility")
+  public boolean isLoginButtonVisible() {
+    boolean visible =
+        !driver.findElements(loginButton).isEmpty()
+            && driver.findElement(loginButton).isDisplayed();
+    log.debug("Login button visibility: {}", visible);
+    return visible;
   }
 }

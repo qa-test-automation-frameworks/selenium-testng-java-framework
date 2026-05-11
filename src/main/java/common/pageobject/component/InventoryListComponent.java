@@ -1,5 +1,7 @@
 package common.pageobject.component;
 
+import common.data.ProductDetails;
+import common.pageobject.BaseComponent;
 import io.qameta.allure.Step;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -7,28 +9,23 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import util.WaitUtils;
 
 @Slf4j
-public class InventoryListComponent {
+public class InventoryListComponent extends BaseComponent {
 
-  private final WebDriver driver;
-  private final WaitUtils waitUtils;
-
-  protected final By listItems = By.cssSelector("[data-test='inventory-item']");
+  protected final By listItems =
+      By.cssSelector(
+          "[data-test='inventory-item'], [data-test='cart-item'], .inventory_item, .cart_item");
   protected final By productNameElement = By.cssSelector("[data-test='inventory-item-name']");
   protected final By productDescriptionElement =
       By.cssSelector("[data-test='inventory-item-desc']");
   protected final By productPriceElement = By.cssSelector("[data-test='inventory-item-price']");
   private final By productCartButton =
-      By.cssSelector("button.btn_inventory, button.btn_secondary.cart_button");
+      By.cssSelector(
+          "button[data-test^='add-to-cart'], button[data-test^='remove'], button.btn_inventory, button.btn_secondary.cart_button");
 
-  /** Record representing product details (Name, Description, Price). */
-  public record ProductDetails(String name, String description, String price) {}
-
-  public InventoryListComponent(WebDriver driver, WaitUtils waitUtils) {
-    this.driver = driver;
-    this.waitUtils = waitUtils;
+  public InventoryListComponent(WebDriver driver) {
+    super(driver);
   }
 
   /**
@@ -64,7 +61,10 @@ public class InventoryListComponent {
     waitUtils.waitUntilAllVisible(listItems);
     String xpath =
         String.format(
-            "//div[@data-test='inventory-item' and descendant::div[@data-test='inventory-item-name' and text()='%s']]",
+            "//*[self::div or self::li][contains(concat(' ', normalize-space(@class), ' '), ' inventory_item ') "
+                + "or contains(concat(' ', normalize-space(@class), ' '), ' cart_item ') "
+                + "or @data-test='inventory-item' or @data-test='cart-item']"
+                + "[descendant::*[@data-test='inventory-item-name' and text()='%s']]",
             name);
     try {
       return driver.findElement(By.xpath(xpath));
@@ -98,12 +98,12 @@ public class InventoryListComponent {
    * @param name Name of the product.
    */
   @Step("Add product '{0}' to cart")
-  public void clickProductCartButtonByName(String name) {
+  public InventoryListComponent clickProductCartButtonByName(String name) {
     log.info("Clicking cart button for product: {}", name);
-    waitUtils.waitForPageLoad();
     WebElement product = getProductByName(name);
     waitUtils.waitUntilNestedClickable(product, productCartButton).click();
     log.debug("Successfully clicked cart button for: {}", name);
+    return this;
   }
 
   /**
@@ -112,9 +112,8 @@ public class InventoryListComponent {
    * @param index Zero-based index of the product.
    */
   @Step("Add product at index {0} to cart")
-  public void clickProductCartButtonByIndex(int index) {
+  public InventoryListComponent clickProductCartButtonByIndex(int index) {
     log.info("Clicking cart button for product at index: {}", index);
-    waitUtils.waitForPageLoad();
     List<WebElement> items = getItemList();
     if (index < 0 || index >= items.size()) {
       throw new NoSuchElementException(
@@ -123,5 +122,6 @@ public class InventoryListComponent {
 
     waitUtils.waitUntilNestedClickable(items.get(index), productCartButton).click();
     log.debug("Successfully clicked cart button at index: {}", index);
+    return this;
   }
 }

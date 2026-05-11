@@ -24,7 +24,6 @@ public abstract class BasePage {
     this.waitUtils = new WaitUtils(driver);
   }
 
-
   protected void navigateTo(String url) {
     log.info("Navigating to URL: {}", url);
     driver.navigate().to(url);

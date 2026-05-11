@@ -31,17 +31,6 @@ public abstract class BaseTestCase {
     return WebDriverFactory.getThreadLocalWebDriver();
   }
 
-  protected void login() {
-    log.info("Performing global login for test setup via cookie injection");
-    WebDriver driver = getDriver();
-    String url = ConfigFactory.getConfig().appUrl();
-    driver.navigate().to(url);
-    org.openqa.selenium.Cookie loginCookie =
-        new org.openqa.selenium.Cookie("session-username", ConfigFactory.getConfig().appUsername());
-    driver.manage().addCookie(loginCookie);
-    driver.navigate().to(url + "inventory.html");
-  }
-
   protected void quitWebDriver() {
     log.info("Cleaning up WebDriver for thread: {}", Thread.currentThread().getName());
     WebDriverFactory.cleanUpDriver();

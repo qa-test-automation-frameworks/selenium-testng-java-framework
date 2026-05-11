@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -36,6 +37,7 @@ public class WaitUtils {
             driver,
             Duration.ofSeconds(config.explicitWaitSeconds()),
             Duration.ofMillis(config.pollingIntervalMs()));
+    this.wait.ignoring(StaleElementReferenceException.class);
   }
 
   /**

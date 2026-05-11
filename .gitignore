@@ -23,6 +23,10 @@ allure-report/
 Thumbs.db
 
 # Environment/Local Properties
-# config.properties is included as it is a template, but usually secrets would be ignored
-src/test/resources/dev.properties
-src/test/resources/qa.properties
+.env
+.env.*
+!.env.example
+src/test/resources/*.properties
+!src/test/resources/config.properties
+!src/test/resources/config.properties.example
+!src/test/resources/log4j2.properties

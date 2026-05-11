@@ -16,7 +16,7 @@ public class CartPage extends BasePage {
 
   public CartPage(WebDriver driver) {
     super(driver);
-    this.inventoryList = new InventoryListComponent(driver, this.waitUtils);
+    this.inventoryList = new InventoryListComponent(driver);
   }
 
   public InventoryListComponent getInventoryList() {

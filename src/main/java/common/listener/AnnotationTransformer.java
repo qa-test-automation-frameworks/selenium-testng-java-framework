@@ -8,6 +8,7 @@ import org.testng.annotations.ITestAnnotation;
 public class AnnotationTransformer implements IAnnotationTransformer {
 
   @Override
+  @SuppressWarnings("rawtypes")
   public void transform(
       ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
     if (common.config.ConfigFactory.getConfig().retryEnabled()) {

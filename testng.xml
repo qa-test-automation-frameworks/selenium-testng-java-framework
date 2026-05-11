@@ -6,7 +6,8 @@
     </listeners>
     <test name="Inventory and Login Scenarios">
         <classes>
-            <class name="tests.UITests"/>
+            <class name="tests.InventoryTests"/>
+            <class name="tests.CartTests"/>
             <class name="tests.LoginTests"/>
         </classes>
     </test>

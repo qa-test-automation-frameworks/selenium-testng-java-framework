@@ -13,7 +13,7 @@ public class InventoryPage extends BasePage {
 
   public InventoryPage(WebDriver driver) {
     super(driver);
-    this.inventoryList = new InventoryListComponent(driver, this.waitUtils);
+    this.inventoryList = new InventoryListComponent(driver);
   }
 
   public InventoryListComponent getInventoryList() {

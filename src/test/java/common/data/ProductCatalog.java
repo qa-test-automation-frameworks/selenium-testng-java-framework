@@ -1,8 +1,8 @@
 package common.data;
 
-import common.pageobject.component.InventoryListComponent.ProductDetails;
+public final class ProductCatalog {
 
-public class ProductCatalog {
+  public static final int EXPECTED_PRODUCT_COUNT = 6;
 
   public static final ProductDetails BACKPACK =
       new ProductDetails(
@@ -39,4 +39,6 @@ public class ProductCatalog {
           "Test.allTheThings() T-Shirt (Red)",
           "This classic Sauce Labs t-shirt is perfect to wear when cozying up to your keyboard to automate a few tests. Super-soft and comfy ringspun combed cotton.",
           "$15.99");
+
+  private ProductCatalog() {}
 }

@@ -1,6 +1,6 @@
 package common.pageobject.component;
 
-import common.pageobject.BasePage;
+import common.pageobject.BaseComponent;
 import io.qameta.allure.Step;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 @Slf4j
-public class HeaderComponent extends BasePage {
+public class HeaderComponent extends BaseComponent {
 
   private final By cartButton = By.id("shopping_cart_container");
   private final By cartItemCount = By.cssSelector("[data-test='shopping-cart-badge']");
@@ -20,6 +20,7 @@ public class HeaderComponent extends BasePage {
     super(driver);
   }
 
+  @Step("Check cart button visibility")
   public boolean isCartButtonVisible() {
     boolean visible =
         !driver.findElements(cartButton).isEmpty() && driver.findElement(cartButton).isDisplayed();
@@ -35,6 +36,7 @@ public class HeaderComponent extends BasePage {
     log.debug("Cart page load completed");
   }
 
+  @Step("Get product count from cart badge")
   public int getProductAddedToCartCount() {
     List<WebElement> badges = driver.findElements(cartItemCount);
     int count = badges.isEmpty() ? 0 : Integer.parseInt(badges.get(0).getText());
@@ -42,6 +44,7 @@ public class HeaderComponent extends BasePage {
     return count;
   }
 
+  @Step("Check menu button visibility")
   public boolean isMenuButtonVisible() {
     boolean visible =
         !driver.findElements(menuButton).isEmpty() && driver.findElement(menuButton).isDisplayed();
@@ -61,5 +64,14 @@ public class HeaderComponent extends BasePage {
     log.info("Clicking the logout button in the side menu");
     waitUtils.click(logoutButton);
     log.debug("Successfully clicked logout button");
+  }
+
+  @Step("Logout from application")
+  public void logout() {
+    log.info("Starting logout process");
+    waitUtils.waitForPageLoad();
+    openMenu();
+    clickLogoutButton();
+    log.info("Logout process completed");
   }
 }

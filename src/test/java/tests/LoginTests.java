@@ -3,9 +3,12 @@ package tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import common.config.ConfigFactory;
+import common.data.AppConstants;
 import common.data.Credentials;
 import common.data.TestGroups;
+import common.pageobject.InventoryPage;
 import common.pageobject.LoginPage;
+import common.pageobject.component.HeaderComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -22,6 +25,8 @@ public class LoginTests extends BaseTestCase {
     loginPage.set(new LoginPage(getDriver()));
   }
 
+  // parallel = true allows data provider rows to execute concurrently;
+  // ThreadLocal WebDriver ensures each row gets its own browser.
   @DataProvider(name = "invalidUsers", parallel = true)
   public Object[][] invalidUsers() {
     return new Object[][] {
@@ -52,6 +57,25 @@ public class LoginTests extends BaseTestCase {
         .as("The login error message should match the expected scenario")
         .contains(expectedErrorMessage);
     log.info("Finished test successfully: verifyLoginShowsExpectedErrorMessage");
+  }
+
+  @Test(
+      testName = "Verify user can logout",
+      groups = {TestGroups.SMOKE, TestGroups.LOGIN})
+  public void verifyUserCanLogout() {
+    log.info("Starting test: verifyUserCanLogout");
+    util.AuthService.injectLoginCookieAndNavigate(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+    assertThat(inventoryPage.getHeaderText())
+        .as("Inventory page header title should be Swag Labs")
+        .isEqualTo(AppConstants.HEADER_TITLE);
+    log.info("Performing logout operation");
+    header.logout();
+    assertThat(loginPage().isLoginButtonVisible())
+        .as("Logout should return the browser to the login page")
+        .isTrue();
+    log.info("Finished test successfully: verifyUserCanLogout");
   }
 
   private LoginPage loginPage() {

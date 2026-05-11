@@ -2,6 +2,7 @@ package common.driver;
 
 import common.config.ConfigFactory;
 import common.config.FrameworkConfig;
+import common.config.FrameworkConfigurationException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,7 +60,7 @@ public class WebDriverFactory {
       try {
         driver = getRemoteDriver(driverType, remoteUrl);
       } catch (MalformedURLException | URISyntaxException e) {
-        throw new RuntimeException("Invalid remote URL: " + remoteUrl, e);
+        throw new FrameworkConfigurationException("Invalid remote URL: " + remoteUrl, e);
       }
     } else {
       driver = createLocalDriver(driverType);
