@@ -8,6 +8,8 @@
 
 ## Local Setup
 
+This repository is intentionally focused on UI automation. Keep `src/test/java` dedicated to TestNG UI scenarios, test data, and supporting orchestration rather than adding a separate framework unit-test package.
+
 1. Set the Sauce Demo password outside the repository:
 
    ```powershell
@@ -36,13 +38,15 @@
 
 - Keep framework code in `src/main/java` and tests/test data in `src/test/java`.
 - Use page objects and components for UI interactions.
+- Call `waitUntilLoaded()` explicitly from tests or navigation methods when page readiness must be asserted.
 - Use explicit waits only. Do not add implicit waits or fixed sleeps.
-- Run `.\mvnw.cmd spotless:apply` before opening a pull request when formatting changes are needed.
+- Run `\.\mvnw.cmd spotless:apply` before opening a pull request when formatting changes are needed.
+- Run `\.\mvnw.cmd -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check` when changing framework code, build logic, or CI configuration.
 
 ## Pull Requests
 
 - Include focused changes that map to one feature, fix, or refactor.
-- Add or update tests for behavioral changes.
+- Add or update UI automation coverage when behavioral changes require it.
 - Keep credentials, tokens, browser profiles, and IDE workspace files out of the repository.
 - Confirm `.\mvnw.cmd clean verify` passes locally or explain any environment-specific limitation.
 

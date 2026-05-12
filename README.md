@@ -14,6 +14,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
 - **Why cookie auth shortcuts?** Non-login scenarios bypass the UI login form to keep the suite faster and less flaky while retaining dedicated login coverage.
 - **Why explicit waits only?** A single synchronization strategy keeps the framework deterministic and easier to debug.
+- **Why no framework unit-test layer?** This repository is intentionally focused on UI automation design, execution, and diagnostics rather than maintaining a second test layer for framework internals.
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
@@ -41,10 +42,11 @@ graph TD;
 - Java 21 and Maven wrapper for repeatable local and CI execution.
 - Selenium Grid support through Docker Compose.
 - Custom typed configuration with classpath-based profile loading and system/environment overrides.
-- Page objects and reusable page components with page-specific readiness checks inside page actions.
+- Page objects and reusable page components with explicit, caller-controlled page readiness checks.
+- Automation-only `src/test/java` scope for UI suites, test data, and TestNG orchestration.
 - TestNG groups, parallel method execution, and opt-in retry support.
-- Allure reports with redacted screenshots, URL, page source, capabilities, and console logs on failure.
-- Spotless, Checkstyle, PMD, and Maven Enforcer quality gates with stronger maintainability rules.
+- Allure reports with redacted screenshots, URL, page source, capabilities, console logs, network logs, and framework log excerpts on failure.
+- Spotless, Checkstyle, PMD, SpotBugs, and Maven Enforcer quality gates with stronger maintainability rules.
 - GitHub Actions browser matrix, artifact upload, and GitHub Pages publication for Allure reports.
 
 ## Sample Allure Report
@@ -59,6 +61,7 @@ Representative report views are included below so reviewers can see the diagnost
 
 ## Framework Highlights
 - Thread-safe parallel execution through `ThreadLocal<WebDriver>`.
+- Shared per-thread wait helper reuse across pages and components.
 - Explicit-only wait strategy with implicit waits set to zero.
 - Cookie-based authentication strategy for non-login scenarios.
 - Page Component Model for shared header and inventory list behavior.
@@ -116,6 +119,12 @@ APP_PASSWORD=your_password ./mvnw clean verify -Denv=dev -Dheadless=true -Dbrows
 APP_PASSWORD=your_password docker compose up --build --exit-code-from test-runner
 ```
 
+To include the optional Edge node in the local grid, start Docker Compose with the Edge profile:
+
+```bash
+APP_PASSWORD=your_password docker compose --profile edge up --build --exit-code-from test-runner
+```
+
 For video-enabled Selenium Grid setups, publish the recording endpoint and set `diagnostics.grid.video.base.url` so failed tests include session video links in Allure.
 
 ### Allure Dashboard
@@ -128,7 +137,7 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 ./scripts/run-ui-tests-with-allure-report.sh
 ```
 
-On `main`, GitHub Actions also merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
+On `main`, GitHub Actions also starts Selenium Grid browser nodes per matrix entry, merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
 ## Configuration
 Configuration is loaded from classpath resources (`src/test/resources/config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`.
@@ -159,7 +168,7 @@ Credentials are supplied through environment variables or Maven system propertie
 |---------|--------------|----------------|-------------|----------------|
 | Chrome | Supported | Supported | Supported | Supported |
 | Firefox | Supported | Supported | Supported | Supported |
-| Edge | Supported | Supported | Not configured | Not configured |
+| Edge | Supported | Supported | Supported via optional `edge` profile | Supported |
 | Safari | macOS-only experimental | Not supported | Not supported | Not supported |
 
 ## Branch Protection

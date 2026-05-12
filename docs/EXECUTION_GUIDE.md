@@ -2,6 +2,8 @@
 
 This guide explains how to run tests in different environments and configurations.
 
+This repository is intentionally focused on UI automation execution. The `src/test/java` source set contains TestNG UI suites, test data, and supporting orchestration rather than a separate framework unit-test layer.
+
 ## Prerequisites
 - **JDK 21**
 - **Maven 3.9+** or the included Maven wrapper
@@ -43,6 +45,12 @@ The framework includes a `docker-compose.yml` to spin up a Selenium Grid.
    APP_PASSWORD=your_password ./mvnw clean verify -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub
    ```
 
+To include Edge in the local Grid, enable the optional profile:
+
+```bash
+APP_PASSWORD=your_password docker compose --profile edge up --build --exit-code-from test-runner
+```
+
 The Docker `test-runner` waits for Selenium Grid readiness before invoking Maven.
 
 ## Jenkins Execution
@@ -66,7 +74,14 @@ pwsh ./scripts/run-ui-tests-with-allure-report.ps1
 Retries are disabled by default and should be used only while investigating infrastructure instability. Enable them with `-Dretry.enabled=true` and keep `retry.count` low. The framework validates that `retry.count` is not negative and records a retry summary in the execution log and Allure report when a retry is used.
 
 ## Diagnostics
-Failure diagnostics include screenshots, current URL, browser capabilities, browser console logs, and page source. Text-based attachments are redacted before they are written to Allure. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure.
+Failure diagnostics include screenshots, current URL, browser capabilities, browser console logs, page source, and a framework log excerpt. Text-based attachments are redacted before they are written to Allure. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure.
+
+## Quality Gates
+To run the same non-UI quality checks used in CI:
+
+```bash
+./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
+```
 
 ## SBOM
 Generate a CycloneDX software bill of materials with:
@@ -77,5 +92,6 @@ Generate a CycloneDX software bill of materials with:
 
 ## Troubleshooting
 - **Driver not found**: Ensure you have the corresponding browser installed. Selenium Manager will handle binary downloads automatically.
+- **Edge Grid not available**: Start Docker Compose with `--profile edge` before running `-Dbrowser=EDGE` against Selenium Grid.
 - **Config Error**: Ensure `APP_PASSWORD` is provided as an environment variable or CI secret for login scenarios. Non-login smoke groups can run without it.
 - **Wrong environment selected**: Confirm whether `-Denv`, `ENV`, or `env` is set. The framework uses that precedence order.

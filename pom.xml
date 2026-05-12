@@ -18,6 +18,7 @@
         <aspectj.version>1.9.25.1</aspectj.version>
         <slf4j.version>2.0.17</slf4j.version>
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
+        <spotbugs.maven.plugin.version>4.9.8.3</spotbugs.maven.plugin.version>
         <groups></groups>
         <thread.count>1</thread.count>
     </properties>
@@ -160,6 +161,11 @@
                     <artifactId>maven-pmd-plugin</artifactId>
                     <version>${maven.pmd.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs.maven.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -301,7 +307,27 @@
                     <targetJdk>${maven.compiler.release}</targetJdk>
                     <failOnViolation>true</failOnViolation>
                     <printFailingErrors>true</printFailingErrors>
-                    <includeTests>false</includeTests>
+                    <includeTests>true</includeTests>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>spotbugs-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnError>true</failOnError>
+                    <threshold>Medium</threshold>
+                    <effort>Max</effort>
+                    <includeTests>true</includeTests>
                 </configuration>
             </plugin>
 

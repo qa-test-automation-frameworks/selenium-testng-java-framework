@@ -1,8 +1,9 @@
 package com.example.saucedemo.framework.pageobject;
 
-import com.example.saucedemo.framework.config.ConfigFactory;
+import com.example.saucedemo.framework.driver.WebDriverFactory;
 import com.example.saucedemo.framework.util.WaitUtils;
 import io.qameta.allure.Step;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 
@@ -23,7 +24,7 @@ public abstract class BasePage {
    */
   protected BasePage(WebDriver driver) {
     this.driver = driver;
-    this.waitUtils = new WaitUtils(driver, ConfigFactory.getConfig());
+    this.waitUtils = WebDriverFactory.getThreadLocalWaitUtils(driver);
   }
 
   @Step("Navigate browser to {0}")
@@ -36,7 +37,8 @@ public abstract class BasePage {
   @Step("Wait until current URL contains '{0}'")
   protected void waitUntilUrlContains(String expectedUrlFragment) {
     waitUtils.waitUntil(
-        currentDriver -> currentDriver.getCurrentUrl().contains(expectedUrlFragment),
+        currentDriver ->
+            Objects.toString(currentDriver.getCurrentUrl(), "").contains(expectedUrlFragment),
         String.format(
             "Current URL did not contain '%s' within the configured timeout", expectedUrlFragment));
   }

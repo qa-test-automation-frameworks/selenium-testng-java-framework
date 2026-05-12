@@ -14,6 +14,7 @@ import com.example.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
+import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -52,12 +53,12 @@ public class CheckoutTests extends BaseTestCase {
       groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
       dataProvider = "invalidCheckoutScenarios",
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Attempts checkout with invalid required-field combinations and verifies the matching validation message for each scenario.")
   @Story("Checkout validation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyCheckoutValidation(
       CheckoutInformation invalidInformation, String expectedErrorMessage) {
-    log.info("Starting test: verifyCheckoutValidation expecting error: {}", expectedErrorMessage);
-
     CheckoutPage checkoutPage = addBackpackToCartAndOpenCheckout();
 
     assertThat(
@@ -69,7 +70,6 @@ public class CheckoutTests extends BaseTestCase {
                 .getErrorMessage())
         .as("Checkout should show the expected required-field validation message")
         .isEqualTo(expectedErrorMessage);
-    log.info("Finished test successfully: verifyCheckoutValidation");
   }
 
   @Test(
@@ -78,11 +78,11 @@ public class CheckoutTests extends BaseTestCase {
           "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.",
       groups = {TestGroups.SMOKE, TestGroups.CHECKOUT},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.")
   @Story("Checkout completion")
   @Severity(SeverityLevel.BLOCKER)
   public void verifyUserCanCompleteCheckout() {
-    log.info("Starting test: verifyUserCanCompleteCheckout");
-
     CheckoutPage checkoutPage = addBackpackToCartAndOpenCheckout();
     CheckoutInformation validInformation = CheckoutScenario.validInformation();
     CheckoutOverviewPage overviewPage =
@@ -95,16 +95,15 @@ public class CheckoutTests extends BaseTestCase {
     assertThat(completePage.getConfirmationMessage())
         .as("Checkout success message should be displayed")
         .isEqualTo("Thank you for your order!");
-    log.info("Finished test successfully: verifyUserCanCompleteCheckout");
   }
 
   private CheckoutPage addBackpackToCartAndOpenCheckout() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     HeaderComponent header = new HeaderComponent(getDriver());
 
     inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
     header.navigateToCart();
 
-    return new CartPage(getDriver()).continueToCheckout();
+    return new CartPage(getDriver()).waitUntilLoaded().continueToCheckout();
   }
 }

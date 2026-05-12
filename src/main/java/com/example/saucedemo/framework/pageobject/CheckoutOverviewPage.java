@@ -12,7 +12,6 @@ public class CheckoutOverviewPage extends BasePage implements PageLoadable<Check
 
   public CheckoutOverviewPage(WebDriver driver) {
     super(driver);
-    waitUntilLoaded();
   }
 
   @Override
@@ -26,6 +25,6 @@ public class CheckoutOverviewPage extends BasePage implements PageLoadable<Check
   public CheckoutCompletePage finishCheckout() {
     log.info("Finishing checkout");
     waitUtils.click(finishButton);
-    return new CheckoutCompletePage(driver);
+    return new CheckoutCompletePage(driver).waitUntilLoaded();
   }
 }

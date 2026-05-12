@@ -1,0 +1,4 @@
+package com.example.saucedemo.framework.data;
+
+/** Immutable login request payload for page-object login actions. */
+public record LoginRequest(String url, String username, String password) {}

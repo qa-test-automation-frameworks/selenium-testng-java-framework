@@ -16,7 +16,6 @@ public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage>
 
   public CheckoutPage(WebDriver driver) {
     super(driver);
-    waitUntilLoaded();
   }
 
   @Override
@@ -30,7 +29,7 @@ public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage>
   public CheckoutOverviewPage submitValidCheckoutInformation(
       String firstName, String lastName, String zipCode) {
     submitCheckoutInformation(firstName, lastName, zipCode);
-    return new CheckoutOverviewPage(driver);
+    return new CheckoutOverviewPage(driver).waitUntilLoaded();
   }
 
   @Step("Submit invalid checkout information")

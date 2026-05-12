@@ -8,7 +8,7 @@ import org.testng.annotations.ITestAnnotation;
 public class AnnotationTransformer implements IAnnotationTransformer {
 
   @Override
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings("rawtypes") // Required by the TestNG IAnnotationTransformer API signature.
   public void transform(
       ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
     if (com.example.saucedemo.framework.config.ConfigFactory.getConfig().retryEnabled()) {

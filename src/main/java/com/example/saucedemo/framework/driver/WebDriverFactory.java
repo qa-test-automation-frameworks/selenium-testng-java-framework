@@ -5,11 +5,13 @@ import com.example.saucedemo.framework.config.ExecutionType;
 import com.example.saucedemo.framework.config.FrameworkConfig;
 import com.example.saucedemo.framework.config.FrameworkConfigurationException;
 import com.example.saucedemo.framework.util.DiagnosticsCollector;
+import com.example.saucedemo.framework.util.WaitUtils;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Locale;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.MutableCapabilities;
@@ -28,6 +30,7 @@ import org.openqa.selenium.safari.SafariDriver;
 public class WebDriverFactory {
 
   private static final ThreadLocal<WebDriver> WEB_DRIVER = new ThreadLocal<>();
+  private static final ThreadLocal<WaitUtils> WAIT_UTILS = new ThreadLocal<>();
   private static final BrowserOptionsFactory BROWSER_OPTIONS_FACTORY = new BrowserOptionsFactory();
 
   private WebDriverFactory() {
@@ -100,6 +103,7 @@ public class WebDriverFactory {
       log.error("Error quitting driver", e);
     } finally {
       DiagnosticsCollector.stop();
+      WAIT_UTILS.remove();
       WEB_DRIVER.remove();
       log.debug("ThreadLocal WebDriver reference cleared.");
     }
@@ -182,6 +186,7 @@ public class WebDriverFactory {
       WebDriver driver = getDriver(config);
       DiagnosticsCollector.start(driver, config);
       WEB_DRIVER.set(driver);
+      WAIT_UTILS.set(new WaitUtils(driver, config));
     } catch (Exception e) {
       log.error("Error initializing driver", e);
       throw new IllegalStateException("Failed to initialize WebDriver", e);
@@ -199,5 +204,14 @@ public class WebDriverFactory {
    */
   public static WebDriver getThreadLocalWebDriver() {
     return WEB_DRIVER.get();
+  }
+
+  /** Returns the shared wait helper for the current thread when the provided driver matches. */
+  public static WaitUtils getThreadLocalWaitUtils(WebDriver driver) {
+    WaitUtils waitUtils = WAIT_UTILS.get();
+    if (waitUtils != null && Objects.equals(WEB_DRIVER.get(), driver)) {
+      return waitUtils;
+    }
+    return new WaitUtils(driver, ConfigFactory.getConfig());
   }
 }

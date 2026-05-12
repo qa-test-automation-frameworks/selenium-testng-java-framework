@@ -62,7 +62,6 @@ public final class ConfigLoader {
     properties.setProperty("thread.count", systemProperties.getProperty("thread.count", "1"));
     properties.setProperty("app.url", "https://www.saucedemo.com/");
     properties.setProperty("APP_USERNAME", "standard_user");
-    properties.setProperty("APP_PASSWORD", "");
     properties.setProperty("retry.enabled", "false");
     properties.setProperty("retry.count", "2");
     properties.setProperty("explicit.wait.seconds", "10");

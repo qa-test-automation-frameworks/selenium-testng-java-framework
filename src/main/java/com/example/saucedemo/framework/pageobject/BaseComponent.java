@@ -1,6 +1,6 @@
 package com.example.saucedemo.framework.pageobject;
 
-import com.example.saucedemo.framework.config.ConfigFactory;
+import com.example.saucedemo.framework.driver.WebDriverFactory;
 import com.example.saucedemo.framework.util.WaitUtils;
 import org.openqa.selenium.WebDriver;
 
@@ -12,6 +12,6 @@ public abstract class BaseComponent {
 
   protected BaseComponent(WebDriver driver) {
     this.driver = driver;
-    this.waitUtils = new WaitUtils(driver, ConfigFactory.getConfig());
+    this.waitUtils = WebDriverFactory.getThreadLocalWaitUtils(driver);
   }
 }

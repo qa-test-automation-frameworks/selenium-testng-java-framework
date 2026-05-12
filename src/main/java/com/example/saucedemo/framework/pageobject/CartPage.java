@@ -17,7 +17,6 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
   public CartPage(WebDriver driver) {
     super(driver);
     this.inventoryList = new InventoryListComponent(driver);
-    waitUntilLoaded();
   }
 
   public InventoryListComponent getInventoryList() {
@@ -65,6 +64,6 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
   @Step("Continue to checkout")
   public CheckoutPage continueToCheckout() {
     waitUtils.click(checkoutButton);
-    return new CheckoutPage(driver);
+    return new CheckoutPage(driver).waitUntilLoaded();
   }
 }

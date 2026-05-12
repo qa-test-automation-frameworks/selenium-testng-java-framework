@@ -12,6 +12,7 @@ import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
+import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -42,11 +43,12 @@ public class InventoryTests extends BaseTestCase {
           "Opens the inventory page through cookie authentication and verifies the main header and menu controls are visible.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Opens the inventory page through cookie authentication and verifies the main header and menu controls are visible.")
   @Story("Inventory navigation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyInventoryDisplaysHeaderAndMenu() {
-    log.info("Starting test: verifyInventoryDisplaysHeaderAndMenu");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     HeaderComponent header = new HeaderComponent(getDriver());
 
     assertThat(inventoryPage.getHeaderText())
@@ -56,7 +58,6 @@ public class InventoryTests extends BaseTestCase {
         .as("Side menu burger button should be visible")
         .isTrue();
     assertThat(header.isCartButtonVisible()).as("Shopping cart button should be visible").isTrue();
-    log.info("Finished test successfully: verifyInventoryDisplaysHeaderAndMenu");
   }
 
   @Test(
@@ -65,18 +66,17 @@ public class InventoryTests extends BaseTestCase {
           "Validates that the inventory page renders the complete fixed Sauce Demo catalog.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description("Validates that the inventory page renders the complete fixed Sauce Demo catalog.")
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyInventoryDisplaysAllProducts() {
-    log.info("Starting test: verifyInventoryDisplaysAllProducts");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
 
     assertThat(inventoryPage.getInventoryList().getListItemsCount())
         .as(
             "The product inventory list should contain %s items",
             ProductCatalog.EXPECTED_PRODUCT_COUNT)
         .isEqualTo(ProductCatalog.EXPECTED_PRODUCT_COUNT);
-    log.info("Finished test successfully: verifyInventoryDisplaysAllProducts");
   }
 
   @Test(
@@ -85,11 +85,12 @@ public class InventoryTests extends BaseTestCase {
           "Checks that each displayed inventory item matches the centralized demo catalog data.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Checks that each displayed inventory item matches the centralized demo catalog data.")
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsMatchCatalogDetails() {
-    log.info("Starting test: verifyProductsMatchCatalogDetails");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     InventoryListComponent inventoryList = inventoryPage.getInventoryList();
 
     assertThat(inventoryList.getListItemsCount())
@@ -125,7 +126,6 @@ public class InventoryTests extends BaseTestCase {
                       .as("%s description should remain populated", expectedProduct.name())
                       .isNotBlank();
                 }));
-    log.info("Finished test successfully: verifyProductsMatchCatalogDetails");
   }
 
   @Test(
@@ -134,11 +134,12 @@ public class InventoryTests extends BaseTestCase {
           "Sorts the inventory by ascending price and verifies the rendered product prices follow that order.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Sorts the inventory by ascending price and verifies the rendered product prices follow that order.")
   @Story("Product sorting")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsCanBeSortedByPriceLowToHigh() {
-    log.info("Starting test: verifyProductsCanBeSortedByPriceLowToHigh");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     List<BigDecimal> actualPrices =
         inventoryPage.sortProductsByPriceLowToHigh().getDisplayedProductPrices();
     List<BigDecimal> sortedPrices = new ArrayList<>(actualPrices);
@@ -147,7 +148,6 @@ public class InventoryTests extends BaseTestCase {
     assertThat(actualPrices)
         .as("Product prices should be displayed from lowest to highest after sorting")
         .isEqualTo(sortedPrices);
-    log.info("Finished test successfully: verifyProductsCanBeSortedByPriceLowToHigh");
   }
 
   @Test(
@@ -156,11 +156,12 @@ public class InventoryTests extends BaseTestCase {
           "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.",
       groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.")
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyRemovingProductFromInventoryClearsCartBadge() {
-    log.info("Starting test: verifyRemovingProductFromInventoryClearsCartBadge");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     HeaderComponent header = new HeaderComponent(getDriver());
 
     inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
@@ -171,6 +172,5 @@ public class InventoryTests extends BaseTestCase {
     assertThat(header.getProductAddedToCartCount())
         .as("Cart badge should disappear after removing the only product")
         .isZero();
-    log.info("Finished test successfully: verifyRemovingProductFromInventoryClearsCartBadge");
   }
 }

@@ -12,7 +12,6 @@ public class CheckoutCompletePage extends BasePage implements PageLoadable<Check
 
   public CheckoutCompletePage(WebDriver driver) {
     super(driver);
-    waitUntilLoaded();
   }
 
   @Override

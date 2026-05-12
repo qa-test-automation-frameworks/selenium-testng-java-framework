@@ -9,6 +9,7 @@ import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
+import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -36,11 +37,12 @@ public class CartTests extends BaseTestCase {
           "Adds two products from the inventory page and verifies the cart badge reflects the combined count.",
       groups = {TestGroups.SMOKE, TestGroups.CART},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Adds two products from the inventory page and verifies the cart badge reflects the combined count.")
   @Story("Add products to cart")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyUserCanAddProductsToCart() {
-    log.info("Starting test: verifyUserCanAddProductsToCart");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     HeaderComponent header = new HeaderComponent(getDriver());
 
     log.info("Adding two products to the cart");
@@ -52,7 +54,6 @@ public class CartTests extends BaseTestCase {
     assertThat(header.getProductAddedToCartCount())
         .as("The cart badge should show 2 items added")
         .isEqualTo(2);
-    log.info("Finished test successfully: verifyUserCanAddProductsToCart");
   }
 
   @Test(
@@ -61,11 +62,12 @@ public class CartTests extends BaseTestCase {
           "Adds products from inventory, opens the cart, and verifies the selected item details and quantities.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Adds products from inventory, opens the cart, and verifies the selected item details and quantities.")
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyCartDisplaysSelectedProducts() {
-    log.info("Starting test: verifyCartDisplaysSelectedProducts");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     HeaderComponent header = new HeaderComponent(getDriver());
 
     log.info("Adding products to cart and navigating to cart page");
@@ -74,7 +76,7 @@ public class CartTests extends BaseTestCase {
         .addProductToCart(ProductCatalog.BOLT_TSHIRT.name());
 
     header.navigateToCart();
-    CartPage cartPage = new CartPage(getDriver());
+    CartPage cartPage = new CartPage(getDriver()).waitUntilLoaded();
 
     assertThat(cartPage.getInventoryList().getProductDetailsByName(ProductCatalog.BACKPACK.name()))
         .as("Backpack details in cart should match catalog")
@@ -90,7 +92,6 @@ public class CartTests extends BaseTestCase {
     assertThat(cartPage.getProductQuantityByIndex(1))
         .as("Quantity for the second item in cart should be 1")
         .isEqualTo(1);
-    log.info("Finished test successfully: verifyCartDisplaysSelectedProducts");
   }
 
   @Test(
@@ -99,11 +100,12 @@ public class CartTests extends BaseTestCase {
           "Removes products one by one from the cart page and verifies the item count decreases to zero.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Removes products one by one from the cart page and verifies the item count decreases to zero.")
   @Story("Remove products from cart")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanRemoveProductsFromCart() {
-    log.info("Starting test: verifyUserCanRemoveProductsFromCart");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
     HeaderComponent header = new HeaderComponent(getDriver());
 
     log.info("Adding products and navigating to cart for removal");
@@ -112,7 +114,7 @@ public class CartTests extends BaseTestCase {
         .addProductToCart(ProductCatalog.BIKE_LIGHT.name());
 
     header.navigateToCart();
-    CartPage cartPage = new CartPage(getDriver());
+    CartPage cartPage = new CartPage(getDriver()).waitUntilLoaded();
 
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("There should be 2 items in the cart initially")
@@ -129,7 +131,6 @@ public class CartTests extends BaseTestCase {
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("After removing all items, the cart should be empty")
         .isEqualTo(0);
-    log.info("Finished test successfully: verifyUserCanRemoveProductsFromCart");
   }
 
   @Test(
@@ -138,18 +139,18 @@ public class CartTests extends BaseTestCase {
           "Opens the cart before adding any products and verifies that no cart items are displayed.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Description(
+      "Opens the cart before adding any products and verifies that no cart items are displayed.")
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyEmptyCartDisplaysNoItems() {
-    log.info("Starting test: verifyEmptyCartDisplaysNoItems");
     HeaderComponent header = new HeaderComponent(getDriver());
 
     header.navigateToCart();
-    CartPage cartPage = new CartPage(getDriver());
+    CartPage cartPage = new CartPage(getDriver()).waitUntilLoaded();
 
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("A cart opened before adding products should not contain items")
         .isZero();
-    log.info("Finished test successfully: verifyEmptyCartDisplaysNoItems");
   }
 }

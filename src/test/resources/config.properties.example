@@ -1,4 +1,6 @@
 # Global Execution Configuration
+# Credentials intentionally use SCREAMING_SNAKE_CASE so they map directly to environment variables.
+# standard_user is the public Sauce Demo demo username, not a private credential.
 APP_USERNAME=standard_user
 browser=CHROME
 execution.type=local

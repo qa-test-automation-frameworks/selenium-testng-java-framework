@@ -9,6 +9,10 @@ on:
   schedule:
     - cron: '0 6 * * 1-5'
 
+concurrency:
+  group: ui-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -36,8 +40,11 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
+
       - name: Run formatting and static-analysis gates
-        run: ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check
+        run: ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
 
   test:
     needs: quality-gates
@@ -58,11 +65,22 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Show browser versions
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
+
+      - name: Start Selenium Grid
+        shell: bash
         run: |
-          google-chrome --version || true
-          firefox --version || true
-          microsoft-edge --version || true
+          set -euo pipefail
+          browser_service="$(echo "${{ matrix.browser }}" | tr '[:upper:]' '[:lower:]')"
+
+          if [[ "$browser_service" == "edge" ]]; then
+            docker compose --profile edge up -d selenium-hub edge
+          else
+            docker compose up -d selenium-hub "$browser_service"
+          fi
+
+          timeout 120 bash -c 'until curl -sf http://localhost:4444/status | grep -q '"'"'"ready"'"'"':true'; do sleep 2; done'
 
       - name: Validate required secrets for trusted full regression
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
@@ -72,9 +90,11 @@ jobs:
 
       - name: Run public smoke tests
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          APP_USERNAME: standard_user
         run: |
           TEST_STATUS=0
-          ./mvnw clean test -Dgroups=inventory,cart -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 || TEST_STATUS=$?
+          ./mvnw clean test -Dgroups=inventory,cart -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub || TEST_STATUS=$?
           ./mvnw allure:report -DskipTests
           exit $TEST_STATUS
 
@@ -82,10 +102,11 @@ jobs:
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
           TEST_STATUS=0
-          ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 || TEST_STATUS=$?
+          ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub || TEST_STATUS=$?
           ./mvnw allure:report -DskipTests
           exit $TEST_STATUS
         env:
+          APP_USERNAME: standard_user
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
 
       - name: Upload Allure results
@@ -115,6 +136,10 @@ jobs:
         with:
           name: execution-logs-${{ matrix.browser }}
           path: target/logs/
+
+      - name: Tear down Selenium Grid
+        if: always()
+        run: docker compose down --remove-orphans
 
       - name: Publish job summary
         if: always()
@@ -150,6 +175,9 @@ jobs:
           java-version: '21'
           distribution: temurin
           cache: maven
+
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
 
       - name: Download Allure results
         uses: actions/download-artifact@v4

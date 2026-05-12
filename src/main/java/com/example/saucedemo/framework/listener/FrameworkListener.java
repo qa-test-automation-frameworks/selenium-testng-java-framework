@@ -6,6 +6,9 @@ import com.example.saucedemo.framework.util.DiagnosticRedactor;
 import com.example.saucedemo.framework.util.DiagnosticsCollector;
 import io.qameta.allure.Allure;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,9 @@ import org.testng.ITestResult;
 
 @Slf4j
 public class FrameworkListener implements ITestListener, IConfigurationListener {
+
+  private static final Path FRAMEWORK_LOG_PATH = Path.of("target", "logs", "framework.log");
+  private static final int MAX_LOG_LINES = 250;
 
   @Override
   public void onStart(ITestContext context) {
@@ -43,6 +49,11 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
   @Override
   public void onTestSuccess(ITestResult result) {
     log.info("Test passed: {}", result.getName());
+  }
+
+  @Override
+  public void onTestSkipped(ITestResult result) {
+    log.warn("Test skipped: {}", result.getName());
   }
 
   @Override
@@ -72,16 +83,26 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
     log.info("Attaching {} diagnostics to Allure report", label);
     safeAttach("Screenshot", () -> attachScreenshot(driver));
     safeAttach(
-        "Current URL", () -> Allure.addAttachment("Current URL", redact(driver.getCurrentUrl())));
+        "Current URL",
+        () -> Allure.addAttachment("Current URL", safeAttachmentText(driver.getCurrentUrl())));
     safeAttach("Browser Capabilities", () -> attachCapabilities(driver));
     safeAttach("Browser Console Logs", () -> attachBrowserLogs(driver));
     safeAttach("Browser Network Logs", () -> attachNetworkLogs(driver));
     safeAttach("Selenium Grid Video", () -> attachGridVideoLink(driver));
     safeAttach(
+        "Framework Log Excerpt",
+        () -> {
+          try {
+            attachLogExcerpt();
+          } catch (IOException e) {
+            throw new IllegalStateException("Unable to attach framework log excerpt", e);
+          }
+        });
+    safeAttach(
         "Page Source",
         () ->
             Allure.addAttachment(
-                "Page Source", "text/html", redact(driver.getPageSource()), ".html"));
+                "Page Source", "text/html", safeAttachmentText(driver.getPageSource()), ".html"));
   }
 
   private void attachScreenshot(WebDriver driver) {
@@ -100,7 +121,7 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
   private void attachCapabilities(WebDriver driver) {
     if (driver instanceof HasCapabilities hasCapabilities) {
       Allure.addAttachment(
-          "Browser Capabilities", redact(hasCapabilities.getCapabilities().toString()));
+          "Browser Capabilities", safeAttachmentText(hasCapabilities.getCapabilities().toString()));
     }
   }
 
@@ -108,14 +129,15 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
     List<String> bidiConsoleLogs = DiagnosticsCollector.consoleLogs();
     if (!bidiConsoleLogs.isEmpty()) {
       Allure.addAttachment(
-          "Browser Console Logs", redact(String.join(System.lineSeparator(), bidiConsoleLogs)));
+          "Browser Console Logs",
+          safeAttachmentText(String.join(System.lineSeparator(), bidiConsoleLogs)));
       return;
     }
     try {
       LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
       StringBuilder builder = new StringBuilder();
       logs.forEach(entry -> builder.append(entry).append(System.lineSeparator()));
-      Allure.addAttachment("Browser Console Logs", redact(builder.toString()));
+      Allure.addAttachment("Browser Console Logs", safeAttachmentText(builder.toString()));
     } catch (Exception e) {
       log.debug("Browser console logs are not available for this driver", e);
     }
@@ -130,7 +152,7 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
       Allure.addAttachment(
           "Browser Network Logs",
           "application/json",
-          redact(String.join(System.lineSeparator(), bidiNetworkLogs)),
+          safeAttachmentText(String.join(System.lineSeparator(), bidiNetworkLogs)),
           ".json");
       return;
     }
@@ -140,7 +162,8 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
           logs.getAll().stream()
               .map(Object::toString)
               .collect(Collectors.joining(System.lineSeparator()));
-      Allure.addAttachment("Browser Network Logs", "application/json", redact(payload), ".json");
+      Allure.addAttachment(
+          "Browser Network Logs", "application/json", safeAttachmentText(payload), ".json");
     } catch (Exception e) {
       log.debug("Browser network logs are not available for this driver", e);
     }
@@ -152,10 +175,33 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
       return;
     }
     String videoUrl = baseUrl.replaceAll("/$", "") + "/" + remoteDriver.getSessionId() + ".mp4";
-    Allure.addAttachment("Selenium Grid Video", redact(videoUrl));
+    Allure.addAttachment("Selenium Grid Video", safeAttachmentText(videoUrl));
+  }
+
+  private void attachLogExcerpt() throws IOException {
+    if (!Files.exists(FRAMEWORK_LOG_PATH)) {
+      log.debug("Framework log file not found at {}", FRAMEWORK_LOG_PATH.toAbsolutePath());
+      return;
+    }
+
+    List<String> allLines = Files.readAllLines(FRAMEWORK_LOG_PATH);
+    String threadMarker = "[" + Thread.currentThread().getName() + "]";
+    List<String> matchingThreadLines =
+        allLines.stream().filter(line -> line.contains(threadMarker)).toList();
+    List<String> excerptSource = matchingThreadLines.isEmpty() ? allLines : matchingThreadLines;
+    int fromIndex = Math.max(0, excerptSource.size() - MAX_LOG_LINES);
+    String excerpt =
+        String.join(System.lineSeparator(), excerptSource.subList(fromIndex, excerptSource.size()));
+    if (!excerpt.isBlank()) {
+      Allure.addAttachment("Framework Log Excerpt", "text/plain", redact(excerpt), ".log");
+    }
   }
 
   private String redact(String rawValue) {
     return DiagnosticRedactor.redact(rawValue);
+  }
+
+  private String safeAttachmentText(String rawValue) {
+    return java.util.Objects.toString(redact(rawValue), "");
   }
 }

@@ -1,5 +1,6 @@
 package com.example.saucedemo.framework.pageobject;
 
+import com.example.saucedemo.framework.data.LoginRequest;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -44,13 +45,18 @@ public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
 
   @Step("Login to {0} with username {1}")
   public void login(String url, String username, String password) {
-    log.info("Starting login process for user: {} at URL: {}", username, url);
-    navigateTo(url);
+    login(new LoginRequest(url, username, password));
+  }
+
+  @Step("Login using request for username {0.username}")
+  public void login(LoginRequest request) {
+    log.info("Starting login process for user: {} at URL: {}", request.username(), request.url());
+    navigateTo(request.url());
     waitUntilLoaded();
-    enterUsername(username);
-    enterPassword(password);
+    enterUsername(request.username());
+    enterPassword(request.password());
     clickLoginButton();
-    log.info("Login process completed for user: {}", username);
+    log.info("Login process completed for user: {}", request.username());
   }
 
   @Step("Get login error message")

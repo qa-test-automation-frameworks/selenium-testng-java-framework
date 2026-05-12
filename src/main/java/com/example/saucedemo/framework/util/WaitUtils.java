@@ -146,6 +146,13 @@ public class WaitUtils {
     }
   }
 
+  /**
+   * Checks whether an element is currently visible using a fast-fail timeout.
+   *
+   * <p>This helper is intentionally short-lived and uses the polling interval as its timeout so
+   * page objects can perform quick presence checks without incurring the full explicit wait. Call
+   * {@link #waitUntilVisible(By)} when the element should become visible as part of the flow.
+   */
   public boolean isVisible(By locator) {
     return isVisible(locator, pollingInterval);
   }

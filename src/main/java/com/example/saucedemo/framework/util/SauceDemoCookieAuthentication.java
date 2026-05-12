@@ -20,6 +20,6 @@ public final class SauceDemoCookieAuthentication implements AuthenticationStrate
     driver.navigate().to(url);
     driver.manage().addCookie(new Cookie("session-username", config.appUsername()));
     driver.navigate().to(URI.create(url).resolve("inventory.html").toString());
-    new InventoryPage(driver);
+    new InventoryPage(driver).waitUntilLoaded();
   }
 }
