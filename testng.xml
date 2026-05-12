@@ -12,9 +12,9 @@
             <class name="com.example.saucedemo.tests.CartTests"/>
             <class name="com.example.saucedemo.tests.CheckoutTests"/>
             <class name="com.example.saucedemo.tests.LoginTests"/>
+            <class name="com.example.saucedemo.tests.EndToEndJourneyTests"/>
         </classes>
     </test>
 </suite>
-
 
 

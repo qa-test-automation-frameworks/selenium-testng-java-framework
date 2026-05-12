@@ -20,7 +20,8 @@ public final class ConfigLoader {
 
     String environment = resolveEnvironment(sources.systemProperties(), sources.environment());
     properties.setProperty("env", environment);
-    loadFromClasspath(properties, sources.classLoader(), environment + ".properties");
+    loadEnvironmentProfile(
+        properties, sources.classLoader(), environment, sources.systemProperties());
     loadFromExternalPathIfPresent(properties, sources.systemProperties());
     applyEnvironmentOverrides(properties, sources.environment());
     applySystemPropertyOverrides(properties, sources.systemProperties());
@@ -84,6 +85,38 @@ public final class ConfigLoader {
         return;
       }
       properties.load(inputStream);
+    } catch (IOException e) {
+      throw new FrameworkConfigurationException(
+          "Unable to load configuration resource: " + resourceName, e);
+    }
+  }
+
+  private void loadEnvironmentProfile(
+      Properties properties,
+      ClassLoader classLoader,
+      String environment,
+      Properties systemProperties) {
+    String resourceName = environment.toLowerCase(Locale.ROOT) + ".properties";
+    boolean loaded = loadFromClasspathIfPresent(properties, classLoader, resourceName);
+    boolean externalConfigProvided =
+        systemProperties.getProperty("config.file") != null
+            && !systemProperties.getProperty("config.file").isBlank();
+    if (!loaded && !"qa".equalsIgnoreCase(environment) && !externalConfigProvided) {
+      throw new FrameworkConfigurationException(
+          "Environment profile not found on classpath: "
+              + resourceName
+              + ". Add a safe profile resource or provide overrides with -Dconfig.file.");
+    }
+  }
+
+  private boolean loadFromClasspathIfPresent(
+      Properties properties, ClassLoader classLoader, String resourceName) {
+    try (InputStream inputStream = classLoader.getResourceAsStream(resourceName)) {
+      if (inputStream == null) {
+        return false;
+      }
+      properties.load(inputStream);
+      return true;
     } catch (IOException e) {
       throw new FrameworkConfigurationException(
           "Unable to load configuration resource: " + resourceName, e);

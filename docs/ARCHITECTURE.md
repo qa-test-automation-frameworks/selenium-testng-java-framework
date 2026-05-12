@@ -50,7 +50,7 @@ graph LR
 
 ### 2. Configuration Layer (`com.example.saucedemo.framework.config`)
 - **Custom Typed Loader**: Uses `FrameworkConfig` plus `ConfigFactory` for typed configuration without depending on an unmaintained external library.
-- **Multi-Environment**: Supports different profiles (QA, DEV) via `.properties` files.
+- **Multi-Environment**: Supports environment profiles via `.properties` files or external `-Dconfig.file` overrides. The default `qa` environment can use built-in safe defaults; non-default environments fail fast if no profile or external config is supplied.
 - **Security**: Sensitive data (like passwords) are externalized via environment variables.
 - **Override Order**: Defaults are loaded first, then optional `config.properties`, then optional `${env}.properties`, then an optional external `-Dconfig.file`, then environment variables, then Maven/system properties.
 
@@ -63,12 +63,12 @@ graph LR
 
 ### 4. Test Layer (`tests`)
 - **BaseTestCase**: Handles setup (`BeforeMethod`) and teardown (`AfterMethod`) of the driver.
-- **UITests**: Implementation of business scenarios.
+- **UITests**: Implementation of business scenarios, including focused negative checks and end-to-end user journeys that increase coverage quality without inflating metrics.
 - **AssertJ**: Used for fluent, descriptive assertions with business-level error messages.
 - **Automation-Only Scope**: `src/test/java` is intentionally reserved for TestNG UI automation scenarios, test data, and supporting orchestration rather than a separate framework unit-test layer.
 
 ### 5. Reporting Layer (`com.example.saucedemo.framework.listener`)
-- **Allure Reporting**: Integrated via a custom listener to capture URL, browser capabilities, configurable screenshots, configurable page source, configurable console logs, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, and environment details on failure.
+- **Allure Reporting**: Integrated via a custom listener to capture URL, browser capabilities, configurable screenshots with password-field masking, configurable page source, configurable console logs, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, and environment details on failure.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
 ### 6. CI and Quality Gates
@@ -78,7 +78,8 @@ graph LR
 ## Design Principles
 - **Fail-Fast**: Configuration and environment checks happen at startup.
 - **Deterministic Waits**: Only explicit waits are used (no `Thread.sleep` or implicit waits).
-- **Automation-Focused Scope**: The repository emphasizes reusable UI automation architecture and end-to-end execution rather than maintaining a separate framework unit-test layer.
+- **Automation-Focused Scope**: The repository emphasizes reusable UI automation architecture and end-to-end execution rather than maintaining a separate framework unit-test layer. ADR 005 documents why the framework itself is treated as the UI test layer in the SDLC.
+- **Method-Level Isolation**: Each test method starts with a clean browser session. This is intentionally more expensive than driver reuse, but it keeps UI state leakage out of parallel runs.
 - **Clean Code**: Code style and bug-pattern detection are enforced via Checkstyle (Google Checks), Spotless, PMD, SpotBugs, and Maven Enforcer during `verify`.
 
 ## Docker Grid Troubleshooting
@@ -87,5 +88,5 @@ graph LR
 - If Selenium Grid is slow to become healthy, rerun the command after the hub and browser nodes finish starting.
 - Use `-Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub` for local grid runs.
 - Keep browser names aligned with supported values: `CHROME`, `FIREFOX`, `EDGE`, or `SAFARI`.
-
+- Prefer Docker Grid for reproducible browser diagnostics. Local evergreen browsers can be newer than Selenium's packaged DevTools artifacts and may emit CDP compatibility warnings even when functional tests pass.
 

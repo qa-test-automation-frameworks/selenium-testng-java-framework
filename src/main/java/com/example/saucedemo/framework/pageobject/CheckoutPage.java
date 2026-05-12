@@ -8,11 +8,11 @@ import org.openqa.selenium.WebDriver;
 @Slf4j
 public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage> {
 
-  private final By firstName = By.cssSelector("[data-test='firstName']");
-  private final By lastName = By.cssSelector("[data-test='lastName']");
-  private final By postalCode = By.cssSelector("[data-test='postalCode']");
-  private final By continueButton = By.cssSelector("[data-test='continue']");
-  private final By errorMessage = By.cssSelector("[data-test='error']");
+  private static final By FIRST_NAME = By.cssSelector("[data-test='firstName']");
+  private static final By LAST_NAME = By.cssSelector("[data-test='lastName']");
+  private static final By POSTAL_CODE = By.cssSelector("[data-test='postalCode']");
+  private static final By CONTINUE_BUTTON = By.cssSelector("[data-test='continue']");
+  private static final By ERROR_MESSAGE = By.cssSelector("[data-test='error']");
 
   public CheckoutPage(WebDriver driver) {
     super(driver);
@@ -21,7 +21,7 @@ public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage>
   @Override
   public CheckoutPage waitUntilLoaded() {
     waitUntilUrlContains("checkout-step-one");
-    waitUtils.waitUntilVisible(continueButton);
+    waitUtils.waitUntilVisible(CONTINUE_BUTTON);
     return this;
   }
 
@@ -36,27 +36,27 @@ public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage>
   public CheckoutPage submitInvalidCheckoutInformation(
       String firstName, String lastName, String zipCode) {
     submitCheckoutInformation(firstName, lastName, zipCode);
-    waitUtils.waitUntilVisible(errorMessage);
+    waitUtils.waitUntilVisible(ERROR_MESSAGE);
     return this;
   }
 
   private void submitCheckoutInformation(String firstName, String lastName, String zipCode) {
     log.info("Submitting checkout information");
     if (firstName != null) {
-      waitUtils.type(this.firstName, firstName);
+      waitUtils.type(FIRST_NAME, firstName);
     }
     if (lastName != null) {
-      waitUtils.type(this.lastName, lastName);
+      waitUtils.type(LAST_NAME, lastName);
     }
     if (zipCode != null) {
-      waitUtils.type(this.postalCode, zipCode);
+      waitUtils.type(POSTAL_CODE, zipCode);
     }
-    waitUtils.click(continueButton);
+    waitUtils.click(CONTINUE_BUTTON);
   }
 
   @Step("Get checkout error message")
   public String getErrorMessage() {
     log.info("Retrieving checkout error message");
-    return waitUtils.waitUntilVisible(errorMessage).getText();
+    return waitUtils.waitUntilVisible(ERROR_MESSAGE).getText();
   }
 }

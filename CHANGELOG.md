@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Dedicated `CheckoutTests` coverage with a data-driven invalid-checkout `@DataProvider`.
 - Postal-code-required checkout validation coverage.
 - `CHANGELOG.md` and README links to the live Allure report and project history.
+- ADR 005 documenting why this UI automation repository does not add a framework unit-test layer.
+- Valid UI login, protected-route negative coverage, and a full end-to-end shopping journey.
+- Checkout overview assertions for selected product, item total, tax, and final total.
+- Debugging guide with real failed Allure report screenshots and artifact triage guidance.
 
 ### Changed
 - Split checkout scenarios out of `CartTests` to keep cart and checkout responsibilities separate.
@@ -20,10 +24,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Expanded PMD rules to cover additional low-noise maintainability and error-prone checks.
 - Updated the GitHub Actions browser matrix to include Edge.
 - Clarified `LoginPage.clickLoginButton()` to return `void` instead of a stale page reference.
+- Strengthened product catalog validation to compare full expected product details.
+- Masked password-like fields before attaching failure screenshots.
+- Split Allure Java adapter and report generator versions.
+- Preserved scheduled dependency update reports as CI artifacts.
 
 ### Fixed
 - Cached diagnostic redaction patterns instead of rebuilding them on every call.
 - Standardized unsupported-browser failures on `FrameworkConfigurationException`.
+- Failed fast for missing non-default environment profiles unless an external config file is supplied.
+- Removed static Docker Compose container names to avoid local and CI naming collisions.
 
 ## [1.0.0] - 2026-05-12
 

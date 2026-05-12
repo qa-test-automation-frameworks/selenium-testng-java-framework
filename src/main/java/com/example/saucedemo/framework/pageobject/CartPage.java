@@ -12,6 +12,9 @@ import org.openqa.selenium.WebElement;
 @Slf4j
 public class CartPage extends BasePage implements PageLoadable<CartPage> {
 
+  private static final By PRODUCT_QUANTITY_ELEMENT = By.cssSelector("[data-test='item-quantity']");
+  private static final By CHECKOUT_BUTTON = By.cssSelector("[data-test='checkout']");
+
   private final InventoryListComponent inventoryList;
 
   public CartPage(WebDriver driver) {
@@ -23,13 +26,10 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
     return inventoryList;
   }
 
-  private final By productQuantityElement = By.cssSelector("[data-test='item-quantity']");
-  private final By checkoutButton = By.cssSelector("[data-test='checkout']");
-
   @Override
   public CartPage waitUntilLoaded() {
     waitUntilUrlContains("cart");
-    waitUtils.waitUntilVisible(checkoutButton);
+    waitUtils.waitUntilVisible(CHECKOUT_BUTTON);
     return this;
   }
 
@@ -43,7 +43,7 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
               "Cart has %d items; cannot read quantity at index %d", items.size(), index));
     }
 
-    String quantityText = items.get(index).findElement(productQuantityElement).getText();
+    String quantityText = items.get(index).findElement(PRODUCT_QUANTITY_ELEMENT).getText();
     int quantity = Integer.parseInt(quantityText);
     log.debug("Quantity for item at index {}: {}", index, quantity);
     return quantity;
@@ -53,7 +53,7 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
   public int getQuantityForProduct(String productName) {
     log.info("Retrieving product quantity for item '{}' in the cart", productName);
     WebElement product = getInventoryList().getProductByName(productName);
-    String quantityText = product.findElement(productQuantityElement).getText();
+    String quantityText = product.findElement(PRODUCT_QUANTITY_ELEMENT).getText();
     int quantity = Integer.parseInt(quantityText);
     log.debug("Quantity for product '{}': {}", productName, quantity);
     return quantity;
@@ -73,7 +73,7 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
 
   @Step("Continue to checkout")
   public CheckoutPage continueToCheckout() {
-    waitUtils.click(checkoutButton);
+    waitUtils.click(CHECKOUT_BUTTON);
     return new CheckoutPage(driver).waitUntilLoaded();
   }
 }

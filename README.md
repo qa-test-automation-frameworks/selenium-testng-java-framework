@@ -14,12 +14,14 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
 - **Why cookie auth shortcuts?** Non-login scenarios bypass the UI login form to keep the suite faster and less flaky while retaining dedicated login coverage.
 - **Why explicit waits only?** A single synchronization strategy keeps the framework deterministic and easier to debug.
-- **Why no framework unit-test layer?** This repository is intentionally focused on UI automation design, execution, and diagnostics rather than maintaining a second test layer for framework internals.
+- **Why no framework unit-test layer?** This repository is the UI test automation layer in the SDLC. It validates application behavior through browser journeys instead of adding a second set of tests that only test the test framework. See [ADR 005](docs/adr/005-why-no-framework-unit-tests.md).
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
 - [Execution Guide](docs/EXECUTION_GUIDE.md) - Local, headless, Docker Grid, and CI execution.
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
+- [Debugging Guide](docs/DEBUGGING_GUIDE.md) - How to use Allure artifacts, logs, screenshots, and CI outputs to diagnose failures.
+- [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project does not add a framework unit-test layer.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
 ## Live Report
@@ -53,11 +55,11 @@ graph TD;
 
 Representative report views are included below so reviewers can see the diagnostics quality without running the framework first.
 
-![Allure dashboard preview](docs/images/allure-dashboard-preview.svg)
+![Allure dashboard preview from an actual local UI run](docs/images/allure-dashboard-preview.png)
 
-![Allure test details preview](docs/images/allure-test-details-preview.svg)
+![Allure suites preview from an actual local UI run](docs/images/allure-suites-preview.png)
 
-![Allure failure artifacts preview](docs/images/allure-failure-artifacts-preview.svg)
+![Allure test details preview from an actual local UI run](docs/images/allure-test-details-preview.png)
 
 ## Framework Highlights
 - Thread-safe parallel execution through `ThreadLocal<WebDriver>`.
@@ -79,6 +81,12 @@ Run the no-secret smoke suite locally:
 
 ```bash
 ./mvnw clean test -Dgroups=inventory,cart -Dheadless=true
+```
+
+PowerShell requires quotes around comma-separated groups and dotted Maven properties:
+
+```powershell
+.\mvnw.cmd test '-Dgroups=inventory,cart' -Dheadless=true -Dbrowser=CHROME '-Dthread.count=2'
 ```
 
 Run the full regression with login coverage:
@@ -146,7 +154,7 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 On `main`, GitHub Actions also starts Selenium Grid browser nodes per matrix entry, merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
 ## Configuration
-Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`.
+Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`.
 
 | Property | Description | Default |
 |----------|-------------|---------|
@@ -175,13 +183,14 @@ Credentials are supplied through environment variables or Maven system propertie
 
 ## Fork Setup Notes
 
-After forking, update the badge URLs, `allure.link.issue.pattern`, repository secrets, and GitHub Pages settings to match the fork owner and repository name.
+After forking, update the badge URLs, `allure.link.issue.pattern`, repository secrets, branch protection required checks, and GitHub Pages settings to match the fork owner and repository name.
 
 ## Current Limitations
 
 - Selenium Grid video support is link-based unless you connect the framework to a video-enabled Grid and set `diagnostics.grid.video.base.url`.
-- Network log attachments depend on browser/session support; unsupported sessions add an explicit "unavailable" attachment when network logging is enabled.
+- Network log attachments depend on browser/session support; unsupported sessions add an explicit "unavailable" attachment when network logging is enabled. Local Chrome versions newer than Selenium's packaged DevTools support can still emit CDP compatibility warnings, so Docker Grid is the preferred reproducible diagnostic path.
 - Accessibility and visual regression checks are intentionally left as optional extension points so the repository stays focused on UI functional automation.
+- Docker images are version-tag pinned. Digest pinning is intentionally left to repository owners because image digests must be refreshed with the same dependency update workflow that updates Selenium Grid tags.
 
 ## Browser Support
 | Browser | Local headed | Local headless | Docker Grid | GitHub Actions |
@@ -194,7 +203,7 @@ After forking, update the badge URLs, `allure.link.issue.pattern`, repository se
 ## Branch Protection
 Recommended GitHub branch protection for `main`:
 - Require pull request reviews before merge.
-- Require the `UI Tests` workflow to pass.
+- Require the `UI Tests` workflow jobs to pass, especially `quality-gates` and each browser matrix entry in `test`.
 - Require branches to be up to date before merging.
 - Restrict direct pushes to maintainers.
 

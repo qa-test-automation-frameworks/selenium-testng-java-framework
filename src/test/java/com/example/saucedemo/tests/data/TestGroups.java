@@ -10,4 +10,5 @@ public final class TestGroups {
   public static final String REGRESSION = "regression";
   public static final String LOGIN = "login";
   public static final String CHECKOUT = "checkout";
+  public static final String JOURNEY = "journey";
 }

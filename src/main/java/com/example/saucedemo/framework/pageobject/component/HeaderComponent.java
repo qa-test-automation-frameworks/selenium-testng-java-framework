@@ -12,37 +12,39 @@ import org.openqa.selenium.WebDriver;
 @Slf4j
 public class HeaderComponent extends BaseComponent {
 
-  private final By cartButton = By.id("shopping_cart_container");
-  private final By cartItemCount = By.cssSelector("[data-test='shopping-cart-badge']");
-  private final By menuButton = By.id("react-burger-menu-btn");
-  private final By logoutButton = By.id("logout_sidebar_link");
+  private static final By CART_BUTTON = By.id("shopping_cart_container");
+  private static final By CART_ITEM_COUNT = By.cssSelector("[data-test='shopping-cart-badge']");
+  private static final By MENU_BUTTON = By.id("react-burger-menu-btn");
+  private static final By LOGOUT_BUTTON = By.id("logout_sidebar_link");
 
   public HeaderComponent(WebDriver driver) {
     super(driver);
   }
 
   public boolean isCartButtonVisible() {
-    boolean visible = waitUtils.isVisible(cartButton);
+    boolean visible = waitUtils.isVisible(CART_BUTTON);
     log.debug("Cart button visibility: {}", visible);
     return visible;
   }
 
   @Step("Navigate to cart via header")
-  public void navigateToCart() {
+  public CartPage navigateToCart() {
     log.info("Navigating to cart page via header icon");
-    waitUtils.click(cartButton);
-    new CartPage(driver).waitUntilLoaded();
+    CartPage cartPage;
+    waitUtils.click(CART_BUTTON);
+    cartPage = new CartPage(driver).waitUntilLoaded();
     log.debug("Cart page load completed");
+    return cartPage;
   }
 
   @Step("Get product count from cart badge")
   public int getProductAddedToCartCount() {
-    if (!waitUtils.isVisible(cartItemCount, Duration.ofSeconds(1))) {
+    if (!waitUtils.isVisible(CART_ITEM_COUNT, Duration.ofSeconds(1))) {
       log.info("Cart badge is not visible; treating cart count as 0");
       return 0;
     }
 
-    int count = Integer.parseInt(waitUtils.waitUntilVisible(cartItemCount).getText());
+    int count = Integer.parseInt(waitUtils.waitUntilVisible(CART_ITEM_COUNT).getText());
     log.info("Current product count in cart badge: {}", count);
     return count;
   }
@@ -50,14 +52,14 @@ public class HeaderComponent extends BaseComponent {
   @Step("Wait for cart badge count to become {0}")
   public void waitForProductAddedToCartCount(int expectedCount) {
     if (expectedCount == 0) {
-      waitUtils.waitUntilInvisibleOrAbsent(cartItemCount, "Cart badge should be hidden");
+      waitUtils.waitUntilInvisibleOrAbsent(CART_ITEM_COUNT, "Cart badge should be hidden");
     } else {
-      waitUtils.waitUntilTextPresent(cartItemCount, String.valueOf(expectedCount));
+      waitUtils.waitUntilTextPresent(CART_ITEM_COUNT, String.valueOf(expectedCount));
     }
   }
 
   public boolean isMenuButtonVisible() {
-    boolean visible = waitUtils.isVisible(menuButton);
+    boolean visible = waitUtils.isVisible(MENU_BUTTON);
     log.debug("Menu button visibility: {}", visible);
     return visible;
   }
@@ -65,23 +67,24 @@ public class HeaderComponent extends BaseComponent {
   @Step("Open side menu via header")
   public void openMenu() {
     log.info("Opening the side menu");
-    waitUtils.click(menuButton);
+    waitUtils.click(MENU_BUTTON);
     log.debug("Side menu opened");
   }
 
   @Step("Click logout button in side menu")
   public void clickLogoutButton() {
     log.info("Clicking the logout button in the side menu");
-    waitUtils.click(logoutButton);
+    waitUtils.click(LOGOUT_BUTTON);
     log.debug("Successfully clicked logout button");
   }
 
   @Step("Logout from application")
-  public void logout() {
+  public LoginPage logout() {
     log.info("Starting logout process");
     openMenu();
     clickLogoutButton();
-    new LoginPage(driver).waitUntilLoaded();
+    LoginPage loginPage = new LoginPage(driver).waitUntilLoaded();
     log.info("Logout process completed");
+    return loginPage;
   }
 }

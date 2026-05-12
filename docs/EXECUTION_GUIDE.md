@@ -21,8 +21,14 @@ To run no-secret UI smoke coverage only (`inventory`, `cart`):
 ./mvnw clean test -Dgroups=inventory,cart -Dheadless=true
 ```
 
+PowerShell examples must quote comma-separated groups and dotted Maven properties:
+
+```powershell
+.\mvnw.cmd test '-Dgroups=inventory,cart' -Dheadless=true -Dbrowser=CHROME '-Dthread.count=2'
+```
+
 ### Parameters
-- `-Denv`: Environment profile (`qa` default, `dev`). This takes precedence over environment variables `ENV` and `env`.
+- `-Denv`: Environment profile (`qa` default, `dev`). This takes precedence over environment variables `ENV` and `env`. The default `qa` environment can run from built-in safe defaults; non-default environments require a matching classpath profile or `-Dconfig.file`.
 - `-Dbrowser`: Browser type (`CHROME` default, `FIREFOX`, `EDGE`).
 - `-Dheadless`: Run in headless mode (`true`, `false`).
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
@@ -81,6 +87,14 @@ Retries are disabled by default and should be used only while investigating infr
 ## Diagnostics
 Failure diagnostics include current URL, browser capabilities, screenshots, browser console logs, page source, and a framework log excerpt. Text-based attachments are redacted before they are written to Allure. Screenshot, page source, browser log, and framework log attachments can be disabled with the `diagnostics.attach.*.on.failure` properties. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`; unsupported browsers/sessions add an explicit "network logs unavailable" attachment. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure. The provided Docker Compose file does not record videos by itself.
 
+Before screenshots are attached, password-like fields are masked in the browser DOM. This protects common login failures while preserving screenshot usefulness.
+
+To exercise optional network diagnostics locally:
+
+```bash
+./mvnw clean test -Dgroups=inventory,cart -Dheadless=true -Ddiagnostics.network.logs.enabled=true
+```
+
 ## Quality Gates
 To run the same non-UI quality checks used in CI:
 
@@ -99,4 +113,5 @@ Generate a CycloneDX software bill of materials with:
 - **Driver not found**: Ensure you have the corresponding browser installed. Selenium Manager will handle binary downloads automatically.
 - **Edge Grid not available**: Start Docker Compose with `--profile edge` before running `-Dbrowser=EDGE` against Selenium Grid.
 - **Config Error**: Ensure `APP_PASSWORD` is provided as an environment variable or CI secret for login scenarios. Non-login smoke groups can run without it.
-- **Wrong environment selected**: Confirm whether `-Denv`, `ENV`, or `env` is set. The framework uses that precedence order.
+- **Wrong environment selected**: Confirm whether `-Denv`, `ENV`, or `env` is set. The framework uses that precedence order. If a non-default environment is selected without a matching profile or external config file, startup fails intentionally.
+- **CDP compatibility warning**: Local evergreen Chrome/Edge versions can be newer than Selenium's packaged DevTools artifact. Prefer Docker Grid for reproducible browser diagnostics, or update Selenium when a matching DevTools artifact becomes available.

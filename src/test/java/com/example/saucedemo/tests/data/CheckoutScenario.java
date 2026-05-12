@@ -17,11 +17,7 @@ public final class CheckoutScenario {
   }
 
   public static CheckoutInformation validInformation() {
-    return CheckoutInformation.builder()
-        .firstName("Pat")
-        .lastName("Tester")
-        .postalCode("411001")
-        .build();
+    return CheckoutInformation.builder().validDefaults().build();
   }
 
   public record CheckoutInformation(String firstName, String lastName, String postalCode) {

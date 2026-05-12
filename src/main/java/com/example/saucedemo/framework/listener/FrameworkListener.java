@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.HasCapabilities;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -39,7 +40,6 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
   @Override
   public void onTestFailure(ITestResult result) {
     log.error("Test failed: {}", result.getName());
-    attachDiagnostics("Test failure", WebDriverFactory.getThreadLocalWebDriver());
   }
 
   @Override
@@ -73,6 +73,10 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
   public void onConfigurationFailure(ITestResult result) {
     log.error("Configuration failed: {}", result.getName());
     attachDiagnostics("Configuration failure", WebDriverFactory.getThreadLocalWebDriver());
+  }
+
+  public void attachTestFailureDiagnostics(WebDriver driver) {
+    attachDiagnostics("Test failure", driver);
   }
 
   private void attachDiagnostics(String label, WebDriver driver) {
@@ -116,8 +120,22 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
   }
 
   private void attachScreenshot(WebDriver driver) {
+    maskSensitiveInputs(driver);
     byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
     Allure.addAttachment("Screenshot", "image/png", new ByteArrayInputStream(screenshot), ".png");
+  }
+
+  private void maskSensitiveInputs(WebDriver driver) {
+    if (!(driver instanceof JavascriptExecutor javascriptExecutor)) {
+      return;
+    }
+    javascriptExecutor.executeScript(
+        "document.querySelectorAll(\"input[type='password'], input[name*='password'],"
+            + " input[id*='password'], input[autocomplete='current-password'],"
+            + " input[autocomplete='new-password']\").forEach(function(input) {"
+            + " input.value = '<redacted>';"
+            + " input.setAttribute('value', '<redacted>');"
+            + "});");
   }
 
   private void safeAttach(String attachmentName, Runnable attachmentAction) {

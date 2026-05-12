@@ -13,6 +13,10 @@ import org.openqa.selenium.support.ui.Select;
 @Slf4j
 public class InventoryPage extends BasePage implements PageLoadable<InventoryPage> {
 
+  private static final By PRIMARY_HEADER = By.className("app_logo");
+  private static final By PRODUCT_SORT = By.cssSelector("[data-test='product-sort-container']");
+  private static final By PRODUCT_PRICE = By.cssSelector("[data-test='inventory-item-price']");
+
   private final InventoryListComponent inventoryList;
 
   public InventoryPage(WebDriver driver) {
@@ -24,22 +28,18 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
     return inventoryList;
   }
 
-  private final By primaryHeader = By.className("app_logo");
-  private final By productSort = By.cssSelector("[data-test='product-sort-container']");
-  private final By productPrice = By.cssSelector("[data-test='inventory-item-price']");
-
   @Override
   public InventoryPage waitUntilLoaded() {
     waitUntilUrlContains("inventory");
-    waitUtils.waitUntilVisible(primaryHeader);
-    waitUtils.waitUntilVisible(productSort);
+    waitUtils.waitUntilVisible(PRIMARY_HEADER);
+    waitUtils.waitUntilVisible(PRODUCT_SORT);
     return this;
   }
 
   @Step("Get header text from landing page")
   public String getHeaderText() {
     log.info("Retrieving the main header text from the inventory page");
-    String text = waitUtils.waitUntilVisible(primaryHeader).getText();
+    String text = waitUtils.waitUntilVisible(PRIMARY_HEADER).getText();
     log.debug("Inventory page header text retrieved: {}", text);
     return text;
   }
@@ -58,13 +58,13 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
 
   @Step("Sort products by price low to high")
   public InventoryPage sortProductsByPriceLowToHigh() {
-    new Select(waitUtils.waitUntilVisible(productSort)).selectByValue("lohi");
+    new Select(waitUtils.waitUntilVisible(PRODUCT_SORT)).selectByValue("lohi");
     return this;
   }
 
   @Step("Get displayed product prices from inventory")
   public List<BigDecimal> getDisplayedProductPrices() {
-    return waitUtils.waitUntilAllVisible(productPrice).stream()
+    return waitUtils.waitUntilAllVisible(PRODUCT_PRICE).stream()
         .map(WebElement::getText)
         .map(price -> price.replace("$", ""))
         .map(BigDecimal::new)

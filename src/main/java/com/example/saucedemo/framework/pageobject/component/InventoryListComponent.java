@@ -13,15 +13,18 @@ import org.openqa.selenium.WebElement;
 @Slf4j
 public class InventoryListComponent extends BaseComponent {
 
-  private final By rootLocator;
-  protected final By listItems =
+  private static final By LIST_ITEMS =
       By.cssSelector("[data-test='inventory-item'], [data-test='cart-item']");
-  protected final By productNameElement = By.cssSelector("[data-test='inventory-item-name']");
-  protected final By productDescriptionElement =
+  private static final By PRODUCT_NAME_ELEMENT =
+      By.cssSelector("[data-test='inventory-item-name']");
+  private static final By PRODUCT_DESCRIPTION_ELEMENT =
       By.cssSelector("[data-test='inventory-item-desc']");
-  protected final By productPriceElement = By.cssSelector("[data-test='inventory-item-price']");
-  private final By addToCartButton = By.cssSelector("button[data-test^='add-to-cart']");
-  private final By removeButton = By.cssSelector("button[data-test^='remove']");
+  private static final By PRODUCT_PRICE_ELEMENT =
+      By.cssSelector("[data-test='inventory-item-price']");
+  private static final By ADD_TO_CART_BUTTON = By.cssSelector("button[data-test^='add-to-cart']");
+  private static final By REMOVE_BUTTON = By.cssSelector("button[data-test^='remove']");
+
+  private final By rootLocator;
 
   private InventoryListComponent(WebDriver driver, By rootLocator) {
     super(driver);
@@ -77,7 +80,7 @@ public class InventoryListComponent extends BaseComponent {
   public WebElement getProductByName(String name) {
     log.info("Searching for product by name: {}", name);
     return getItemList().stream()
-        .filter(item -> item.findElement(productNameElement).getText().equals(name))
+        .filter(item -> item.findElement(PRODUCT_NAME_ELEMENT).getText().equals(name))
         .findFirst()
         .orElseThrow(
             () ->
@@ -97,9 +100,9 @@ public class InventoryListComponent extends BaseComponent {
     WebElement product = getProductByName(name);
     ProductDetails details =
         new ProductDetails(
-            product.findElement(productNameElement).getText(),
-            product.findElement(productDescriptionElement).getText(),
-            product.findElement(productPriceElement).getText());
+            product.findElement(PRODUCT_NAME_ELEMENT).getText(),
+            product.findElement(PRODUCT_DESCRIPTION_ELEMENT).getText(),
+            product.findElement(PRODUCT_PRICE_ELEMENT).getText());
     log.debug("Product details retrieved: {}", details);
     return details;
   }
@@ -113,7 +116,7 @@ public class InventoryListComponent extends BaseComponent {
   public InventoryListComponent addProductToCart(String name) {
     log.info("Adding product to cart: {}", name);
     WebElement product = getProductByName(name);
-    waitUtils.waitUntilNestedClickable(product, addToCartButton).click();
+    waitUtils.waitUntilNestedClickable(product, ADD_TO_CART_BUTTON).click();
     log.debug("Successfully added product to cart: {}", name);
     return this;
   }
@@ -122,7 +125,7 @@ public class InventoryListComponent extends BaseComponent {
   public InventoryListComponent removeProductFromCart(String name) {
     log.info("Removing product from cart: {}", name);
     WebElement product = getProductByName(name);
-    waitUtils.waitUntilNestedClickable(product, removeButton).click();
+    waitUtils.waitUntilNestedClickable(product, REMOVE_BUTTON).click();
     log.debug("Successfully removed product from cart: {}", name);
     return this;
   }
@@ -136,7 +139,7 @@ public class InventoryListComponent extends BaseComponent {
           String.format("Product list has %d items; cannot remove index %d", items.size(), index));
     }
 
-    waitUtils.waitUntilNestedClickable(items.get(index), removeButton).click();
+    waitUtils.waitUntilNestedClickable(items.get(index), REMOVE_BUTTON).click();
     waitForItemCount(items.size() - 1);
     log.debug("Successfully removed product at index: {}", index);
     return this;
@@ -153,6 +156,6 @@ public class InventoryListComponent extends BaseComponent {
 
   private List<WebElement> visibleItems() {
     WebElement root = waitUtils.waitUntilVisible(rootLocator);
-    return root.findElements(listItems).stream().filter(WebElement::isDisplayed).toList();
+    return root.findElements(LIST_ITEMS).stream().filter(WebElement::isDisplayed).toList();
   }
 }

@@ -75,8 +75,7 @@ public class CartTests extends BaseTestCase {
         .addProductToCart(ProductCatalog.BACKPACK.name())
         .addProductToCart(ProductCatalog.BOLT_TSHIRT.name());
 
-    header.navigateToCart();
-    CartPage cartPage = pages().cart().waitUntilLoaded();
+    CartPage cartPage = header.navigateToCart();
 
     assertThat(cartPage.getInventoryList().getProductDetailsByName(ProductCatalog.BACKPACK.name()))
         .as("Backpack details in cart should match catalog")
@@ -113,8 +112,7 @@ public class CartTests extends BaseTestCase {
         .addProductToCart(ProductCatalog.BACKPACK.name())
         .addProductToCart(ProductCatalog.BIKE_LIGHT.name());
 
-    header.navigateToCart();
-    CartPage cartPage = pages().cart().waitUntilLoaded();
+    CartPage cartPage = header.navigateToCart();
 
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("There should be 2 items in the cart initially")
@@ -146,8 +144,7 @@ public class CartTests extends BaseTestCase {
   public void verifyEmptyCartDisplaysNoItems() {
     HeaderComponent header = pages().header();
 
-    header.navigateToCart();
-    CartPage cartPage = pages().cart().waitUntilLoaded();
+    CartPage cartPage = header.navigateToCart();
 
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("A cart opened before adding products should not contain items")

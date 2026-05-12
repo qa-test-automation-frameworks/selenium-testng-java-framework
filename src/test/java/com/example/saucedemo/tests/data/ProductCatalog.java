@@ -1,6 +1,7 @@
 package com.example.saucedemo.tests.data;
 
 import com.example.saucedemo.framework.data.ProductDetails;
+import java.util.List;
 
 public final class ProductCatalog {
 
@@ -41,6 +42,10 @@ public final class ProductCatalog {
           "Test.allTheThings() T-Shirt (Red)",
           "This classic Sauce Labs t-shirt is perfect to wear when cozying up to your keyboard to automate a few tests. Super-soft and comfy ringspun combed cotton.",
           "$15.99");
+
+  public static List<ProductDetails> allProducts() {
+    return List.of(BACKPACK, BIKE_LIGHT, BOLT_TSHIRT, FLEECE_JACKET, ONESIE, RED_TSHIRT);
+  }
 
   private ProductCatalog() {}
 }

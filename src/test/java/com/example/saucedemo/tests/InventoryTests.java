@@ -5,7 +5,6 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.example.saucedemo.app.auth.AuthService;
 import com.example.saucedemo.framework.data.AppConstants;
-import com.example.saucedemo.framework.data.ProductDetails;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import com.example.saucedemo.framework.pageobject.component.InventoryListComponent;
@@ -97,35 +96,18 @@ public class InventoryTests extends BaseTestCase {
         .as("Total product count should be %s", ProductCatalog.EXPECTED_PRODUCT_COUNT)
         .isEqualTo(ProductCatalog.EXPECTED_PRODUCT_COUNT);
 
-    log.info("Verifying individual product details against the catalog");
-    List<ProductDetails> expectedProducts =
-        List.of(
-            ProductCatalog.BACKPACK,
-            ProductCatalog.BIKE_LIGHT,
-            ProductCatalog.BOLT_TSHIRT,
-            ProductCatalog.FLEECE_JACKET,
-            ProductCatalog.ONESIE,
-            ProductCatalog.RED_TSHIRT);
-
     assertSoftly(
         softly ->
-            expectedProducts.forEach(
-                expectedProduct -> {
-                  ProductDetails actualProduct =
-                      inventoryList.getProductDetailsByName(expectedProduct.name());
-                  softly
-                      .assertThat(actualProduct.name())
-                      .as("%s name should match catalog", expectedProduct.name())
-                      .isEqualTo(expectedProduct.name());
-                  softly
-                      .assertThat(actualProduct.price())
-                      .as("%s price should match catalog", expectedProduct.name())
-                      .isEqualTo(expectedProduct.price());
-                  softly
-                      .assertThat(actualProduct.description())
-                      .as("%s description should remain populated", expectedProduct.name())
-                      .isNotBlank();
-                }));
+            ProductCatalog.allProducts()
+                .forEach(
+                    expectedProduct -> {
+                      softly
+                          .assertThat(inventoryList.getProductDetailsByName(expectedProduct.name()))
+                          .as(
+                              "%s details should match the expected catalog",
+                              expectedProduct.name())
+                          .isEqualTo(expectedProduct);
+                    }));
   }
 
   @Test(

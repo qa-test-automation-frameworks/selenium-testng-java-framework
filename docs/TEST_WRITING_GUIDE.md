@@ -8,7 +8,7 @@ This repository is intentionally UI-automation-only. Keep `src/test/java` focuse
 1. Create a new class in `src/main/java/com/example/saucedemo/framework/pageobject`.
 2. Extend `BasePage`.
 3. Add a constructor that calls `super(driver)`.
-4. Define locators using private `By` variables.
+4. Define static locators using `private static final By` when the selector does not depend on runtime data.
 5. Implement action methods and use `@Step` for reporting.
 6. Keep construction lightweight; callers should invoke `waitUntilLoaded()` explicitly when page readiness must be asserted.
 7. Keep business assertions in test classes, not page objects.
@@ -28,6 +28,8 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 6. Use **AssertJ** for assertions. Always include a descriptive message using `.as()`.
 7. Add meaningful TestNG groups such as `smoke`, `login`, `inventory`, `cart`, or `regression`.
 8. Keep shared navigation or header assertions in dedicated coverage tests so unrelated scenarios fail for one clear reason.
+9. Add tests because they prove meaningful user behavior, not to inflate counts. Prefer focused negative cases and full user journeys that exercise realistic business paths.
+10. Do not add framework unit tests; ADR 005 explains why this repository keeps the framework itself as the UI automation layer.
 
 ### Example Test Annotation
 ```java
@@ -54,6 +56,6 @@ assertThat(page.getSomeValue())
 - **Pages**: `SomethingPage`
 - **Components**: `SomethingComponent`
 - **Tests**: use descriptive camelCase names, for example `verifyUserCanAddProductsToCart`.
-
+- **End-to-end journeys**: use a dedicated journey class when a test intentionally spans login, browsing, cart, checkout, and logout.
 
 

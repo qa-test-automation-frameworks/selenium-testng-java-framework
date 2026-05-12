@@ -20,6 +20,7 @@ import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
+import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -89,6 +90,20 @@ public class CheckoutTests extends BaseTestCase {
             validInformation.firstName(),
             validInformation.lastName(),
             validInformation.postalCode());
+
+    assertThat(overviewPage.getProductDetailsByName(ProductCatalog.BACKPACK.name()))
+        .as("Checkout overview should show the selected backpack details")
+        .isEqualTo(ProductCatalog.BACKPACK);
+    assertThat(overviewPage.getItemTotal())
+        .as("Checkout item total should equal the selected backpack price")
+        .isEqualByComparingTo(new BigDecimal("29.99"));
+    assertThat(overviewPage.getTax())
+        .as("Checkout tax should match Sauce Demo's displayed tax for the backpack")
+        .isEqualByComparingTo(new BigDecimal("2.40"));
+    assertThat(overviewPage.getTotal())
+        .as("Checkout total should include item total and tax")
+        .isEqualByComparingTo(new BigDecimal("32.39"));
+
     CheckoutCompletePage completePage = overviewPage.finishCheckout();
 
     assertThat(completePage.getConfirmationMessage())
@@ -101,8 +116,6 @@ public class CheckoutTests extends BaseTestCase {
     HeaderComponent header = pages().header();
 
     inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
-    header.navigateToCart();
-
-    return pages().cart().waitUntilLoaded().continueToCheckout();
+    return header.navigateToCart().continueToCheckout();
   }
 }

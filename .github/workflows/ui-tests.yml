@@ -64,7 +64,16 @@ jobs:
         run: chmod +x mvnw
 
       - name: Generate dependency update report
-        run: ./mvnw versions:display-dependency-updates versions:display-plugin-updates
+        run: |
+          mkdir -p target/dependency-governance
+          ./mvnw versions:display-dependency-updates > target/dependency-governance/dependency-updates.txt
+          ./mvnw versions:display-plugin-updates > target/dependency-governance/plugin-updates.txt
+
+      - name: Upload dependency update reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-update-reports
+          path: target/dependency-governance/*.txt
 
       - name: Generate SBOM
         run: ./mvnw -Psbom -DskipTests verify

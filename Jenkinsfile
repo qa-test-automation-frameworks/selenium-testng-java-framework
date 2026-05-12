@@ -9,7 +9,7 @@ pipeline {
 
     parameters {
         choice(name: 'ENV', choices: ['qa', 'dev'], description: 'Environment for test execution')
-        choice(name: 'BROWSER', choices: ['CHROME', 'FIREFOX'], description: 'Browser for test execution')
+        choice(name: 'BROWSER', choices: ['CHROME', 'FIREFOX', 'EDGE'], description: 'Browser for test execution')
     }
 
     environment {
@@ -45,7 +45,7 @@ pipeline {
     post {
         always {
             // Clean up containers, networks, and volumes
-            sh 'docker compose down'
+            sh 'docker compose down --remove-orphans'
             
             // Generate Allure report (history is handled by the plugin)
             allure includeProperties: false, 
@@ -53,7 +53,7 @@ pipeline {
                    results: [[path: 'target/allure-results']]
             
             // Archive artifacts extracted from the container via volume mount
-            archiveArtifacts artifacts: 'target/allure-results/**, target/surefire-reports/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'target/allure-results/**, target/allure-report/**, target/surefire-reports/**, target/logs/**', allowEmptyArchive: true
         }
         
         failure {
