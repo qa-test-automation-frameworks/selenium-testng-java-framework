@@ -21,10 +21,23 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 1. Create a test class in `src/test/java/com/example/saucedemo/tests`.
 2. Extend `BaseTestCase`.
 3. Annotate test methods with `@Test`.
-4. Use the `testName` attribute in `@Test` for better reporting.
+4. Use the `testName` and `description` attributes in `@Test` for better Allure reporting.
 5. Initialize Page Objects in a `@BeforeMethod` setup.
 6. Use **AssertJ** for assertions. Always include a descriptive message using `.as()`.
 7. Add meaningful TestNG groups such as `smoke`, `login`, `inventory`, `cart`, or `regression`.
+8. Keep shared navigation or header assertions in dedicated coverage tests so unrelated scenarios fail for one clear reason.
+
+### Example Test Annotation
+```java
+@Test(
+    testName = "Verify adding multiple products to cart",
+    description = "Adds two products and verifies the cart badge count updates to match.",
+    groups = {TestGroups.SMOKE, TestGroups.CART},
+    timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+public void verifyUserCanAddProductsToCart() {
+  // Arrange, act, assert
+}
+```
 
 ### Example Assertion
 ```java

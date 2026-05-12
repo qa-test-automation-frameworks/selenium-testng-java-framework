@@ -2,7 +2,6 @@ package com.example.saucedemo.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.saucedemo.framework.data.AppConstants;
 import com.example.saucedemo.framework.pageobject.CartPage;
 import com.example.saucedemo.framework.pageobject.CheckoutCompletePage;
 import com.example.saucedemo.framework.pageobject.CheckoutOverviewPage;
@@ -31,13 +30,15 @@ import org.testng.annotations.Test;
 @Owner("QA Automation")
 public class CartTests extends BaseTestCase {
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(alwaysRun = true, description = "Authenticate via cookie and open inventory page")
   public void setupTest() {
     AuthService.injectLoginCookieAndNavigate(getDriver());
   }
 
   @Test(
       testName = "Verify adding multiple products to cart",
+      description =
+          "Adds two products from the inventory page and verifies the cart badge reflects the combined count.",
       groups = {TestGroups.SMOKE, TestGroups.CART},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Add products to cart")
@@ -46,10 +47,6 @@ public class CartTests extends BaseTestCase {
     log.info("Starting test: verifyUserCanAddProductsToCart");
     InventoryPage inventoryPage = new InventoryPage(getDriver());
     HeaderComponent header = new HeaderComponent(getDriver());
-
-    assertThat(inventoryPage.getHeaderText())
-        .as("Inventory page header title should be Swag Labs")
-        .isEqualTo(AppConstants.HEADER_TITLE);
 
     log.info("Adding two products to the cart");
     inventoryPage
@@ -65,6 +62,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify added products are visible in cart",
+      description =
+          "Adds products from inventory, opens the cart, and verifies the selected item details and quantities.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Cart contents")
@@ -101,6 +100,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify removing products from cart",
+      description =
+          "Removes products one by one from the cart page and verifies the item count decreases to zero.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Remove products from cart")
@@ -138,6 +139,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify checkout requires first name, last name, and postal code",
+      description =
+          "Attempts checkout with empty required fields and verifies the first-name validation message is shown.",
       groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Checkout validation")
@@ -167,6 +170,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify user can complete checkout",
+      description =
+          "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.",
       groups = {TestGroups.SMOKE, TestGroups.CHECKOUT},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Checkout completion")
@@ -196,6 +201,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify checkout requires last name",
+      description =
+          "Submits checkout information without a last name and verifies the field-specific validation message.",
       groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Checkout validation")
@@ -225,6 +232,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify empty cart shows no items",
+      description =
+          "Opens the cart before adding any products and verifies that no cart items are displayed.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Cart contents")

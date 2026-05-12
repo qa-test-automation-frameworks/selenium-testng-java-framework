@@ -31,7 +31,7 @@ public class WebDriverFactory {
   private static final BrowserOptionsFactory BROWSER_OPTIONS_FACTORY = new BrowserOptionsFactory();
 
   private WebDriverFactory() {
-    /*Singleton pattern*/
+    /* Utility class */
   }
 
   /** Supported browser types. */
@@ -133,7 +133,7 @@ public class WebDriverFactory {
     if (config.headless()) {
       return;
     }
-    if (!config.headless() && config.maximizeWindow()) {
+    if (config.maximizeWindow()) {
       driver.manage().window().maximize();
       return;
     }

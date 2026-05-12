@@ -41,6 +41,8 @@ public class LoginTests extends BaseTestCase {
 
   @Test(
       testName = "Verify login error messages",
+      description =
+          "Attempts invalid login scenarios and verifies the expected authentication error message for each credential set.",
       groups = {TestGroups.LOGIN},
       dataProvider = "invalidUsers",
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
@@ -64,6 +66,8 @@ public class LoginTests extends BaseTestCase {
 
   @Test(
       testName = "Verify user can logout",
+      description =
+          "Authenticates with the cookie shortcut, performs logout, and verifies the browser returns to the login page.",
       groups = {TestGroups.SMOKE, TestGroups.LOGIN},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Authenticated user logout")

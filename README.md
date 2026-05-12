@@ -1,16 +1,18 @@
 # Selenium Java TestNG Automation Framework
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/prayag/ta-java-selenium-testng/ui-tests.yml?branch=main)
+[![UI Tests](https://github.com/prayag/ta-java-selenium-testng/actions/workflows/ui-tests.yml/badge.svg?branch=main)](https://github.com/prayag/ta-java-selenium-testng/actions/workflows/ui-tests.yml)
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-[View Live Allure Report](https://prayag.github.io/ta-java-selenium-testng/)
-
 Java 21 UI test automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, custom typed configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
 
-## Architecture Considerations
+The `UI Tests` workflow publishes per-browser Allure artifacts on every run and deploys the merged report to GitHub Pages from `main`. After enabling GitHub Pages on a fork, the live report will be available at `https://<owner>.github.io/<repo>/`.
+
+## Why This Framework?
 - **Why custom config?** Uses a small typed configuration layer to avoid a stale external dependency while preserving layered overrides.
 - **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
+- **Why cookie auth shortcuts?** Non-login scenarios bypass the UI login form to keep the suite faster and less flaky while retaining dedicated login coverage.
+- **Why explicit waits only?** A single synchronization strategy keeps the framework deterministic and easier to debug.
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
@@ -36,7 +38,18 @@ graph TD;
 - Page objects and reusable page components with page-specific readiness checks inside page actions.
 - TestNG groups, parallel method execution, and opt-in retry support.
 - Allure reports with redacted screenshots, URL, page source, capabilities, and console logs on failure.
-- Spotless, Checkstyle, and Maven Enforcer quality gates with stronger maintainability rules.
+- Spotless, Checkstyle, PMD, and Maven Enforcer quality gates with stronger maintainability rules.
+- GitHub Actions browser matrix, artifact upload, and GitHub Pages publication for Allure reports.
+
+## Sample Allure Report
+
+Representative report views are included below so reviewers can see the diagnostics quality without running the framework first.
+
+![Allure dashboard preview](docs/images/allure-dashboard-preview.svg)
+
+![Allure test details preview](docs/images/allure-test-details-preview.svg)
+
+![Allure failure artifacts preview](docs/images/allure-failure-artifacts-preview.svg)
 
 ## Framework Highlights
 - Thread-safe parallel execution through `ThreadLocal<WebDriver>`.
@@ -49,6 +62,21 @@ graph TD;
 ## Known Limitations
 - Forked pull requests run only no-secret UI smoke coverage (`inventory`, `cart`). Full login regression requires repository secrets.
 - Safari remains local headed macOS-only and requires Safari remote automation to be enabled manually.
+- The product catalog assertions intentionally use static data because Sauce Demo exposes a fixed demo inventory.
+
+## Quick Start
+
+Run the no-secret smoke suite locally:
+
+```bash
+./mvnw clean test -Dgroups=inventory,cart -Dheadless=true
+```
+
+Run the full regression with login coverage:
+
+```bash
+APP_PASSWORD=your_password ./mvnw clean verify -Dheadless=true -Dbrowser=CHROME
+```
 
 ## Getting Started
 
@@ -82,6 +110,8 @@ APP_PASSWORD=your_password ./mvnw clean verify -Denv=dev -Dheadless=true -Dbrows
 APP_PASSWORD=your_password docker compose up --build --exit-code-from test-runner
 ```
 
+For video-enabled Selenium Grid setups, publish the recording endpoint and set `diagnostics.grid.video.base.url` so failed tests include session video links in Allure.
+
 ### Allure Dashboard
 ```bash
 ./mvnw allure:serve
@@ -91,6 +121,8 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 ```bash
 ./scripts/run-ui-tests-with-allure-report.sh
 ```
+
+On `main`, GitHub Actions also merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
 ## Configuration
 Configuration is loaded from classpath resources (`src/test/resources/config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`.

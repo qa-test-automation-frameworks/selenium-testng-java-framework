@@ -42,6 +42,8 @@ public class InventoryListComponent extends BaseComponent {
    * @return Product count.
    */
   public int getListItemsCount() {
+    // Intentionally short-circuit empty states so cart-empty assertions do not wait for elements
+    // that should never appear.
     int count =
         driver.findElements(listItems).isEmpty()
             ? 0

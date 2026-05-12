@@ -5,6 +5,41 @@ This document describes the architectural design of the UI Test Automation Frame
 ## Overview
 The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**. It follows a multi-layered approach to ensure scalability, maintainability, and parallel execution safety.
 
+## Test Lifecycle Sequence
+
+```mermaid
+sequenceDiagram
+	participant CI as GitHub Actions / Local Maven
+	participant TN as TestNG
+	participant BT as BaseTestCase
+	participant WF as WebDriverFactory
+	participant PO as Page Objects
+	participant RL as Reporting Listener
+
+	CI->>TN: mvnw clean verify
+	TN->>BT: @BeforeMethod
+	BT->>WF: initThreadLocalDriver()
+	WF-->>BT: WebDriver
+	TN->>PO: Execute test steps
+	PO-->>TN: UI actions + page state
+	TN->>RL: Pass / fail event
+	RL-->>CI: Allure attachments and metadata
+	TN->>BT: @AfterMethod
+	BT->>WF: cleanUpDriver()
+```
+
+## Configuration Override Flow
+
+```mermaid
+graph LR
+	Defaults[Default properties] --> BaseConfig[config.properties]
+	BaseConfig --> EnvProfile[env-specific properties]
+	EnvProfile --> ExternalFile[-Dconfig.file optional override]
+	ExternalFile --> Environment[Environment variables]
+	Environment --> SystemProps[Maven / system properties]
+	SystemProps --> FinalConfig[Validated FrameworkConfig]
+```
+
 ## Layers
 
 ### 1. Driver Layer (`com.example.saucedemo.framework.driver`)
@@ -33,10 +68,14 @@ The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**
 - **Allure Reporting**: Integrated via a custom listener to capture screenshots, URL, page source, browser capabilities, console logs, and environment details on failure.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
+### 6. CI and Quality Gates
+- **GitHub Actions**: Runs formatting checks, Checkstyle, PMD, browser-matrix UI execution, artifact upload, and GitHub Pages deployment for Allure on `main`.
+- **Dependabot**: Keeps Maven, Docker, and GitHub Actions dependencies on an automated weekly update cadence.
+
 ## Design Principles
 - **Fail-Fast**: Configuration and environment checks happen at startup.
 - **Deterministic Waits**: Only explicit waits are used (no `Thread.sleep` or implicit waits).
-- **Clean Code**: Code style is enforced via Checkstyle (Google Checks), Spotless, and Maven Enforcer during `verify`.
+- **Clean Code**: Code style and bug-pattern detection are enforced via Checkstyle (Google Checks), Spotless, PMD, and Maven Enforcer during `verify`.
 
 ## Docker Grid Troubleshooting
 - Ensure Docker Desktop is running before `docker compose up`.

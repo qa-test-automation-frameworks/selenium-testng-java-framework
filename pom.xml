@@ -11,11 +11,13 @@
         <selenium.version>4.43.0</selenium.version>
         <testng.version>7.12.0</testng.version>
         <allure.version>2.34.0</allure.version>
+        <allure.maven.version>3.0.1</allure.maven.version>
         <assertj.version>3.27.7</assertj.version>
         <log4j.version>2.25.4</log4j.version>
         <lombok.version>1.18.46</lombok.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <slf4j.version>2.0.17</slf4j.version>
+        <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
         <groups></groups>
         <thread.count>1</thread.count>
     </properties>
@@ -121,7 +123,12 @@
                 <plugin>
                     <groupId>io.qameta.allure</groupId>
                     <artifactId>allure-maven</artifactId>
-                    <version>2.17.0</version>
+                    <version>${allure.maven.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${maven.pmd.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -242,6 +249,29 @@
                     <failsOnError>true</failsOnError>
                     <violationSeverity>warning</violationSeverity>
                     <linkXRef>false</linkXRef>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pmd-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rulesets>
+                        <ruleset>config/pmd/ruleset.xml</ruleset>
+                    </rulesets>
+                    <targetJdk>${maven.compiler.release}</targetJdk>
+                    <failOnViolation>true</failOnViolation>
+                    <printFailingErrors>true</printFailingErrors>
+                    <includeTests>false</includeTests>
                 </configuration>
             </plugin>
 

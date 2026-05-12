@@ -22,13 +22,13 @@ public abstract class BaseTestCase {
     WebDriverFactory.cleanUpDriver();
   }
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(alwaysRun = true, description = "Initialize WebDriver")
   public void beforeMethod(ITestResult result) {
     log.info("BeforeMethod: Initializing driver for test: {}", result.getMethod().getMethodName());
     WebDriverFactory.initThreadLocalDriver();
   }
 
-  @AfterMethod(alwaysRun = true)
+  @AfterMethod(alwaysRun = true, description = "Quit WebDriver")
   public void afterMethod(ITestResult result) {
     log.info("AfterMethod: Tearing down driver for test: {}", result.getMethod().getMethodName());
     quitWebDriver();

@@ -17,6 +17,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 /**
  * Utility class for synchronization and explicit waits. Encapsulates WebDriverWait to provide
  * reusable wait strategies.
+ *
+ * <p>The small {@link #type(By, String)} and {@link #click(By)} helpers intentionally combine the
+ * wait and interaction steps for the most common page-object actions. If broader interaction logic
+ * is introduced later, those methods can move to a dedicated interaction helper without changing
+ * page-object behavior.
  */
 @Slf4j
 public class WaitUtils {
@@ -197,12 +202,14 @@ public class WaitUtils {
     }
   }
 
+  /** Waits for an element to be visible before clearing and typing text into it. */
   public void type(By locator, String text) {
     WebElement element = waitUntilVisible(locator);
     element.clear();
     element.sendKeys(text);
   }
 
+  /** Waits for an element to be clickable before clicking it. */
   public void click(By locator) {
     waitUntilClickable(locator).click();
   }
@@ -213,9 +220,8 @@ public class WaitUtils {
     try {
       wait.until(
           d ->
-              ((JavascriptExecutor) d)
-                  .executeScript("return document.readyState")
-                  .equals("complete"));
+              "complete"
+                  .equals(((JavascriptExecutor) d).executeScript("return document.readyState")));
     } catch (TimeoutException e) {
       log.error("Timeout waiting for page document ready state to be complete");
       throw new TimeoutException("Page did not load completely within timeout", e);

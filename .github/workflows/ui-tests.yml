@@ -37,7 +37,7 @@ jobs:
           cache: maven
 
       - name: Run formatting and static-analysis gates
-        run: ./mvnw -DskipTests validate spotless:check checkstyle:check
+        run: ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check
 
   test:
     needs: quality-gates

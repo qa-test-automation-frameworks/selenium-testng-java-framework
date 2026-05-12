@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Allure dashboard preview</title>
+  <desc id="desc">Stylized preview of the Allure dashboard showing summary widgets, trend charts, and category breakdowns.</desc>
+  <rect width="1280" height="720" fill="#f5f7fb"/>
+  <rect x="0" y="0" width="1280" height="72" fill="#1f2937"/>
+  <text x="36" y="46" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Allure Report — Dashboard Preview</text>
+  <rect x="32" y="104" width="276" height="148" rx="18" fill="#ffffff" stroke="#d6dbe7"/>
+  <rect x="340" y="104" width="276" height="148" rx="18" fill="#ffffff" stroke="#d6dbe7"/>
+  <rect x="648" y="104" width="276" height="148" rx="18" fill="#ffffff" stroke="#d6dbe7"/>
+  <rect x="956" y="104" width="292" height="148" rx="18" fill="#ffffff" stroke="#d6dbe7"/>
+  <text x="56" y="148" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="18">Passed</text>
+  <text x="56" y="210" fill="#10b981" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="700">12</text>
+  <text x="364" y="148" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="18">Failed</text>
+  <text x="364" y="210" fill="#ef4444" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="700">1</text>
+  <text x="672" y="148" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="18">Broken</text>
+  <text x="672" y="210" fill="#f59e0b" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="700">0</text>
+  <text x="980" y="148" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="18">Duration</text>
+  <text x="980" y="210" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="700">01:47</text>
+  <rect x="32" y="284" width="760" height="388" rx="18" fill="#ffffff" stroke="#d6dbe7"/>
+  <text x="56" y="324" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Execution Trend</text>
+  <polyline points="80,584 170,540 260,566 350,452 440,476 530,372 620,410 710,336" fill="none" stroke="#6366f1" stroke-width="6"/>
+  <circle cx="80" cy="584" r="7" fill="#6366f1"/>
+  <circle cx="170" cy="540" r="7" fill="#6366f1"/>
+  <circle cx="260" cy="566" r="7" fill="#6366f1"/>
+  <circle cx="350" cy="452" r="7" fill="#6366f1"/>
+  <circle cx="440" cy="476" r="7" fill="#6366f1"/>
+  <circle cx="530" cy="372" r="7" fill="#6366f1"/>
+  <circle cx="620" cy="410" r="7" fill="#6366f1"/>
+  <circle cx="710" cy="336" r="7" fill="#6366f1"/>
+  <line x1="80" y1="616" x2="724" y2="616" stroke="#cbd5e1" stroke-width="2"/>
+  <line x1="80" y1="352" x2="80" y2="616" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="824" y="284" width="424" height="388" rx="18" fill="#ffffff" stroke="#d6dbe7"/>
+  <text x="848" y="324" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Failure Categories</text>
+  <rect x="852" y="364" width="320" height="26" rx="13" fill="#fee2e2"/>
+  <rect x="852" y="364" width="110" height="26" rx="13" fill="#ef4444"/>
+  <text x="852" y="350" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Assertion failure</text>
+  <rect x="852" y="434" width="320" height="26" rx="13" fill="#e0e7ff"/>
+  <rect x="852" y="434" width="74" height="26" rx="13" fill="#6366f1"/>
+  <text x="852" y="420" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Infrastructure retry</text>
+  <rect x="852" y="504" width="320" height="26" rx="13" fill="#dcfce7"/>
+  <rect x="852" y="504" width="44" height="26" rx="13" fill="#10b981"/>
+  <text x="852" y="490" fill="#6b7280" font-family="Segoe UI, Arial, sans-serif" font-size="16">Recovered flake</text>
+  <text x="852" y="590" fill="#374151" font-family="Segoe UI, Arial, sans-serif" font-size="18">Artifacts: screenshots, page source, console logs,</text>
+  <text x="852" y="620" fill="#374151" font-family="Segoe UI, Arial, sans-serif" font-size="18">network logs, environment metadata, and video links.</text>
+</svg>
+

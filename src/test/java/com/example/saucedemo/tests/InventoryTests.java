@@ -31,13 +31,15 @@ import org.testng.annotations.Test;
 @Owner("QA Automation")
 public class InventoryTests extends BaseTestCase {
 
-  @BeforeMethod(alwaysRun = true)
+  @BeforeMethod(alwaysRun = true, description = "Authenticate via cookie and open inventory page")
   public void setupTest() {
     AuthService.injectLoginCookieAndNavigate(getDriver());
   }
 
   @Test(
       testName = "Verify navigation and header visibility",
+      description =
+          "Opens the inventory page through cookie authentication and verifies the main header and menu controls are visible.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Inventory navigation")
@@ -59,6 +61,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify product list count",
+      description =
+          "Validates that the inventory page renders the complete fixed Sauce Demo catalog.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Product catalog")
@@ -67,9 +71,6 @@ public class InventoryTests extends BaseTestCase {
     log.info("Starting test: verifyInventoryDisplaysAllProducts");
     InventoryPage inventoryPage = new InventoryPage(getDriver());
 
-    assertThat(inventoryPage.getHeaderText())
-        .as("Inventory page header title should be Swag Labs")
-        .isEqualTo(AppConstants.HEADER_TITLE);
     assertThat(inventoryPage.getInventoryList().getListItemsCount())
         .as(
             "The product inventory list should contain %s items",
@@ -80,6 +81,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify all product details in catalog",
+      description =
+          "Checks that each displayed inventory item matches the centralized demo catalog data.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Product catalog")
@@ -89,9 +92,6 @@ public class InventoryTests extends BaseTestCase {
     InventoryPage inventoryPage = new InventoryPage(getDriver());
     InventoryListComponent inventoryList = inventoryPage.getInventoryList();
 
-    assertThat(inventoryPage.getHeaderText())
-        .as("Inventory page header title should be Swag Labs")
-        .isEqualTo(AppConstants.HEADER_TITLE);
     assertThat(inventoryList.getListItemsCount())
         .as("Total product count should be %s", ProductCatalog.EXPECTED_PRODUCT_COUNT)
         .isEqualTo(ProductCatalog.EXPECTED_PRODUCT_COUNT);
@@ -130,6 +130,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify products can be sorted by price low to high",
+      description =
+          "Sorts the inventory by ascending price and verifies the rendered product prices follow that order.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Product sorting")
@@ -150,6 +152,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify removing a product from inventory clears cart badge",
+      description =
+          "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.",
       groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Inventory cart controls")
