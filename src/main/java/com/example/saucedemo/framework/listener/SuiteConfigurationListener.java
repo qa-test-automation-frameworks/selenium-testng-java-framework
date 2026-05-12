@@ -22,6 +22,30 @@ public class SuiteConfigurationListener implements IAlterSuiteListener {
     int threadCount = config.threadCount();
     suites.forEach(suite -> suite.setThreadCount(threadCount));
     generateAllureEnvironmentFile(runContext);
+    logResolvedConfiguration(config, runContext, suites);
+  }
+
+  private void logResolvedConfiguration(
+      FrameworkConfig config, TestRunContext runContext, List<XmlSuite> suites) {
+    log.info("=== Resolved Framework Configuration ===");
+    log.info("Run ID: {}", runContext.runId());
+    log.info("Started At: {}", runContext.startedAt());
+    log.info("Environment: {}", config.environment());
+    log.info("Browser: {}", config.browser());
+    log.info("Headless: {}", config.headless());
+    log.info("Execution Type: {}", config.executionType());
+    log.info("Thread Count: {}", config.threadCount());
+    log.info("App URL: {}", config.appUrl());
+    log.info("Retry Enabled: {}", config.retryEnabled());
+    log.info("Retry Count: {}", config.retryCount());
+    log.info("Explicit Wait Seconds: {}", config.explicitWaitSeconds());
+    log.info("Polling Interval Ms: {}", config.pollingIntervalMs());
+    log.info("Page Load Timeout Seconds: {}", config.pageLoadTimeoutSeconds());
+    log.info("Script Timeout Seconds: {}", config.scriptTimeoutSeconds());
+    log.info("Network Logs Enabled: {}", config.networkLogsEnabled());
+    log.info("Grid Video Base URL Configured: {}", !config.gridVideoBaseUrl().isBlank());
+    log.info("Suites Updated: {}", suites.stream().map(XmlSuite::getName).toList());
+    log.info("========================================");
   }
 
   private void generateAllureEnvironmentFile(TestRunContext runContext) {

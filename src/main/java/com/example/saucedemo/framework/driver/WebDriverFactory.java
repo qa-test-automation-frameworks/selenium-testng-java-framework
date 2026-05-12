@@ -158,7 +158,7 @@ public class WebDriverFactory {
     try {
       return DriverType.valueOf(browser.toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(
+      throw new FrameworkConfigurationException(
           String.format(
               "Unsupported browser '%s'. Supported browsers: CHROME, FIREFOX, EDGE, SAFARI",
               browser),

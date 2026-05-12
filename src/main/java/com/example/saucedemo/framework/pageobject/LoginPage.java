@@ -37,10 +37,9 @@ public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
   }
 
   @Step("Click login button")
-  public LoginPage clickLoginButton() {
+  public void clickLoginButton() {
     log.info("Clicking login button");
     waitUtils.click(loginButton);
-    return this;
   }
 
   @Step("Login to {0} with username {1}")

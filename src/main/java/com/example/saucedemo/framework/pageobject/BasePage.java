@@ -2,6 +2,7 @@ package com.example.saucedemo.framework.pageobject;
 
 import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.util.WaitUtils;
+import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 
@@ -25,12 +26,14 @@ public abstract class BasePage {
     this.waitUtils = new WaitUtils(driver, ConfigFactory.getConfig());
   }
 
+  @Step("Navigate browser to {0}")
   protected void navigateTo(String url) {
     log.info("Navigating to URL: {}", url);
     driver.navigate().to(url);
     log.debug("Page load completed for URL: {}", url);
   }
 
+  @Step("Wait until current URL contains '{0}'")
   protected void waitUntilUrlContains(String expectedUrlFragment) {
     waitUtils.waitUntil(
         currentDriver -> currentDriver.getCurrentUrl().contains(expectedUrlFragment),

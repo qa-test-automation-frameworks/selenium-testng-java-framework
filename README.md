@@ -1,6 +1,7 @@
 # Selenium Java TestNG Automation Framework
 
 [![UI Tests](https://github.com/prayag/ta-java-selenium-testng/actions/workflows/ui-tests.yml/badge.svg?branch=main)](https://github.com/prayag/ta-java-selenium-testng/actions/workflows/ui-tests.yml)
+[![Allure Report](https://img.shields.io/badge/Allure-Report-orange.svg)](https://prayag.github.io/ta-java-selenium-testng/)
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
@@ -18,6 +19,11 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
 - [Execution Guide](docs/EXECUTION_GUIDE.md) - Local, headless, Docker Grid, and CI execution.
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
+- [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
+
+## Live Report
+
+- [Interactive Allure Report](https://prayag.github.io/ta-java-selenium-testng/)
 
 ## Architecture
 

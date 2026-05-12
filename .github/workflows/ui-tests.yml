@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [CHROME, FIREFOX]
+        browser: [CHROME, FIREFOX, EDGE]
 
     steps:
       - name: Checkout repository
@@ -62,6 +62,7 @@ jobs:
         run: |
           google-chrome --version || true
           firefox --version || true
+          microsoft-edge --version || true
 
       - name: Validate required secrets for trusted full regression
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository

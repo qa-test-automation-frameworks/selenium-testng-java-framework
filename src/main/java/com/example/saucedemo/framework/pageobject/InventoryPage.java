@@ -63,6 +63,7 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
     return this;
   }
 
+  @Step("Get displayed product prices from inventory")
   public List<BigDecimal> getDisplayedProductPrices() {
     return waitUtils.waitUntilAllVisible(productPrice).stream()
         .map(WebElement::getText)

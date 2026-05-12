@@ -3,14 +3,9 @@ package com.example.saucedemo.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.saucedemo.framework.pageobject.CartPage;
-import com.example.saucedemo.framework.pageobject.CheckoutCompletePage;
-import com.example.saucedemo.framework.pageobject.CheckoutOverviewPage;
-import com.example.saucedemo.framework.pageobject.CheckoutPage;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import com.example.saucedemo.framework.util.AuthService;
-import com.example.saucedemo.tests.data.CheckoutScenario;
-import com.example.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
@@ -26,7 +21,7 @@ import org.testng.annotations.Test;
 
 @Slf4j
 @Epic("Sauce Demo")
-@Feature("Cart and Checkout")
+@Feature("Cart")
 @Owner("QA Automation")
 public class CartTests extends BaseTestCase {
 
@@ -135,99 +130,6 @@ public class CartTests extends BaseTestCase {
         .as("After removing all items, the cart should be empty")
         .isEqualTo(0);
     log.info("Finished test successfully: verifyUserCanRemoveProductsFromCart");
-  }
-
-  @Test(
-      testName = "Verify checkout requires first name, last name, and postal code",
-      description =
-          "Attempts checkout with empty required fields and verifies the first-name validation message is shown.",
-      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Story("Checkout validation")
-  @Severity(SeverityLevel.CRITICAL)
-  public void verifyCheckoutShowsValidationForMissingRequiredFields() {
-    log.info("Starting test: verifyCheckoutShowsValidationForMissingRequiredFields");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
-    HeaderComponent header = new HeaderComponent(getDriver());
-
-    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
-    header.navigateToCart();
-
-    CartPage cartPage = new CartPage(getDriver());
-    CheckoutPage checkoutPage = cartPage.continueToCheckout();
-    CheckoutInformation missingInformation = CheckoutScenario.emptyInformation();
-    assertThat(
-            checkoutPage
-                .submitInvalidCheckoutInformation(
-                    missingInformation.firstName(),
-                    missingInformation.lastName(),
-                    missingInformation.postalCode())
-                .getErrorMessage())
-        .as("Checkout should require first name first")
-        .isEqualTo("Error: First Name is required");
-    log.info("Finished test successfully: verifyCheckoutShowsValidationForMissingRequiredFields");
-  }
-
-  @Test(
-      testName = "Verify user can complete checkout",
-      description =
-          "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.",
-      groups = {TestGroups.SMOKE, TestGroups.CHECKOUT},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Story("Checkout completion")
-  @Severity(SeverityLevel.BLOCKER)
-  public void verifyUserCanCompleteCheckout() {
-    log.info("Starting test: verifyUserCanCompleteCheckout");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
-    HeaderComponent header = new HeaderComponent(getDriver());
-
-    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
-    header.navigateToCart();
-
-    CheckoutPage checkoutPage = new CartPage(getDriver()).continueToCheckout();
-    CheckoutInformation validInformation = CheckoutScenario.validInformation();
-    CheckoutOverviewPage overviewPage =
-        checkoutPage.submitValidCheckoutInformation(
-            validInformation.firstName(),
-            validInformation.lastName(),
-            validInformation.postalCode());
-    CheckoutCompletePage completePage = overviewPage.finishCheckout();
-
-    assertThat(completePage.getConfirmationMessage())
-        .as("Checkout success message should be displayed")
-        .isEqualTo("Thank you for your order!");
-    log.info("Finished test successfully: verifyUserCanCompleteCheckout");
-  }
-
-  @Test(
-      testName = "Verify checkout requires last name",
-      description =
-          "Submits checkout information without a last name and verifies the field-specific validation message.",
-      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Story("Checkout validation")
-  @Severity(SeverityLevel.NORMAL)
-  public void verifyCheckoutRequiresLastName() {
-    log.info("Starting test: verifyCheckoutRequiresLastName");
-    InventoryPage inventoryPage = new InventoryPage(getDriver());
-    HeaderComponent header = new HeaderComponent(getDriver());
-
-    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
-    header.navigateToCart();
-
-    CheckoutPage checkoutPage = new CartPage(getDriver()).continueToCheckout();
-    CheckoutInformation missingLastName = CheckoutScenario.missingLastName();
-
-    assertThat(
-            checkoutPage
-                .submitInvalidCheckoutInformation(
-                    missingLastName.firstName(),
-                    missingLastName.lastName(),
-                    missingLastName.postalCode())
-                .getErrorMessage())
-        .as("Checkout should require last name when first name is present")
-        .isEqualTo("Error: Last Name is required");
-    log.info("Finished test successfully: verifyCheckoutRequiresLastName");
   }
 
   @Test(

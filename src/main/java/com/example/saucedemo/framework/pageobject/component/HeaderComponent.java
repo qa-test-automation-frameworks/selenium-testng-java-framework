@@ -48,6 +48,7 @@ public class HeaderComponent extends BaseComponent {
     return count;
   }
 
+  @Step("Wait for cart badge count to become {0}")
   public void waitForProductAddedToCartCount(int expectedCount) {
     if (expectedCount == 0) {
       waitUtils.waitUntilElementCountIs(cartItemCount, 0);

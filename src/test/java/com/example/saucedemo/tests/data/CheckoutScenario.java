@@ -12,6 +12,10 @@ public final class CheckoutScenario {
     return CheckoutInformation.builder().firstName("Pat").postalCode("411001").build();
   }
 
+  public static CheckoutInformation missingPostalCode() {
+    return CheckoutInformation.builder().firstName("Pat").lastName("Tester").build();
+  }
+
   public static CheckoutInformation validInformation() {
     return CheckoutInformation.builder()
         .firstName("Pat")

@@ -31,6 +31,7 @@ public class InventoryListComponent extends BaseComponent {
    *
    * @return List of WebElements.
    */
+  @Step("Get visible inventory list items")
   public List<WebElement> getItemList() {
     log.debug("Fetching all inventory items from the page");
     return waitUtils.waitUntilElementCountAtLeast(listItems, 1);
@@ -41,6 +42,7 @@ public class InventoryListComponent extends BaseComponent {
    *
    * @return Product count.
    */
+  @Step("Get inventory list item count")
   public int getListItemsCount() {
     // Intentionally short-circuit empty states so cart-empty assertions do not wait for elements
     // that should never appear.
@@ -59,6 +61,7 @@ public class InventoryListComponent extends BaseComponent {
    * @return The product WebElement.
    * @throws AssertionError if the product is not found.
    */
+  @Step("Find product '{0}' in inventory list")
   public WebElement getProductByName(String name) {
     log.info("Searching for product by name: {}", name);
     return waitUtils.waitUntilAllVisible(listItems).stream()
@@ -76,6 +79,7 @@ public class InventoryListComponent extends BaseComponent {
    * @param name Name of the product.
    * @return ProductDetails record.
    */
+  @Step("Get product details for '{0}'")
   public ProductDetails getProductDetailsByName(String name) {
     log.info("Retrieving details for product: {}", name);
     WebElement product = getProductByName(name);
@@ -126,6 +130,7 @@ public class InventoryListComponent extends BaseComponent {
     return this;
   }
 
+  @Step("Wait for inventory list item count to become {0}")
   public void waitForItemCount(int expectedCount) {
     waitUtils.waitUntilElementCountIs(listItems, expectedCount);
   }

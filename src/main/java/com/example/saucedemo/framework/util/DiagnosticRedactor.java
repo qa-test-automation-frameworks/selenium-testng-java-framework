@@ -20,6 +20,7 @@ public final class DiagnosticRedactor {
           Pattern.compile("(?i)(set-cookie:\\s*)(.+)"),
           Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", Pattern.CASE_INSENSITIVE),
           Pattern.compile("(?<!\\d)(?:\\+?\\d[\\d\\-() ]{7,}\\d)(?!\\d)"));
+  private static volatile List<Pattern> cachedPatterns;
 
   private DiagnosticRedactor() {}
 
@@ -36,15 +37,26 @@ public final class DiagnosticRedactor {
   }
 
   private static List<Pattern> redactionPatterns() {
-    List<Pattern> patterns = new ArrayList<>(DEFAULT_PATTERNS);
-    FrameworkConfig config = ConfigFactory.getConfig();
-    if (config.appPassword() != null && !config.appPassword().isBlank()) {
-      patterns.add(Pattern.compile(Pattern.quote(config.appPassword())));
+    List<Pattern> localPatterns = cachedPatterns;
+    if (localPatterns != null) {
+      return localPatterns;
     }
-    if (config.appUsername() != null && !config.appUsername().isBlank()) {
-      patterns.add(Pattern.compile(Pattern.quote(config.appUsername()), Pattern.CASE_INSENSITIVE));
+
+    synchronized (DiagnosticRedactor.class) {
+      if (cachedPatterns == null) {
+        List<Pattern> patterns = new ArrayList<>(DEFAULT_PATTERNS);
+        FrameworkConfig config = ConfigFactory.getConfig();
+        if (config.appPassword() != null && !config.appPassword().isBlank()) {
+          patterns.add(Pattern.compile(Pattern.quote(config.appPassword())));
+        }
+        if (config.appUsername() != null && !config.appUsername().isBlank()) {
+          patterns.add(
+              Pattern.compile(Pattern.quote(config.appUsername()), Pattern.CASE_INSENSITIVE));
+        }
+        cachedPatterns = List.copyOf(patterns);
+      }
+      return cachedPatterns;
     }
-    return patterns;
   }
 
   private static String replaceMatches(String input, Pattern pattern) {

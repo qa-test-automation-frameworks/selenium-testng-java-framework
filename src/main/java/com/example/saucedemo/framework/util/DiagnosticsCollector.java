@@ -43,6 +43,7 @@ public final class DiagnosticsCollector {
     return SESSION.get() != null;
   }
 
+  @SuppressWarnings("PMD.CloseResource")
   public static List<String> consoleLogs() {
     BiDiSession session = SESSION.get();
     if (session == null) {
@@ -51,6 +52,7 @@ public final class DiagnosticsCollector {
     return session.snapshotConsoleLogs();
   }
 
+  @SuppressWarnings("PMD.CloseResource")
   public static List<String> networkLogs() {
     BiDiSession session = SESSION.get();
     if (session == null) {
@@ -59,6 +61,7 @@ public final class DiagnosticsCollector {
     return session.snapshotNetworkLogs();
   }
 
+  @SuppressWarnings("PMD.CloseResource")
   public static void stop() {
     BiDiSession session = SESSION.get();
     if (session == null) {
@@ -80,6 +83,7 @@ public final class DiagnosticsCollector {
       List<String> networkLogs)
       implements AutoCloseable {
 
+    @SuppressWarnings("PMD.CloseResource")
     private static BiDiSession create(WebDriver driver, boolean networkLoggingEnabled) {
       List<String> consoleLogs = Collections.synchronizedList(new ArrayList<>());
       LogInspector logInspector = new LogInspector(driver);
