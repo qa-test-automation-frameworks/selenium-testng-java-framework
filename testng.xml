@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Sauce Demo UI Regression" parallel="methods" thread-count="5">
+<suite name="Sauce Demo UI Regression" parallel="methods" thread-count="1">
     <listeners>
-        <listener class-name="common.listener.AnnotationTransformer"/>
+        <listener class-name="com.example.saucedemo.framework.listener.SuiteConfigurationListener"/>
+        <listener class-name="com.example.saucedemo.framework.listener.AnnotationTransformer"/>
     </listeners>
     <test name="Inventory and Login Scenarios">
         <classes>
-            <class name="tests.InventoryTests"/>
-            <class name="tests.CartTests"/>
-            <class name="tests.LoginTests"/>
+            <class name="com.example.saucedemo.tests.InventoryTests"/>
+            <class name="com.example.saucedemo.tests.CartTests"/>
+            <class name="com.example.saucedemo.tests.LoginTests"/>
         </classes>
     </test>
 </suite>
+
+
+

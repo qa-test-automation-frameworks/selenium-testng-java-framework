@@ -29,7 +29,7 @@ pipeline {
             steps {
                 // --build ensures the test-runner image is updated with current code
                 // --exit-code-from test-runner ensures Jenkins build status matches test results
-                sh 'docker-compose up --build --exit-code-from test-runner'
+                sh 'docker compose up --build --exit-code-from test-runner'
             }
         }
     }
@@ -37,7 +37,7 @@ pipeline {
     post {
         always {
             // Clean up containers, networks, and volumes
-            sh 'docker-compose down'
+            sh 'docker compose down'
             
             // Generate Allure report (history is handled by the plugin)
             allure includeProperties: false, 

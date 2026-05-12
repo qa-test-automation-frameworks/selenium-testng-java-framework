@@ -7,18 +7,18 @@ The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**
 
 ## Layers
 
-### 1. Driver Layer (`common.driver`)
+### 1. Driver Layer (`com.example.saucedemo.framework.driver`)
 - **WebDriverFactory**: Manages the lifecycle of WebDriver instances.
 - **ThreadLocal Storage**: Ensures each thread has its own isolated driver instance, enabling safe parallel execution.
-- **Support**: Supports Chrome, Firefox, Edge, and Safari, as well as Remote execution via Selenium Grid.
+- **Support**: Supports Chrome, Firefox, and Edge locally. Chrome and Firefox are configured for Selenium Grid and CI. Safari is local macOS-only experimental support.
 
-### 2. Configuration Layer (`common.config`)
+### 2. Configuration Layer (`com.example.saucedemo.framework.config`)
 - **Custom Typed Loader**: Uses `FrameworkConfig` plus `ConfigFactory` for typed configuration without depending on an unmaintained external library.
 - **Multi-Environment**: Supports different profiles (QA, DEV) via `.properties` files.
 - **Security**: Sensitive data (like passwords) are externalized via environment variables.
 - **Override Order**: Defaults are loaded first, then `config.properties`, then `${env}.properties`, then environment variables, then Maven/system properties.
 
-### 3. Page Object Model (`common.pageobject`)
+### 3. Page Object Model (`com.example.saucedemo.framework.pageobject`)
 - **BasePage**: The foundation for all page objects, providing common interaction methods and wait strategies.
 - **Stateless Design**: Page Objects represent the UI state and actions but do not contain assertions (delegated to the test layer).
 - **Component Model**: Complex UI elements (like Headers) are extracted into reusable components.
@@ -29,7 +29,7 @@ The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**
 - **UITests**: Implementation of business scenarios.
 - **AssertJ**: Used for fluent, descriptive assertions with business-level error messages.
 
-### 5. Reporting Layer (`common.listener`)
+### 5. Reporting Layer (`com.example.saucedemo.framework.listener`)
 - **Allure Reporting**: Integrated via a custom listener to capture screenshots, URL, page source, browser capabilities, console logs, and environment details on failure.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
@@ -43,3 +43,6 @@ The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**
 - If Selenium Grid is slow to become healthy, rerun the command after the hub and browser nodes finish starting.
 - Use `-Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub` for local grid runs.
 - Keep browser names aligned with supported values: `CHROME`, `FIREFOX`, `EDGE`, or `SAFARI`.
+
+
+

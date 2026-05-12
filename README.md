@@ -1,22 +1,12 @@
 # Selenium Java TestNG Automation Framework
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/user/ta-java-selenium-testng/ui-tests.yml?branch=main)
+![Build Status](https://img.shields.io/github/actions/workflow/status/prayag/ta-java-selenium-testng/ui-tests.yml?branch=main)
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Allure Report](https://img.shields.io/badge/Allure_Report-Live-orange.svg)
 
-👉 [View Live Test Report Here](https://user.github.io/ta-java-selenium-testng/)
+[View Live Allure Report](https://prayag.github.io/ta-java-selenium-testng/)
 
 Java 21 UI test automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, custom typed configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
-
-## Visual Showcase
-> **Note:** To make this repository portfolio-ready, you can replace the placeholder paths below with actual GIFs/screenshots.
-> 
-> *Test Execution Demo:*
-> ![Test Execution Demo](docs/assets/execution-demo.gif)
-> 
-> *Allure Report Dashboard:*
-> ![Allure Report Dashboard](docs/assets/allure-report.png)
 
 ## Architecture Considerations
 - **Why custom config?** Uses a small typed configuration layer to avoid a stale external dependency while preserving layered overrides.
@@ -65,12 +55,12 @@ graph TD;
 
 ### Local Run
 ```bash
-./mvnw clean verify -DAPP_PASSWORD=your_password
+APP_PASSWORD=your_password ./mvnw clean verify
 ```
 
 Use headless mode or a different browser when needed:
 ```bash
-./mvnw clean verify -DAPP_PASSWORD=your_password -Dheadless=true -Dbrowser=FIREFOX
+APP_PASSWORD=your_password ./mvnw clean verify -Dheadless=true -Dbrowser=FIREFOX
 ```
 
 ### Docker Grid Run
@@ -92,6 +82,12 @@ Configuration is loaded from `src/test/resources/config.properties`, optional pr
 | `execution.type` | `local` or `remote` | `local` |
 | `remote.url` | Selenium Grid URL | blank |
 | `headless` | Run browser headlessly | `false` |
+| `maximize.window` | Maximize headed local browser windows | `true` |
+| `viewport.width` | Browser viewport width for deterministic runs | `1920` |
+| `viewport.height` | Browser viewport height for deterministic runs | `1080` |
+| `thread.count` | TestNG method thread count | `1` |
+| `diagnostics.network.logs.enabled` | Attach Chrome/Edge performance logs on failure | `false` |
+| `diagnostics.grid.video.base.url` | Optional base URL for Selenium Grid video links | blank |
 | `explicit.wait.seconds` | Explicit wait timeout | `10` |
 | `polling.interval.ms` | Explicit wait polling interval in milliseconds | `500` |
 | `page.load.timeout.seconds` | Page load timeout | `30` |
@@ -99,7 +95,15 @@ Configuration is loaded from `src/test/resources/config.properties`, optional pr
 | `retry.enabled` | Enable TestNG retry analyzer | `false` |
 | `retry.count` | Retry count when retries are enabled | `2` |
 
-Credentials are supplied through environment variables or Maven system properties. Do not commit real credentials to repository files.
+Credentials are supplied through environment variables or Maven system properties. Prefer environment variables locally and GitHub Actions secrets in CI so passwords are not written into Maven command lines. Do not commit real credentials to repository files.
+
+## Browser Support
+| Browser | Local headed | Local headless | Docker Grid | GitHub Actions |
+|---------|--------------|----------------|-------------|----------------|
+| Chrome | Supported | Supported | Supported | Supported |
+| Firefox | Supported | Supported | Supported | Supported |
+| Edge | Supported | Supported | Not configured | Not configured |
+| Safari | macOS-only experimental | Not supported | Not supported | Not supported |
 
 ## Branch Protection
 Recommended GitHub branch protection for `main`:

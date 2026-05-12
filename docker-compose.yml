@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   selenium-hub:
     image: selenium/hub:4.43.0
@@ -38,26 +36,15 @@ services:
     depends_on:
       selenium-hub:
         condition: service_healthy
-      chrome:
-        condition: service_started
     volumes:
       # Mount target directory to extract allure-results and other artifacts back to the host/Jenkins workspace
       - ./target:/app/target
     environment:
-      - remote.url=http://selenium-hub:4444/wd/hub
-      - browser=${BROWSER:-CHROME}
-      - execution.type=remote
-      - env=${ENV:-qa}
+      - REMOTE_URL=http://selenium-hub:4444/wd/hub
+      - BROWSER=${BROWSER:-CHROME}
+      - EXECUTION_TYPE=remote
+      - ENV=${ENV:-qa}
       - APP_USERNAME=${APP_USERNAME:-standard_user}
       - APP_PASSWORD=${APP_PASSWORD:?APP_PASSWORD is required}
-    # Override the Dockerfile entrypoint to run against the grid
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        echo "Waiting for Grid to be fully ready..."
-        until curl -fsS http://selenium-hub:4444/status | grep -q '"ready": true'; do
-          echo "Grid is not ready yet - sleeping"
-          sleep 2
-        done
-        echo "Grid is ready! Starting tests..."
-        mvn verify -Dexecution.type=remote -Dremote.url=http://selenium-hub:4444/wd/hub -Dbrowser=$$browser -Denv=$$env -DAPP_USERNAME=$$APP_USERNAME -DAPP_PASSWORD=$$APP_PASSWORD -Dheadless=true
+    entrypoint: ["./mvnw"]
+    command: ["verify", "-Dheadless=true"]

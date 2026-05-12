@@ -3,7 +3,7 @@
 Follow these guidelines when adding new tests or modifying existing ones.
 
 ## Adding a New Page Object
-1. Create a new class in `src/main/java/common/pageobject`.
+1. Create a new class in `src/main/java/com/example/saucedemo/framework/pageobject`.
 2. Extend `BasePage`.
 3. Add a constructor that calls `super(driver)`.
 4. Define locators using private `By` variables.
@@ -13,12 +13,12 @@ Follow these guidelines when adding new tests or modifying existing ones.
 
 ## Adding a New Component
 If a UI element is shared across multiple pages (e.g., a Footer):
-1. Create a class in `common.pageobject.component`.
-2. Extend `BasePage`.
+1. Create a class in `com.example.saucedemo.framework.pageobject.component`.
+2. Extend `BaseComponent`.
 3. Instantiate it within the Page Objects that use it.
 
 ## Writing a New Test
-1. Create a test class in `src/test/java/tests`.
+1. Create a test class in `src/test/java/com/example/saucedemo/tests`.
 2. Extend `BaseTestCase`.
 3. Annotate test methods with `@Test`.
 4. Use the `testName` attribute in `@Test` for better reporting.
@@ -36,4 +36,7 @@ assertThat(page.getSomeValue())
 ## Naming Conventions
 - **Pages**: `SomethingPage`
 - **Components**: `SomethingComponent`
-- **Tests**: `business_logic_should_do_something` (lowercase with underscores)
+- **Tests**: use descriptive camelCase names, for example `verifyUserCanAddProductsToCart`.
+
+
+
