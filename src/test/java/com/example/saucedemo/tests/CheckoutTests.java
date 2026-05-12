@@ -2,13 +2,12 @@ package com.example.saucedemo.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.saucedemo.framework.pageobject.CartPage;
+import com.example.saucedemo.app.auth.AuthService;
 import com.example.saucedemo.framework.pageobject.CheckoutCompletePage;
 import com.example.saucedemo.framework.pageobject.CheckoutOverviewPage;
 import com.example.saucedemo.framework.pageobject.CheckoutPage;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
-import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.CheckoutScenario;
 import com.example.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;
 import com.example.saucedemo.tests.data.ProductCatalog;
@@ -98,12 +97,12 @@ public class CheckoutTests extends BaseTestCase {
   }
 
   private CheckoutPage addBackpackToCartAndOpenCheckout() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
 
     inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
     header.navigateToCart();
 
-    return new CartPage(getDriver()).waitUntilLoaded().continueToCheckout();
+    return pages().cart().waitUntilLoaded().continueToCheckout();
   }
 }

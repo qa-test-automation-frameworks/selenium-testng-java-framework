@@ -33,7 +33,7 @@ sequenceDiagram
 ```mermaid
 graph LR
 	Defaults[Default properties] --> BaseConfig[config.properties]
-	BaseConfig --> EnvProfile[env-specific properties]
+	BaseConfig --> EnvProfile[optional env-specific properties]
 	EnvProfile --> ExternalFile[-Dconfig.file optional override]
 	ExternalFile --> Environment[Environment variables]
 	Environment --> SystemProps[Maven / system properties]
@@ -52,7 +52,7 @@ graph LR
 - **Custom Typed Loader**: Uses `FrameworkConfig` plus `ConfigFactory` for typed configuration without depending on an unmaintained external library.
 - **Multi-Environment**: Supports different profiles (QA, DEV) via `.properties` files.
 - **Security**: Sensitive data (like passwords) are externalized via environment variables.
-- **Override Order**: Defaults are loaded first, then `config.properties`, then `${env}.properties`, then environment variables, then Maven/system properties.
+- **Override Order**: Defaults are loaded first, then optional `config.properties`, then optional `${env}.properties`, then an optional external `-Dconfig.file`, then environment variables, then Maven/system properties.
 
 ### 3. Page Object Model (`com.example.saucedemo.framework.pageobject`)
 - **BasePage**: The foundation for all page objects, providing common interaction methods and wait strategies.
@@ -68,11 +68,11 @@ graph LR
 - **Automation-Only Scope**: `src/test/java` is intentionally reserved for TestNG UI automation scenarios, test data, and supporting orchestration rather than a separate framework unit-test layer.
 
 ### 5. Reporting Layer (`com.example.saucedemo.framework.listener`)
-- **Allure Reporting**: Integrated via a custom listener to capture screenshots, URL, page source, browser capabilities, console logs, network logs, framework log excerpts, and environment details on failure.
+- **Allure Reporting**: Integrated via a custom listener to capture URL, browser capabilities, configurable screenshots, configurable page source, configurable console logs, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, and environment details on failure.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
 ### 6. CI and Quality Gates
-- **GitHub Actions**: Runs formatting checks, Checkstyle, PMD, SpotBugs, browser-matrix UI execution against Selenium Grid, artifact upload, and GitHub Pages deployment for Allure on `main`.
+- **GitHub Actions**: Runs formatting checks, Checkstyle, PMD, SpotBugs, browser-matrix UI execution against Selenium Grid, artifact upload, Allure history preservation, GitHub Pages deployment for Allure on `main`, and scheduled dependency governance/SBOM tasks.
 - **Dependabot**: Keeps Maven, Docker, and GitHub Actions dependencies on an automated weekly update cadence.
 
 ## Design Principles
@@ -87,6 +87,5 @@ graph LR
 - If Selenium Grid is slow to become healthy, rerun the command after the hub and browser nodes finish starting.
 - Use `-Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub` for local grid runs.
 - Keep browser names aligned with supported values: `CHROME`, `FIREFOX`, `EDGE`, or `SAFARI`.
-
 
 

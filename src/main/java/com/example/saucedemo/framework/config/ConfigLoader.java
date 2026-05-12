@@ -70,6 +70,10 @@ public final class ConfigLoader {
     properties.setProperty("polling.interval.ms", "500");
     properties.setProperty("diagnostics.network.logs.enabled", "false");
     properties.setProperty("diagnostics.grid.video.base.url", "");
+    properties.setProperty("diagnostics.attach.screenshot.on.failure", "true");
+    properties.setProperty("diagnostics.attach.page.source.on.failure", "true");
+    properties.setProperty("diagnostics.attach.browser.logs.on.failure", "true");
+    properties.setProperty("diagnostics.attach.framework.logs.on.failure", "true");
     return properties;
   }
 
@@ -139,29 +143,41 @@ public final class ConfigLoader {
   }
 
   private void validateConfig(FrameworkConfig config) {
+    config.browserType();
     ExecutionType.from(config.executionType());
     if (config.threadCount() < 1) {
-      throw new FrameworkConfigurationException("thread.count must be greater than zero");
+      throw new FrameworkConfigurationException(
+          "thread.count must be greater than zero; actual value was " + config.threadCount());
     }
     if (config.viewportWidth() < 1 || config.viewportHeight() < 1) {
       throw new FrameworkConfigurationException(
-          "viewport.width and viewport.height must be positive");
+          String.format(
+              "viewport.width and viewport.height must be positive; actual values were %d x %d",
+              config.viewportWidth(), config.viewportHeight()));
     }
     if (config.retryCount() < 0) {
-      throw new FrameworkConfigurationException("retry.count must not be negative");
+      throw new FrameworkConfigurationException(
+          "retry.count must not be negative; actual value was " + config.retryCount());
     }
     if (config.explicitWaitSeconds() < 1) {
-      throw new FrameworkConfigurationException("explicit.wait.seconds must be greater than zero");
+      throw new FrameworkConfigurationException(
+          "explicit.wait.seconds must be greater than zero; actual value was "
+              + config.explicitWaitSeconds());
     }
     if (config.pageLoadTimeoutSeconds() < 1) {
       throw new FrameworkConfigurationException(
-          "page.load.timeout.seconds must be greater than zero");
+          "page.load.timeout.seconds must be greater than zero; actual value was "
+              + config.pageLoadTimeoutSeconds());
     }
     if (config.scriptTimeoutSeconds() < 1) {
-      throw new FrameworkConfigurationException("script.timeout.seconds must be greater than zero");
+      throw new FrameworkConfigurationException(
+          "script.timeout.seconds must be greater than zero; actual value was "
+              + config.scriptTimeoutSeconds());
     }
     if (config.pollingIntervalMs() < 1) {
-      throw new FrameworkConfigurationException("polling.interval.ms must be greater than zero");
+      throw new FrameworkConfigurationException(
+          "polling.interval.ms must be greater than zero; actual value was "
+              + config.pollingIntervalMs());
     }
     if (config.executionType().equalsIgnoreCase("remote")
         && (config.remoteUrl() == null || config.remoteUrl().isBlank())) {
@@ -186,6 +202,11 @@ public final class ConfigLoader {
     @Override
     public String browser() {
       return get("browser");
+    }
+
+    @Override
+    public BrowserType browserType() {
+      return BrowserType.from(browser());
     }
 
     @Override
@@ -276,6 +297,26 @@ public final class ConfigLoader {
     @Override
     public String gridVideoBaseUrl() {
       return get("diagnostics.grid.video.base.url");
+    }
+
+    @Override
+    public boolean attachScreenshotsOnFailure() {
+      return getBoolean("diagnostics.attach.screenshot.on.failure");
+    }
+
+    @Override
+    public boolean attachPageSourceOnFailure() {
+      return getBoolean("diagnostics.attach.page.source.on.failure");
+    }
+
+    @Override
+    public boolean attachBrowserLogsOnFailure() {
+      return getBoolean("diagnostics.attach.browser.logs.on.failure");
+    }
+
+    @Override
+    public boolean attachFrameworkLogsOnFailure() {
+      return getBoolean("diagnostics.attach.framework.logs.on.failure");
     }
 
     private String get(String key) {

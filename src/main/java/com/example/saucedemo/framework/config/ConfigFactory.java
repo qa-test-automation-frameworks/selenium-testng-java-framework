@@ -25,6 +25,14 @@ public final class ConfigFactory {
     return CONFIG.get();
   }
 
+  static void resetForTesting() {
+    CONFIG.set(null);
+  }
+
+  static FrameworkConfig loadForTesting(ConfigSources sources) {
+    return CONFIG_LOADER.load(sources);
+  }
+
   public static void requireLoginPassword(FrameworkConfig config) {
     if (config.appPassword() == null || config.appPassword().isBlank()) {
       throw new FrameworkConfigurationException("APP_PASSWORD is required for UI login scenarios");

@@ -209,6 +209,21 @@ public class WaitUtils {
     }
   }
 
+  /** Waits until an element is either absent from the DOM or present but not visible. */
+  public boolean waitUntilInvisibleOrAbsent(By locator, String failureMessage) {
+    log.debug("Waiting for element to be invisible or absent: {}", locator);
+    try {
+      return wait.until(
+          currentDriver -> {
+            List<WebElement> elements = currentDriver.findElements(locator);
+            return elements.isEmpty() || elements.stream().noneMatch(WebElement::isDisplayed);
+          });
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for element to be invisible or absent: {}", locator);
+      throw new TimeoutException(failureMessage, e);
+    }
+  }
+
   /** Waits for an element to be visible before clearing and typing text into it. */
   public void type(By locator, String text) {
     WebElement element = waitUntilVisible(locator);

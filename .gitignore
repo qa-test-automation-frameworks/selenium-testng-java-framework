@@ -26,5 +26,9 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+src/test/resources/*.properties
+!src/test/resources/*.properties.example
+!src/test/resources/allure.properties
+!src/test/resources/log4j2.properties
 src/test/resources/*-local.properties
 src/test/resources/private-*.properties

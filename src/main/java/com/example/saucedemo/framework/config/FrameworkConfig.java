@@ -7,6 +7,8 @@ public interface FrameworkConfig {
 
   String browser();
 
+  BrowserType browserType();
+
   String executionType();
 
   String remoteUrl();
@@ -42,4 +44,12 @@ public interface FrameworkConfig {
   boolean networkLogsEnabled();
 
   String gridVideoBaseUrl();
+
+  boolean attachScreenshotsOnFailure();
+
+  boolean attachPageSourceOnFailure();
+
+  boolean attachBrowserLogsOnFailure();
+
+  boolean attachFrameworkLogsOnFailure();
 }

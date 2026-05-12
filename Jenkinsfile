@@ -25,6 +25,12 @@ pipeline {
             }
         }
 
+        stage('Quality Gates') {
+            steps {
+                sh './mvnw -DskipTests verify'
+            }
+        }
+
         stage('Run Tests with Docker Compose') {
             steps {
                 // --build ensures the test-runner image is updated with current code

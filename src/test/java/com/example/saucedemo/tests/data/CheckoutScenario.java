@@ -1,7 +1,5 @@
 package com.example.saucedemo.tests.data;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public final class CheckoutScenario {
 
   private CheckoutScenario() {}
@@ -20,18 +18,10 @@ public final class CheckoutScenario {
 
   public static CheckoutInformation validInformation() {
     return CheckoutInformation.builder()
-        .firstName(randomName("Pat"))
-        .lastName(randomName("Tester"))
-        .postalCode(randomPostalCode())
+        .firstName("Pat")
+        .lastName("Tester")
+        .postalCode("411001")
         .build();
-  }
-
-  private static String randomName(String prefix) {
-    return prefix + ThreadLocalRandom.current().nextInt(100, 1_000);
-  }
-
-  private static String randomPostalCode() {
-    return String.format("%05d", ThreadLocalRandom.current().nextInt(100_000));
   }
 
   public record CheckoutInformation(String firstName, String lastName, String postalCode) {
@@ -63,6 +53,13 @@ public final class CheckoutScenario {
 
       public Builder postalCode(String postalCode) {
         this.postalCode = postalCode;
+        return this;
+      }
+
+      public Builder validDefaults() {
+        this.firstName = "Pat";
+        this.lastName = "Tester";
+        this.postalCode = "411001";
         return this;
       }
 

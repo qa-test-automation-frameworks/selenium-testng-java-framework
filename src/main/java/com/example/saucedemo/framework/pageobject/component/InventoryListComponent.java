@@ -13,6 +13,7 @@ import org.openqa.selenium.WebElement;
 @Slf4j
 public class InventoryListComponent extends BaseComponent {
 
+  private final By rootLocator;
   protected final By listItems =
       By.cssSelector("[data-test='inventory-item'], [data-test='cart-item']");
   protected final By productNameElement = By.cssSelector("[data-test='inventory-item-name']");
@@ -22,8 +23,17 @@ public class InventoryListComponent extends BaseComponent {
   private final By addToCartButton = By.cssSelector("button[data-test^='add-to-cart']");
   private final By removeButton = By.cssSelector("button[data-test^='remove']");
 
-  public InventoryListComponent(WebDriver driver) {
+  private InventoryListComponent(WebDriver driver, By rootLocator) {
     super(driver);
+    this.rootLocator = rootLocator;
+  }
+
+  public static InventoryListComponent inventory(WebDriver driver) {
+    return new InventoryListComponent(driver, By.cssSelector("[data-test='inventory-list']"));
+  }
+
+  public static InventoryListComponent cart(WebDriver driver) {
+    return new InventoryListComponent(driver, By.cssSelector("[data-test='cart-list']"));
   }
 
   /**
@@ -34,7 +44,12 @@ public class InventoryListComponent extends BaseComponent {
   @Step("Get visible inventory list items")
   public List<WebElement> getItemList() {
     log.debug("Fetching all inventory items from the page");
-    return waitUtils.waitUntilElementCountAtLeast(listItems, 1);
+    return waitUtils.waitUntil(
+        currentDriver -> {
+          List<WebElement> items = visibleItems();
+          return items.isEmpty() ? null : items;
+        },
+        String.format("No visible list items were found inside %s", rootLocator));
   }
 
   /**
@@ -46,10 +61,7 @@ public class InventoryListComponent extends BaseComponent {
   public int getListItemsCount() {
     // Intentionally short-circuit empty states so cart-empty assertions do not wait for elements
     // that should never appear.
-    int count =
-        driver.findElements(listItems).isEmpty()
-            ? 0
-            : waitUtils.waitUntilAllVisible(listItems).size();
+    int count = visibleItems().size();
     log.debug("Inventory item count: {}", count);
     return count;
   }
@@ -64,7 +76,7 @@ public class InventoryListComponent extends BaseComponent {
   @Step("Find product '{0}' in inventory list")
   public WebElement getProductByName(String name) {
     log.info("Searching for product by name: {}", name);
-    return waitUtils.waitUntilAllVisible(listItems).stream()
+    return getItemList().stream()
         .filter(item -> item.findElement(productNameElement).getText().equals(name))
         .findFirst()
         .orElseThrow(
@@ -132,6 +144,15 @@ public class InventoryListComponent extends BaseComponent {
 
   @Step("Wait for inventory list item count to become {0}")
   public void waitForItemCount(int expectedCount) {
-    waitUtils.waitUntilElementCountIs(listItems, expectedCount);
+    waitUtils.waitUntil(
+        currentDriver -> visibleItems().size() == expectedCount,
+        String.format(
+            "List item count inside %s did not become %d within the configured timeout",
+            rootLocator, expectedCount));
+  }
+
+  private List<WebElement> visibleItems() {
+    WebElement root = waitUtils.waitUntilVisible(rootLocator);
+    return root.findElements(listItems).stream().filter(WebElement::isDisplayed).toList();
   }
 }

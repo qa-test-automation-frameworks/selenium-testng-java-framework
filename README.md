@@ -84,7 +84,8 @@ Run the no-secret smoke suite locally:
 Run the full regression with login coverage:
 
 ```bash
-APP_PASSWORD=your_password ./mvnw clean verify -Dheadless=true -Dbrowser=CHROME
+export APP_PASSWORD="<set-outside-repository>"
+./mvnw clean verify -Dheadless=true -Dbrowser=CHROME
 ```
 
 ## Getting Started
@@ -96,7 +97,8 @@ APP_PASSWORD=your_password ./mvnw clean verify -Dheadless=true -Dbrowser=CHROME
 
 ### Local Run
 ```bash
-APP_PASSWORD=your_password ./mvnw clean verify
+export APP_PASSWORD="<set-outside-repository>"
+./mvnw clean verify
 ```
 
 Run no-secret UI smoke coverage without login scenarios:
@@ -106,23 +108,27 @@ Run no-secret UI smoke coverage without login scenarios:
 
 Use headless mode or a different browser when needed:
 ```bash
-APP_PASSWORD=your_password ./mvnw clean verify -Dheadless=true -Dbrowser=FIREFOX
+export APP_PASSWORD="<set-outside-repository>"
+./mvnw clean verify -Dheadless=true -Dbrowser=FIREFOX
 ```
 
 Run a trusted full regression against a specific profile:
 ```bash
-APP_PASSWORD=your_password ./mvnw clean verify -Denv=dev -Dheadless=true -Dbrowser=CHROME
+export APP_PASSWORD="<set-outside-repository>"
+./mvnw clean verify -Denv=dev -Dheadless=true -Dbrowser=CHROME
 ```
 
 ### Docker Grid Run
 ```bash
-APP_PASSWORD=your_password docker compose up --build --exit-code-from test-runner
+export APP_PASSWORD="<set-outside-repository>"
+docker compose up --build --exit-code-from test-runner
 ```
 
 To include the optional Edge node in the local grid, start Docker Compose with the Edge profile:
 
 ```bash
-APP_PASSWORD=your_password docker compose --profile edge up --build --exit-code-from test-runner
+export APP_PASSWORD="<set-outside-repository>"
+docker compose --profile edge up --build --exit-code-from test-runner
 ```
 
 For video-enabled Selenium Grid setups, publish the recording endpoint and set `diagnostics.grid.video.base.url` so failed tests include session video links in Allure.
@@ -140,7 +146,7 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 On `main`, GitHub Actions also starts Selenium Grid browser nodes per matrix entry, merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
 ## Configuration
-Configuration is loaded from classpath resources (`src/test/resources/config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`.
+Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`.
 
 | Property | Description | Default |
 |----------|-------------|---------|
@@ -154,6 +160,10 @@ Configuration is loaded from classpath resources (`src/test/resources/config.pro
 | `thread.count` | TestNG method thread count | `1` |
 | `diagnostics.network.logs.enabled` | Attach Chrome/Edge performance logs on failure | `false` |
 | `diagnostics.grid.video.base.url` | Optional base URL for Selenium Grid video links | blank |
+| `diagnostics.attach.screenshot.on.failure` | Attach failure screenshots to Allure | `true` |
+| `diagnostics.attach.page.source.on.failure` | Attach redacted page source to Allure | `true` |
+| `diagnostics.attach.browser.logs.on.failure` | Attach browser console logs to Allure | `true` |
+| `diagnostics.attach.framework.logs.on.failure` | Attach framework log excerpts to Allure | `true` |
 | `explicit.wait.seconds` | Explicit wait timeout | `10` |
 | `polling.interval.ms` | Explicit wait polling interval in milliseconds | `500` |
 | `page.load.timeout.seconds` | Page load timeout | `30` |
@@ -161,7 +171,17 @@ Configuration is loaded from classpath resources (`src/test/resources/config.pro
 | `retry.enabled` | Enable TestNG retry analyzer | `false` |
 | `retry.count` | Retry count when retries are enabled | `2` |
 
-Credentials are supplied through environment variables or Maven system properties. Prefer environment variables locally and GitHub Actions secrets in CI so passwords are not written into Maven command lines. `APP_PASSWORD` is required only for login scenarios; inventory/cart UI smoke coverage can run without it. Do not commit real credentials to repository files.
+Credentials are supplied through environment variables or Maven system properties. Prefer setting environment variables before running Maven and use GitHub Actions secrets in CI so passwords are not written into Maven command lines or committed files. `APP_PASSWORD` is required only for password-backed login scenarios; inventory/cart UI smoke coverage can run without it. Do not commit real credentials to repository files.
+
+## Fork Setup Notes
+
+After forking, update the badge URLs, `allure.link.issue.pattern`, repository secrets, and GitHub Pages settings to match the fork owner and repository name.
+
+## Current Limitations
+
+- Selenium Grid video support is link-based unless you connect the framework to a video-enabled Grid and set `diagnostics.grid.video.base.url`.
+- Network log attachments depend on browser/session support; unsupported sessions add an explicit "unavailable" attachment when network logging is enabled.
+- Accessibility and visual regression checks are intentionally left as optional extension points so the repository stays focused on UI functional automation.
 
 ## Browser Support
 | Browser | Local headed | Local headless | Docker Grid | GitHub Actions |

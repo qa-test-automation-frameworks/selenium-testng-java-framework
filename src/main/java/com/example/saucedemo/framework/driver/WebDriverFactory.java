@@ -1,5 +1,6 @@
 package com.example.saucedemo.framework.driver;
 
+import com.example.saucedemo.framework.config.BrowserType;
 import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.config.ExecutionType;
 import com.example.saucedemo.framework.config.FrameworkConfig;
@@ -37,33 +38,25 @@ public class WebDriverFactory {
     /* Utility class */
   }
 
-  /** Supported browser types. */
-  public enum DriverType {
-    CHROME,
-    FIREFOX,
-    EDGE,
-    SAFARI
-  }
-
   /**
    * Internal method to create a new WebDriver instance based on configuration.
    *
    * @return A configured WebDriver instance.
    */
   private static WebDriver getDriver(FrameworkConfig config) {
-    DriverType driverType = parseDriverType(config.browser());
+    BrowserType browserType = config.browserType();
 
     WebDriver driver =
         switch (ExecutionType.from(config.executionType())) {
           case REMOTE -> {
             String remoteUrl = config.remoteUrl();
             try {
-              yield getRemoteDriver(driverType, remoteUrl, config);
+              yield getRemoteDriver(browserType, remoteUrl, config);
             } catch (MalformedURLException | URISyntaxException e) {
               throw new FrameworkConfigurationException("Invalid remote URL: " + remoteUrl, e);
             }
           }
-          case LOCAL -> createLocalDriver(driverType, config);
+          case LOCAL -> createLocalDriver(browserType, config);
         };
 
     setTimeOut(driver, config);
@@ -77,9 +70,9 @@ public class WebDriverFactory {
    * @param driverType The type of browser to create.
    * @return A local WebDriver instance.
    */
-  private static WebDriver createLocalDriver(DriverType driverType, FrameworkConfig config) {
-    log.info("Creating local WebDriver for type {}", driverType);
-    return switch (driverType) {
+  private static WebDriver createLocalDriver(BrowserType browserType, FrameworkConfig config) {
+    log.info("Creating local WebDriver for type {}", browserType);
+    return switch (browserType) {
       case CHROME -> new ChromeDriver(BROWSER_OPTIONS_FACTORY.chromeOptions(config));
       case FIREFOX -> new FirefoxDriver(BROWSER_OPTIONS_FACTORY.firefoxOptions(config));
       case EDGE -> new EdgeDriver(BROWSER_OPTIONS_FACTORY.edgeOptions(config));
@@ -117,12 +110,12 @@ public class WebDriverFactory {
    * @return A RemoteWebDriver instance.
    */
   private static WebDriver getRemoteDriver(
-      DriverType driverType, String remoteUrl, FrameworkConfig config)
+      BrowserType browserType, String remoteUrl, FrameworkConfig config)
       throws MalformedURLException, URISyntaxException {
-    log.info("Creating remote WebDriver for type {} at {}", driverType, remoteUrl);
+    log.info("Creating remote WebDriver for type {} at {}", browserType, remoteUrl);
     final URI hubUrl = new URI(remoteUrl);
     MutableCapabilities capabilities =
-        switch (driverType) {
+        switch (browserType) {
           case CHROME -> BROWSER_OPTIONS_FACTORY.chromeOptions(config);
           case FIREFOX -> BROWSER_OPTIONS_FACTORY.firefoxOptions(config);
           case EDGE -> BROWSER_OPTIONS_FACTORY.edgeOptions(config);
@@ -156,18 +149,6 @@ public class WebDriverFactory {
     driver.manage().timeouts().implicitlyWait(Duration.ZERO);
     driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(config.pageLoadTimeoutSeconds()));
     driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(config.scriptTimeoutSeconds()));
-  }
-
-  private static DriverType parseDriverType(String browser) {
-    try {
-      return DriverType.valueOf(browser.toUpperCase(Locale.ROOT));
-    } catch (IllegalArgumentException e) {
-      throw new FrameworkConfigurationException(
-          String.format(
-              "Unsupported browser '%s'. Supported browsers: CHROME, FIREFOX, EDGE, SAFARI",
-              browser),
-          e);
-    }
   }
 
   /** Initializes a new driver for the current thread. */

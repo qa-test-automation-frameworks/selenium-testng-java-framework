@@ -21,7 +21,6 @@ public class HeaderComponent extends BaseComponent {
     super(driver);
   }
 
-  @Step("Check cart button visibility")
   public boolean isCartButtonVisible() {
     boolean visible = waitUtils.isVisible(cartButton);
     log.debug("Cart button visibility: {}", visible);
@@ -51,13 +50,12 @@ public class HeaderComponent extends BaseComponent {
   @Step("Wait for cart badge count to become {0}")
   public void waitForProductAddedToCartCount(int expectedCount) {
     if (expectedCount == 0) {
-      waitUtils.waitUntilElementCountIs(cartItemCount, 0);
+      waitUtils.waitUntilInvisibleOrAbsent(cartItemCount, "Cart badge should be hidden");
     } else {
       waitUtils.waitUntilTextPresent(cartItemCount, String.valueOf(expectedCount));
     }
   }
 
-  @Step("Check menu button visibility")
   public boolean isMenuButtonVisible() {
     boolean visible = waitUtils.isVisible(menuButton);
     log.debug("Menu button visibility: {}", visible);

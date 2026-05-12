@@ -12,7 +12,8 @@ This repository is intentionally focused on UI automation execution. The `src/te
 ## Local Execution
 To run tests locally with the default configuration (Chrome, local):
 ```bash
-APP_PASSWORD=your_password ./mvnw clean verify
+export APP_PASSWORD="<set-outside-repository>"
+./mvnw clean verify
 ```
 
 To run no-secret UI smoke coverage only (`inventory`, `cart`):
@@ -26,11 +27,12 @@ To run no-secret UI smoke coverage only (`inventory`, `cart`):
 - `-Dheadless`: Run in headless mode (`true`, `false`).
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
 - `-Dconfig.file`: Optional external properties file for private local overrides.
-- `-Dretry.enabled`: Enable retry analyzer when investigating infrastructure flakes.
+- `-Dretry.enabled`: Enable retry analyzer for tests explicitly marked with `@Retryable` when investigating infrastructure flakes.
 
 ### Group Execution
 ```bash
-APP_PASSWORD=your_password ./mvnw clean verify -Dgroups=smoke
+export APP_PASSWORD="<set-outside-repository>"
+./mvnw clean verify -Dgroups=smoke
 ```
 
 ## Remote Execution (Docker & Selenium Grid)
@@ -38,17 +40,20 @@ The framework includes a `docker-compose.yml` to spin up a Selenium Grid.
 
 1. **Start the Grid**:
    ```bash
-   APP_PASSWORD=your_password docker compose up --build --exit-code-from test-runner
+   export APP_PASSWORD="<set-outside-repository>"
+   docker compose up --build --exit-code-from test-runner
    ```
 2. **Run tests on the Grid**:
    ```bash
-   APP_PASSWORD=your_password ./mvnw clean verify -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub
+   export APP_PASSWORD="<set-outside-repository>"
+   ./mvnw clean verify -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub
    ```
 
 To include Edge in the local Grid, enable the optional profile:
 
 ```bash
-APP_PASSWORD=your_password docker compose --profile edge up --build --exit-code-from test-runner
+export APP_PASSWORD="<set-outside-repository>"
+docker compose --profile edge up --build --exit-code-from test-runner
 ```
 
 The Docker `test-runner` waits for Selenium Grid readiness before invoking Maven.
@@ -71,10 +76,10 @@ pwsh ./scripts/run-ui-tests-with-allure-report.ps1
 ```
 
 ## Retry Policy
-Retries are disabled by default and should be used only while investigating infrastructure instability. Enable them with `-Dretry.enabled=true` and keep `retry.count` low. The framework validates that `retry.count` is not negative and records a retry summary in the execution log and Allure report when a retry is used.
+Retries are disabled by default and should be used only while investigating infrastructure instability. Enable them with `-Dretry.enabled=true`, mark only eligible tests with `@Retryable`, and keep `retry.count` low. The framework validates that `retry.count` is not negative and records the retry failure type, retry summary, and Allure retry labels when a retry is used.
 
 ## Diagnostics
-Failure diagnostics include screenshots, current URL, browser capabilities, browser console logs, page source, and a framework log excerpt. Text-based attachments are redacted before they are written to Allure. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure.
+Failure diagnostics include current URL, browser capabilities, screenshots, browser console logs, page source, and a framework log excerpt. Text-based attachments are redacted before they are written to Allure. Screenshot, page source, browser log, and framework log attachments can be disabled with the `diagnostics.attach.*.on.failure` properties. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`; unsupported browsers/sessions add an explicit "network logs unavailable" attachment. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure. The provided Docker Compose file does not record videos by itself.
 
 ## Quality Gates
 To run the same non-UI quality checks used in CI:

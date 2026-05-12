@@ -3,12 +3,12 @@ package com.example.saucedemo.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
+import com.example.saucedemo.app.auth.AuthService;
 import com.example.saucedemo.framework.data.AppConstants;
 import com.example.saucedemo.framework.data.ProductDetails;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import com.example.saucedemo.framework.pageobject.component.InventoryListComponent;
-import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
@@ -48,8 +48,8 @@ public class InventoryTests extends BaseTestCase {
   @Story("Inventory navigation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyInventoryDisplaysHeaderAndMenu() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
 
     assertThat(inventoryPage.getHeaderText())
         .as("Inventory page header title should be Swag Labs")
@@ -70,7 +70,7 @@ public class InventoryTests extends BaseTestCase {
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyInventoryDisplaysAllProducts() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
 
     assertThat(inventoryPage.getInventoryList().getListItemsCount())
         .as(
@@ -90,7 +90,7 @@ public class InventoryTests extends BaseTestCase {
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsMatchCatalogDetails() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
     InventoryListComponent inventoryList = inventoryPage.getInventoryList();
 
     assertThat(inventoryList.getListItemsCount())
@@ -139,7 +139,7 @@ public class InventoryTests extends BaseTestCase {
   @Story("Product sorting")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsCanBeSortedByPriceLowToHigh() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
     List<BigDecimal> actualPrices =
         inventoryPage.sortProductsByPriceLowToHigh().getDisplayedProductPrices();
     List<BigDecimal> sortedPrices = new ArrayList<>(actualPrices);
@@ -161,8 +161,8 @@ public class InventoryTests extends BaseTestCase {
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyRemovingProductFromInventoryClearsCartBadge() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
 
     inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
     header.waitForProductAddedToCartCount(1);

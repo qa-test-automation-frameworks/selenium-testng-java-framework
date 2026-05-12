@@ -1,6 +1,7 @@
 package com.example.saucedemo.framework.listener;
 
 import com.example.saucedemo.framework.config.ConfigFactory;
+import com.example.saucedemo.framework.config.FrameworkConfig;
 import com.example.saucedemo.framework.driver.WebDriverFactory;
 import com.example.saucedemo.framework.util.DiagnosticRedactor;
 import com.example.saucedemo.framework.util.DiagnosticsCollector;
@@ -81,28 +82,37 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
     }
 
     log.info("Attaching {} diagnostics to Allure report", label);
-    safeAttach("Screenshot", () -> attachScreenshot(driver));
+    FrameworkConfig config = ConfigFactory.getConfig();
+    if (config.attachScreenshotsOnFailure()) {
+      safeAttach("Screenshot", () -> attachScreenshot(driver));
+    }
     safeAttach(
         "Current URL",
         () -> Allure.addAttachment("Current URL", safeAttachmentText(driver.getCurrentUrl())));
     safeAttach("Browser Capabilities", () -> attachCapabilities(driver));
-    safeAttach("Browser Console Logs", () -> attachBrowserLogs(driver));
+    if (config.attachBrowserLogsOnFailure()) {
+      safeAttach("Browser Console Logs", () -> attachBrowserLogs(driver));
+    }
     safeAttach("Browser Network Logs", () -> attachNetworkLogs(driver));
     safeAttach("Selenium Grid Video", () -> attachGridVideoLink(driver));
-    safeAttach(
-        "Framework Log Excerpt",
-        () -> {
-          try {
-            attachLogExcerpt();
-          } catch (IOException e) {
-            throw new IllegalStateException("Unable to attach framework log excerpt", e);
-          }
-        });
-    safeAttach(
-        "Page Source",
-        () ->
-            Allure.addAttachment(
-                "Page Source", "text/html", safeAttachmentText(driver.getPageSource()), ".html"));
+    if (config.attachFrameworkLogsOnFailure()) {
+      safeAttach(
+          "Framework Log Excerpt",
+          () -> {
+            try {
+              attachLogExcerpt();
+            } catch (IOException e) {
+              throw new IllegalStateException("Unable to attach framework log excerpt", e);
+            }
+          });
+    }
+    if (config.attachPageSourceOnFailure()) {
+      safeAttach(
+          "Page Source",
+          () ->
+              Allure.addAttachment(
+                  "Page Source", "text/html", safeAttachmentText(driver.getPageSource()), ".html"));
+    }
   }
 
   private void attachScreenshot(WebDriver driver) {
@@ -165,6 +175,8 @@ public class FrameworkListener implements ITestListener, IConfigurationListener 
       Allure.addAttachment(
           "Browser Network Logs", "application/json", safeAttachmentText(payload), ".json");
     } catch (Exception e) {
+      Allure.addAttachment(
+          "Browser Network Logs", "Network logs unavailable for this browser/session");
       log.debug("Browser network logs are not available for this driver", e);
     }
   }

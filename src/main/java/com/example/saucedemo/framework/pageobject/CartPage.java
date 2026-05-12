@@ -16,7 +16,7 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
 
   public CartPage(WebDriver driver) {
     super(driver);
-    this.inventoryList = new InventoryListComponent(driver);
+    this.inventoryList = InventoryListComponent.cart(driver);
   }
 
   public InventoryListComponent getInventoryList() {
@@ -46,6 +46,16 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
     String quantityText = items.get(index).findElement(productQuantityElement).getText();
     int quantity = Integer.parseInt(quantityText);
     log.debug("Quantity for item at index {}: {}", index, quantity);
+    return quantity;
+  }
+
+  @Step("Get quantity for product '{0}' in cart")
+  public int getQuantityForProduct(String productName) {
+    log.info("Retrieving product quantity for item '{}' in the cart", productName);
+    WebElement product = getInventoryList().getProductByName(productName);
+    String quantityText = product.findElement(productQuantityElement).getText();
+    int quantity = Integer.parseInt(quantityText);
+    log.debug("Quantity for product '{}': {}", productName, quantity);
     return quantity;
   }
 

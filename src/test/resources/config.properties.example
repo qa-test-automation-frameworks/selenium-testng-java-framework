@@ -5,6 +5,16 @@ APP_USERNAME=standard_user
 browser=CHROME
 execution.type=local
 headless=false
+maximize.window=true
+viewport.width=1920
+viewport.height=1080
+thread.count=1
+diagnostics.network.logs.enabled=false
+diagnostics.grid.video.base.url=
+diagnostics.attach.screenshot.on.failure=true
+diagnostics.attach.page.source.on.failure=true
+diagnostics.attach.browser.logs.on.failure=true
+diagnostics.attach.framework.logs.on.failure=true
 
 # Remote Execution
 remote.url=

@@ -2,13 +2,13 @@ package com.example.saucedemo.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.example.saucedemo.app.auth.AuthService;
 import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.data.AppConstants;
 import com.example.saucedemo.framework.data.LoginRequest;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.LoginPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
-import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.Credentials;
 import com.example.saucedemo.tests.data.LoginScenario;
 import com.example.saucedemo.tests.data.TestGroups;
@@ -33,10 +33,11 @@ public class LoginTests extends BaseTestCase {
   @DataProvider(name = "invalidUsers")
   public Object[][] invalidUsers() {
     return new Object[][] {
-      {LoginScenario.lockedOutUser(), "Epic sadface: Sorry, this user has been locked out."},
+      {LoginScenario.lockedOutUser(), "Epic sadface: Sorry, this user has been locked out.", true},
       {
         LoginScenario.invalidUser(),
-        "Epic sadface: Username and password do not match any user in this service"
+        "Epic sadface: Username and password do not match any user in this service",
+        false
       }
     };
   }
@@ -53,9 +54,11 @@ public class LoginTests extends BaseTestCase {
   @Story("Invalid login handling")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyLoginShowsExpectedErrorMessage(
-      Credentials credentials, String expectedErrorMessage) {
-    ConfigFactory.requireLoginPassword(ConfigFactory.getConfig());
-    LoginPage loginPage = new LoginPage(getDriver());
+      Credentials credentials, String expectedErrorMessage, boolean requiresConfiguredPassword) {
+    if (requiresConfiguredPassword) {
+      ConfigFactory.requireLoginPassword(ConfigFactory.getConfig());
+    }
+    LoginPage loginPage = pages().login();
     loginPage.login(
         new LoginRequest(
             ConfigFactory.getConfig().appUrl(), credentials.username(), credentials.password()));
@@ -79,14 +82,14 @@ public class LoginTests extends BaseTestCase {
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanLogout() {
     AuthService.injectLoginCookieAndNavigate(getDriver());
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
     assertThat(inventoryPage.getHeaderText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
     log.info("Performing logout operation");
     header.logout();
-    LoginPage loginPage = new LoginPage(getDriver()).waitUntilLoaded();
+    LoginPage loginPage = pages().login().waitUntilLoaded();
     assertThat(loginPage.isLoginButtonVisible())
         .as("Logout should return the browser to the login page")
         .isTrue();

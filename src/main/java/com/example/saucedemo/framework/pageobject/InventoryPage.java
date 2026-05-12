@@ -17,7 +17,7 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
 
   public InventoryPage(WebDriver driver) {
     super(driver);
-    this.inventoryList = new InventoryListComponent(driver);
+    this.inventoryList = InventoryListComponent.inventory(driver);
   }
 
   public InventoryListComponent getInventoryList() {

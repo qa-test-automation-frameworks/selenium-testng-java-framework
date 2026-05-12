@@ -7,7 +7,7 @@ Accepted
 Most tests do not need to validate the login flow. Repeating UI login in every test increases runtime and expands the failure surface.
 
 ## Decision
-Use `AuthService` to inject the Sauce Demo session cookie for non-login scenarios, while keeping login-specific tests on the real login form.
+Use the application-level `com.example.saucedemo.app.auth.AuthService` to inject the Sauce Demo session cookie for non-login scenarios, while keeping login-specific tests on the real login form.
 
 ## Consequences
-Tests remain independent and faster. Authentication behavior is still covered by dedicated login tests.
+Tests remain independent and faster. Authentication behavior is still covered by dedicated login tests. The Sauce Demo-specific shortcut stays outside the generic framework utility package.

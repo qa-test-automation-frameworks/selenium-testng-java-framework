@@ -2,10 +2,10 @@ package com.example.saucedemo.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.example.saucedemo.app.auth.AuthService;
 import com.example.saucedemo.framework.pageobject.CartPage;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
-import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
@@ -42,8 +42,8 @@ public class CartTests extends BaseTestCase {
   @Story("Add products to cart")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyUserCanAddProductsToCart() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
 
     log.info("Adding two products to the cart");
     inventoryPage
@@ -67,8 +67,8 @@ public class CartTests extends BaseTestCase {
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyCartDisplaysSelectedProducts() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
 
     log.info("Adding products to cart and navigating to cart page");
     inventoryPage
@@ -76,21 +76,21 @@ public class CartTests extends BaseTestCase {
         .addProductToCart(ProductCatalog.BOLT_TSHIRT.name());
 
     header.navigateToCart();
-    CartPage cartPage = new CartPage(getDriver()).waitUntilLoaded();
+    CartPage cartPage = pages().cart().waitUntilLoaded();
 
     assertThat(cartPage.getInventoryList().getProductDetailsByName(ProductCatalog.BACKPACK.name()))
         .as("Backpack details in cart should match catalog")
         .isEqualTo(ProductCatalog.BACKPACK);
-    assertThat(cartPage.getProductQuantityByIndex(0))
-        .as("Quantity for the first item in cart should be 1")
+    assertThat(cartPage.getQuantityForProduct(ProductCatalog.BACKPACK.name()))
+        .as("Quantity for Backpack in cart should be 1")
         .isEqualTo(1);
 
     assertThat(
             cartPage.getInventoryList().getProductDetailsByName(ProductCatalog.BOLT_TSHIRT.name()))
         .as("Bolt T-shirt details in cart should match catalog")
         .isEqualTo(ProductCatalog.BOLT_TSHIRT);
-    assertThat(cartPage.getProductQuantityByIndex(1))
-        .as("Quantity for the second item in cart should be 1")
+    assertThat(cartPage.getQuantityForProduct(ProductCatalog.BOLT_TSHIRT.name()))
+        .as("Quantity for Bolt T-shirt in cart should be 1")
         .isEqualTo(1);
   }
 
@@ -105,8 +105,8 @@ public class CartTests extends BaseTestCase {
   @Story("Remove products from cart")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanRemoveProductsFromCart() {
-    InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
-    HeaderComponent header = new HeaderComponent(getDriver());
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
 
     log.info("Adding products and navigating to cart for removal");
     inventoryPage
@@ -114,7 +114,7 @@ public class CartTests extends BaseTestCase {
         .addProductToCart(ProductCatalog.BIKE_LIGHT.name());
 
     header.navigateToCart();
-    CartPage cartPage = new CartPage(getDriver()).waitUntilLoaded();
+    CartPage cartPage = pages().cart().waitUntilLoaded();
 
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("There should be 2 items in the cart initially")
@@ -144,10 +144,10 @@ public class CartTests extends BaseTestCase {
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyEmptyCartDisplaysNoItems() {
-    HeaderComponent header = new HeaderComponent(getDriver());
+    HeaderComponent header = pages().header();
 
     header.navigateToCart();
-    CartPage cartPage = new CartPage(getDriver()).waitUntilLoaded();
+    CartPage cartPage = pages().cart().waitUntilLoaded();
 
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("A cart opened before adding products should not contain items")

@@ -17,17 +17,21 @@ public class RetryAnalyzer implements IRetryAnalyzer {
     if (!result.isSuccess()) {
       if (count < maxRetryCount) {
         count++;
+        String failureType =
+            result.getThrowable() == null ? "unknown" : result.getThrowable().getClass().getName();
         log.warn(
-            "Retrying test: {} (Attempt {}/{})",
+            "Retrying test: {} after {} (Attempt {}/{})",
             result.getMethod().getMethodName(),
+            failureType,
             count,
             maxRetryCount);
         Allure.label("retried", "true");
+        Allure.label("retry.failure.type", failureType);
         Allure.addAttachment(
             "Retry Info",
             String.format(
-                "Retrying test %s. Attempt %d/%d",
-                result.getMethod().getMethodName(), count, maxRetryCount));
+                "Retrying test %s after %s. Attempt %d/%d",
+                result.getMethod().getMethodName(), failureType, count, maxRetryCount));
         RetryRegistry.record(result, count, maxRetryCount);
         return true;
       }

@@ -12,7 +12,9 @@ public class AnnotationTransformer implements IAnnotationTransformer {
   public void transform(
       ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
     if (com.example.saucedemo.framework.config.ConfigFactory.getConfig().retryEnabled()) {
-      annotation.setRetryAnalyzer(RetryAnalyzer.class);
+      if (testMethod != null && testMethod.isAnnotationPresent(Retryable.class)) {
+        annotation.setRetryAnalyzer(RetryAnalyzer.class);
+      }
     }
   }
 }

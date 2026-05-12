@@ -1,4 +1,4 @@
-package com.example.saucedemo.framework.util;
+package com.example.saucedemo.app.auth;
 
 import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.config.FrameworkConfig;

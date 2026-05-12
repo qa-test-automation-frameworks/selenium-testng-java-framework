@@ -65,7 +65,6 @@ public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
     return waitUtils.waitUntilVisible(By.cssSelector("[data-test='error']")).getText();
   }
 
-  @Step("Check login button visibility")
   public boolean isLoginButtonVisible() {
     boolean visible = waitUtils.isVisible(loginButton);
     log.debug("Login button visibility: {}", visible);
