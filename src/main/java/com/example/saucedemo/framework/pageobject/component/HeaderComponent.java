@@ -1,10 +1,12 @@
 package com.example.saucedemo.framework.pageobject.component;
 
 import com.example.saucedemo.framework.pageobject.BaseComponent;
+import com.example.saucedemo.framework.pageobject.CartPage;
+import com.example.saucedemo.framework.pageobject.LoginPage;
 import io.qameta.allure.Step;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 
 @Slf4j
@@ -30,20 +32,20 @@ public class HeaderComponent extends BaseComponent {
   public void navigateToCart() {
     log.info("Navigating to cart page via header icon");
     waitUtils.click(cartButton);
-    waitUtils.waitForPageLoad();
+    new CartPage(driver).waitUntilLoaded();
     log.debug("Cart page load completed");
   }
 
   @Step("Get product count from cart badge")
   public int getProductAddedToCartCount() {
-    try {
-      int count = Integer.parseInt(waitUtils.waitUntilVisible(cartItemCount).getText());
-      log.info("Current product count in cart badge: {}", count);
-      return count;
-    } catch (TimeoutException e) {
+    if (!waitUtils.isVisible(cartItemCount, Duration.ofSeconds(1))) {
       log.info("Cart badge is not visible; treating cart count as 0");
       return 0;
     }
+
+    int count = Integer.parseInt(waitUtils.waitUntilVisible(cartItemCount).getText());
+    log.info("Current product count in cart badge: {}", count);
+    return count;
   }
 
   public void waitForProductAddedToCartCount(int expectedCount) {
@@ -78,9 +80,9 @@ public class HeaderComponent extends BaseComponent {
   @Step("Logout from application")
   public void logout() {
     log.info("Starting logout process");
-    waitUtils.waitForPageLoad();
     openMenu();
     clickLogoutButton();
+    new LoginPage(driver).waitUntilLoaded();
     log.info("Logout process completed");
   }
 }

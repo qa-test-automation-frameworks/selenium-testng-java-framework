@@ -11,6 +11,7 @@ import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.Credentials;
 import com.example.saucedemo.tests.data.LoginScenario;
 import com.example.saucedemo.tests.data.TestGroups;
+import com.example.saucedemo.tests.data.TestTimeouts;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -41,11 +42,13 @@ public class LoginTests extends BaseTestCase {
   @Test(
       testName = "Verify login error messages",
       groups = {TestGroups.LOGIN},
-      dataProvider = "invalidUsers")
+      dataProvider = "invalidUsers",
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Invalid login handling")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyLoginShowsExpectedErrorMessage(
       Credentials credentials, String expectedErrorMessage) {
+    ConfigFactory.requireLoginPassword(ConfigFactory.getConfig());
     log.info("Starting test: verifyLoginShowsExpectedErrorMessage for {}", credentials.username());
     LoginPage loginPage = new LoginPage(getDriver());
     loginPage.login(
@@ -61,7 +64,8 @@ public class LoginTests extends BaseTestCase {
 
   @Test(
       testName = "Verify user can logout",
-      groups = {TestGroups.SMOKE, TestGroups.LOGIN})
+      groups = {TestGroups.SMOKE, TestGroups.LOGIN},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Authenticated user logout")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanLogout() {

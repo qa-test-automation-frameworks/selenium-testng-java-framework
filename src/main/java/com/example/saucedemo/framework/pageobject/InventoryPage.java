@@ -2,6 +2,7 @@ package com.example.saucedemo.framework.pageobject;
 
 import com.example.saucedemo.framework.pageobject.component.InventoryListComponent;
 import io.qameta.allure.Step;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
@@ -10,13 +11,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
 @Slf4j
-public class InventoryPage extends BasePage {
+public class InventoryPage extends BasePage implements PageLoadable<InventoryPage> {
 
   private final InventoryListComponent inventoryList;
 
   public InventoryPage(WebDriver driver) {
     super(driver);
     this.inventoryList = new InventoryListComponent(driver);
+    waitUntilLoaded();
   }
 
   public InventoryListComponent getInventoryList() {
@@ -26,6 +28,14 @@ public class InventoryPage extends BasePage {
   private final By primaryHeader = By.className("app_logo");
   private final By productSort = By.cssSelector("[data-test='product-sort-container']");
   private final By productPrice = By.cssSelector("[data-test='inventory-item-price']");
+
+  @Override
+  public InventoryPage waitUntilLoaded() {
+    waitUntilUrlContains("inventory");
+    waitUtils.waitUntilVisible(primaryHeader);
+    waitUtils.waitUntilVisible(productSort);
+    return this;
+  }
 
   @Step("Get header text from landing page")
   public String getHeaderText() {
@@ -53,11 +63,11 @@ public class InventoryPage extends BasePage {
     return this;
   }
 
-  public List<Double> getDisplayedProductPrices() {
+  public List<BigDecimal> getDisplayedProductPrices() {
     return waitUtils.waitUntilAllVisible(productPrice).stream()
         .map(WebElement::getText)
         .map(price -> price.replace("$", ""))
-        .map(Double::parseDouble)
+        .map(BigDecimal::new)
         .toList();
   }
 }

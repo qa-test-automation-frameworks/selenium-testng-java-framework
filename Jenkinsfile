@@ -29,7 +29,9 @@ pipeline {
             steps {
                 // --build ensures the test-runner image is updated with current code
                 // --exit-code-from test-runner ensures Jenkins build status matches test results
-                sh 'docker compose up --build --exit-code-from test-runner'
+                withCredentials([string(credentialsId: 'sauce-demo-password', variable: 'APP_PASSWORD')]) {
+                    sh 'docker compose up --build --exit-code-from test-runner'
+                }
             }
         }
     }

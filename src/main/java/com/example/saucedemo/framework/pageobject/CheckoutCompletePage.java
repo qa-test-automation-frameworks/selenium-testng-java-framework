@@ -6,13 +6,20 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 @Slf4j
-public class CheckoutCompletePage extends BasePage {
+public class CheckoutCompletePage extends BasePage implements PageLoadable<CheckoutCompletePage> {
 
   private final By confirmationMessage = By.cssSelector("[data-test='complete-header']");
 
   public CheckoutCompletePage(WebDriver driver) {
     super(driver);
-    assertCurrentUrlContains("checkout-complete");
+    waitUntilLoaded();
+  }
+
+  @Override
+  public CheckoutCompletePage waitUntilLoaded() {
+    waitUntilUrlContains("checkout-complete");
+    waitUtils.waitUntilVisible(confirmationMessage);
+    return this;
   }
 
   @Step("Get checkout confirmation message")

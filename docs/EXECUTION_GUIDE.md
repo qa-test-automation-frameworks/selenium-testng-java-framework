@@ -13,11 +13,17 @@ To run tests locally with the default configuration (Chrome, local):
 APP_PASSWORD=your_password ./mvnw clean verify
 ```
 
+To run no-secret UI smoke coverage only (`inventory`, `cart`):
+```bash
+./mvnw clean test -Dgroups=inventory,cart -Dheadless=true
+```
+
 ### Parameters
-- `-Denv`: Environment profile (`qa` default, `dev`).
+- `-Denv`: Environment profile (`qa` default, `dev`). This takes precedence over environment variables `ENV` and `env`.
 - `-Dbrowser`: Browser type (`CHROME` default, `FIREFOX`, `EDGE`).
 - `-Dheadless`: Run in headless mode (`true`, `false`).
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
+- `-Dconfig.file`: Optional external properties file for private local overrides.
 - `-Dretry.enabled`: Enable retry analyzer when investigating infrastructure flakes.
 
 ### Group Execution
@@ -37,6 +43,11 @@ The framework includes a `docker-compose.yml` to spin up a Selenium Grid.
    APP_PASSWORD=your_password ./mvnw clean verify -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub
    ```
 
+The Docker `test-runner` waits for Selenium Grid readiness before invoking Maven.
+
+## Jenkins Execution
+The Jenkins pipeline expects a secret text credential with ID `sauce-demo-password` and passes it to Docker Compose as `APP_PASSWORD`.
+
 ## Allure Reporting
 Allure results are generated in `target/allure-results`, and the generated report is written to `target/allure-report`.
 
@@ -45,11 +56,17 @@ To view the report:
 ./mvnw allure:serve
 ```
 
+To preserve report generation after a failing run, use one of the helper scripts:
+```bash
+./scripts/run-ui-tests-with-allure-report.sh
+pwsh ./scripts/run-ui-tests-with-allure-report.ps1
+```
+
 ## Retry Policy
 Retries are disabled by default and should be used only while investigating infrastructure instability. Enable them with `-Dretry.enabled=true` and keep `retry.count` low. The framework validates that `retry.count` is not negative and records a retry summary in the execution log and Allure report when a retry is used.
 
 ## Diagnostics
-Failure diagnostics include screenshots, current URL, browser capabilities, browser console logs, and page source. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure.
+Failure diagnostics include screenshots, current URL, browser capabilities, browser console logs, and page source. Text-based attachments are redacted before they are written to Allure. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure.
 
 ## SBOM
 Generate a CycloneDX software bill of materials with:
@@ -60,4 +77,5 @@ Generate a CycloneDX software bill of materials with:
 
 ## Troubleshooting
 - **Driver not found**: Ensure you have the corresponding browser installed. Selenium Manager will handle binary downloads automatically.
-- **Config Error**: Ensure `APP_PASSWORD` is provided as an environment variable or CI secret.
+- **Config Error**: Ensure `APP_PASSWORD` is provided as an environment variable or CI secret for login scenarios. Non-login smoke groups can run without it.
+- **Wrong environment selected**: Confirm whether `-Denv`, `ENV`, or `env` is set. The framework uses that precedence order.

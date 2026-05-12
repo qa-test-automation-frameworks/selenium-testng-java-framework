@@ -1,8 +1,17 @@
 package com.example.saucedemo.framework.config;
 
-public record TestRunContext(FrameworkConfig config) {
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.UUID;
+
+public record TestRunContext(
+    FrameworkConfig config, String runId, Instant startedAt, Path artifactDirectory) {
 
   public static TestRunContext load() {
-    return new TestRunContext(ConfigFactory.getConfig());
+    FrameworkConfig config = ConfigFactory.getConfig();
+    String resultsDirectory =
+        System.getProperty("allure.results.directory", "target/allure-results");
+    return new TestRunContext(
+        config, UUID.randomUUID().toString(), Instant.now(), Path.of(resultsDirectory));
   }
 }

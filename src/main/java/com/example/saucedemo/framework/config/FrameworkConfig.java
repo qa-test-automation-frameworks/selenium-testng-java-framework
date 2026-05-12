@@ -3,6 +3,8 @@ package com.example.saucedemo.framework.config;
 /** Type-safe access to framework configuration values. */
 public interface FrameworkConfig {
 
+  String environment();
+
   String browser();
 
   String executionType();

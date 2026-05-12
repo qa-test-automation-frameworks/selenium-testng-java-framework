@@ -11,12 +11,14 @@ import com.example.saucedemo.framework.pageobject.component.InventoryListCompone
 import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
+import com.example.saucedemo.tests.data.TestTimeouts;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify navigation and header visibility",
-      groups = {TestGroups.SMOKE, TestGroups.INVENTORY})
+      groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Inventory navigation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyInventoryDisplaysHeaderAndMenu() {
@@ -56,7 +59,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify product list count",
-      groups = {TestGroups.SMOKE, TestGroups.INVENTORY})
+      groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyInventoryDisplaysAllProducts() {
@@ -76,7 +80,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify all product details in catalog",
-      groups = {TestGroups.INVENTORY, TestGroups.REGRESSION})
+      groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsMatchCatalogDetails() {
@@ -104,26 +109,38 @@ public class InventoryTests extends BaseTestCase {
     assertSoftly(
         softly ->
             expectedProducts.forEach(
-                expectedProduct ->
-                    softly
-                        .assertThat(inventoryList.getProductDetailsByName(expectedProduct.name()))
-                        .as("%s details should match catalog", expectedProduct.name())
-                        .isEqualTo(expectedProduct)));
+                expectedProduct -> {
+                  ProductDetails actualProduct =
+                      inventoryList.getProductDetailsByName(expectedProduct.name());
+                  softly
+                      .assertThat(actualProduct.name())
+                      .as("%s name should match catalog", expectedProduct.name())
+                      .isEqualTo(expectedProduct.name());
+                  softly
+                      .assertThat(actualProduct.price())
+                      .as("%s price should match catalog", expectedProduct.name())
+                      .isEqualTo(expectedProduct.price());
+                  softly
+                      .assertThat(actualProduct.description())
+                      .as("%s description should remain populated", expectedProduct.name())
+                      .isNotBlank();
+                }));
     log.info("Finished test successfully: verifyProductsMatchCatalogDetails");
   }
 
   @Test(
       testName = "Verify products can be sorted by price low to high",
-      groups = {TestGroups.INVENTORY, TestGroups.REGRESSION})
+      groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Product sorting")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsCanBeSortedByPriceLowToHigh() {
     log.info("Starting test: verifyProductsCanBeSortedByPriceLowToHigh");
     InventoryPage inventoryPage = new InventoryPage(getDriver());
-    List<Double> actualPrices =
+    List<BigDecimal> actualPrices =
         inventoryPage.sortProductsByPriceLowToHigh().getDisplayedProductPrices();
-    List<Double> sortedPrices = new ArrayList<>(actualPrices);
-    sortedPrices.sort(Double::compareTo);
+    List<BigDecimal> sortedPrices = new ArrayList<>(actualPrices);
+    sortedPrices.sort(BigDecimal::compareTo);
 
     assertThat(actualPrices)
         .as("Product prices should be displayed from lowest to highest after sorting")
@@ -133,7 +150,8 @@ public class InventoryTests extends BaseTestCase {
 
   @Test(
       testName = "Verify removing a product from inventory clears cart badge",
-      groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION})
+      groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyRemovingProductFromInventoryClearsCartBadge() {

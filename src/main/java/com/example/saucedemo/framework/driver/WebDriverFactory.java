@@ -4,26 +4,19 @@ import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.config.ExecutionType;
 import com.example.saucedemo.framework.config.FrameworkConfig;
 import com.example.saucedemo.framework.config.FrameworkConfigurationException;
+import com.example.saucedemo.framework.util.DiagnosticsCollector;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.logging.Level;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.logging.LogType;
-import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
@@ -35,6 +28,7 @@ import org.openqa.selenium.safari.SafariDriver;
 public class WebDriverFactory {
 
   private static final ThreadLocal<WebDriver> WEB_DRIVER = new ThreadLocal<>();
+  private static final BrowserOptionsFactory BROWSER_OPTIONS_FACTORY = new BrowserOptionsFactory();
 
   private WebDriverFactory() {
     /*Singleton pattern*/
@@ -83,65 +77,17 @@ public class WebDriverFactory {
   private static WebDriver createLocalDriver(DriverType driverType, FrameworkConfig config) {
     log.info("Creating local WebDriver for type {}", driverType);
     return switch (driverType) {
-      case CHROME -> new ChromeDriver(getChromeOptions(config));
-      case FIREFOX -> new FirefoxDriver(getFirefoxOptions(config));
-      case EDGE -> new EdgeDriver(getEdgeOptions(config));
+      case CHROME -> new ChromeDriver(BROWSER_OPTIONS_FACTORY.chromeOptions(config));
+      case FIREFOX -> new FirefoxDriver(BROWSER_OPTIONS_FACTORY.firefoxOptions(config));
+      case EDGE -> new EdgeDriver(BROWSER_OPTIONS_FACTORY.edgeOptions(config));
       case SAFARI -> {
-        if (config.headless()) {
+        if (config.headless() || !isMacOs()) {
           throw new FrameworkConfigurationException(
-              "Safari is supported only for local headed macOS runs");
+              "Safari requires local headed execution on macOS with remote automation enabled");
         }
         yield new SafariDriver();
       }
     };
-  }
-
-  /**
-   * Configures Chrome-specific options, including headless mode and security preferences.
-   *
-   * @return Configured ChromeOptions.
-   */
-  private static ChromeOptions getChromeOptions(FrameworkConfig config) {
-    ChromeOptions chromeOptions = new ChromeOptions();
-    Map<String, Object> prefs = new HashMap<>();
-    prefs.put("credentials_enable_service", false);
-    prefs.put("profile.password_manager_enabled", false);
-    prefs.put("profile.password_manager_leak_detection", false);
-    chromeOptions.setExperimentalOption("prefs", prefs);
-    applyNetworkLogging(chromeOptions, config);
-
-    if (config.headless()) {
-      chromeOptions.addArguments("--headless=new");
-      chromeOptions.addArguments("--disable-gpu");
-      chromeOptions.addArguments("--no-sandbox");
-      chromeOptions.addArguments("--disable-dev-shm-usage");
-      chromeOptions.addArguments(windowSizeArgument(config));
-    }
-
-    return chromeOptions;
-  }
-
-  private static FirefoxOptions getFirefoxOptions(FrameworkConfig config) {
-    FirefoxOptions firefoxOptions = new FirefoxOptions();
-    if (config.headless()) {
-      firefoxOptions.addArguments("-headless");
-      firefoxOptions.addArguments("--width=" + config.viewportWidth());
-      firefoxOptions.addArguments("--height=" + config.viewportHeight());
-    }
-    return firefoxOptions;
-  }
-
-  private static EdgeOptions getEdgeOptions(FrameworkConfig config) {
-    EdgeOptions edgeOptions = new EdgeOptions();
-    applyNetworkLogging(edgeOptions, config);
-    if (config.headless()) {
-      edgeOptions.addArguments("--headless=new");
-      edgeOptions.addArguments("--disable-gpu");
-      edgeOptions.addArguments("--no-sandbox");
-      edgeOptions.addArguments("--disable-dev-shm-usage");
-      edgeOptions.addArguments(windowSizeArgument(config));
-    }
-    return edgeOptions;
   }
 
   /** Quits the current thread's WebDriver and removes it from ThreadLocal storage. */
@@ -153,6 +99,7 @@ public class WebDriverFactory {
     } catch (Exception e) {
       log.error("Error quitting driver", e);
     } finally {
+      DiagnosticsCollector.stop();
       WEB_DRIVER.remove();
       log.debug("ThreadLocal WebDriver reference cleared.");
     }
@@ -172,18 +119,14 @@ public class WebDriverFactory {
     final URI hubUrl = new URI(remoteUrl);
     MutableCapabilities capabilities =
         switch (driverType) {
-          case CHROME -> getChromeOptions(config);
-          case FIREFOX -> getFirefoxOptions(config);
-          case EDGE -> getEdgeOptions(config);
+          case CHROME -> BROWSER_OPTIONS_FACTORY.chromeOptions(config);
+          case FIREFOX -> BROWSER_OPTIONS_FACTORY.firefoxOptions(config);
+          case EDGE -> BROWSER_OPTIONS_FACTORY.edgeOptions(config);
           case SAFARI ->
               throw new FrameworkConfigurationException(
-                  "Safari is supported only for local headed macOS runs");
+                  "Safari requires local headed execution on macOS with remote automation enabled");
         };
     return new RemoteWebDriver(hubUrl.toURL(), capabilities);
-  }
-
-  private static String windowSizeArgument(FrameworkConfig config) {
-    return String.format("--window-size=%d,%d", config.viewportWidth(), config.viewportHeight());
   }
 
   private static void applyWindowSize(WebDriver driver, FrameworkConfig config) {
@@ -198,16 +141,6 @@ public class WebDriverFactory {
         .manage()
         .window()
         .setSize(new Dimension(config.viewportWidth(), config.viewportHeight()));
-  }
-
-  private static void applyNetworkLogging(
-      MutableCapabilities capabilities, FrameworkConfig config) {
-    if (!config.networkLogsEnabled()) {
-      return;
-    }
-    LoggingPreferences logs = new LoggingPreferences();
-    logs.enable(LogType.PERFORMANCE, Level.ALL);
-    capabilities.setCapability("goog:loggingPrefs", logs);
   }
 
   /**
@@ -240,11 +173,23 @@ public class WebDriverFactory {
 
   public static void initThreadLocalDriver(FrameworkConfig config) {
     try {
-      WEB_DRIVER.set(getDriver(config));
+      if (WEB_DRIVER.get() != null) {
+        log.warn(
+            "WebDriver was already initialized for thread {}; cleaning it up first",
+            Thread.currentThread().getName());
+        cleanUpDriver();
+      }
+      WebDriver driver = getDriver(config);
+      DiagnosticsCollector.start(driver, config);
+      WEB_DRIVER.set(driver);
     } catch (Exception e) {
       log.error("Error initializing driver", e);
       throw new IllegalStateException("Failed to initialize WebDriver", e);
     }
+  }
+
+  private static boolean isMacOs() {
+    return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("mac");
   }
 
   /**

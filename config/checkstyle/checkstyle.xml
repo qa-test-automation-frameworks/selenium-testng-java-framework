@@ -22,5 +22,15 @@
     <module name="MethodLength">
       <property name="max" value="80"/>
     </module>
+    <module name="CyclomaticComplexity">
+      <property name="max" value="16"/>
+    </module>
+    <module name="ParameterNumber">
+      <property name="max" value="6"/>
+    </module>
+    <module name="MagicNumber">
+      <property name="ignoreNumbers" value="-1,0,1,2"/>
+      <property name="ignoreHashCodeMethod" value="true"/>
+    </module>
   </module>
 </module>

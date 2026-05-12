@@ -10,13 +10,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 @Slf4j
-public class CartPage extends BasePage {
+public class CartPage extends BasePage implements PageLoadable<CartPage> {
 
   private final InventoryListComponent inventoryList;
 
   public CartPage(WebDriver driver) {
     super(driver);
     this.inventoryList = new InventoryListComponent(driver);
+    waitUntilLoaded();
   }
 
   public InventoryListComponent getInventoryList() {
@@ -25,6 +26,13 @@ public class CartPage extends BasePage {
 
   private final By productQuantityElement = By.cssSelector("[data-test='item-quantity']");
   private final By checkoutButton = By.cssSelector("[data-test='checkout']");
+
+  @Override
+  public CartPage waitUntilLoaded() {
+    waitUntilUrlContains("cart");
+    waitUtils.waitUntilVisible(checkoutButton);
+    return this;
+  }
 
   @Step("Get product quantity at index {0} in cart")
   public int getProductQuantityByIndex(int index) {
@@ -57,7 +65,6 @@ public class CartPage extends BasePage {
   @Step("Continue to checkout")
   public CheckoutPage continueToCheckout() {
     waitUtils.click(checkoutButton);
-    waitUtils.waitForPageLoad();
     return new CheckoutPage(driver);
   }
 }

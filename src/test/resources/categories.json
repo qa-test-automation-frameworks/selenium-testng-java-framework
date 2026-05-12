@@ -1,15 +1,13 @@
 [
   {
-    "name": "Product Defects",
+    "name": "Checkout Validation Defects",
+    "messageRegex": ".*Checkout should require.*",
     "matchedStatuses": ["failed"]
   },
   {
-    "name": "Test Defects",
-    "matchedStatuses": ["broken"]
-  },
-  {
-    "name": "Ignored Tests",
-    "matchedStatuses": ["skipped"]
+    "name": "Authentication Defects",
+    "messageRegex": ".*(login error message|Logout should return).*",
+    "matchedStatuses": ["failed"]
   },
   {
     "name": "Infrastructure Issues",
@@ -17,8 +15,16 @@
     "matchedStatuses": ["broken"]
   },
   {
-    "name": "Known Issues",
+    "name": "Synchronization Issues",
     "messageRegex": ".*(ElementClickInterceptedException|StaleElementReferenceException).*",
     "matchedStatuses": ["broken", "failed"]
+  },
+  {
+    "name": "Ignored Tests",
+    "matchedStatuses": ["skipped"]
+  },
+  {
+    "name": "Unclassified Failures",
+    "matchedStatuses": ["failed", "broken"]
   }
 ]

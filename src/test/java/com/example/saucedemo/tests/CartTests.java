@@ -14,6 +14,7 @@ import com.example.saucedemo.tests.data.CheckoutScenario;
 import com.example.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
+import com.example.saucedemo.tests.data.TestTimeouts;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -37,7 +38,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify adding multiple products to cart",
-      groups = {TestGroups.SMOKE, TestGroups.CART})
+      groups = {TestGroups.SMOKE, TestGroups.CART},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Add products to cart")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyUserCanAddProductsToCart() {
@@ -63,7 +65,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify added products are visible in cart",
-      groups = {TestGroups.CART, TestGroups.REGRESSION})
+      groups = {TestGroups.CART, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyCartDisplaysSelectedProducts() {
@@ -98,7 +101,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify removing products from cart",
-      groups = {TestGroups.CART, TestGroups.REGRESSION})
+      groups = {TestGroups.CART, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Remove products from cart")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanRemoveProductsFromCart() {
@@ -134,7 +138,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify checkout requires first name, last name, and postal code",
-      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION})
+      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Checkout validation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyCheckoutShowsValidationForMissingRequiredFields() {
@@ -150,7 +155,7 @@ public class CartTests extends BaseTestCase {
     CheckoutInformation missingInformation = CheckoutScenario.emptyInformation();
     assertThat(
             checkoutPage
-                .submitCheckoutInformation(
+                .submitInvalidCheckoutInformation(
                     missingInformation.firstName(),
                     missingInformation.lastName(),
                     missingInformation.postalCode())
@@ -162,7 +167,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify user can complete checkout",
-      groups = {TestGroups.SMOKE, TestGroups.CHECKOUT})
+      groups = {TestGroups.SMOKE, TestGroups.CHECKOUT},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Checkout completion")
   @Severity(SeverityLevel.BLOCKER)
   public void verifyUserCanCompleteCheckout() {
@@ -175,9 +181,11 @@ public class CartTests extends BaseTestCase {
 
     CheckoutPage checkoutPage = new CartPage(getDriver()).continueToCheckout();
     CheckoutInformation validInformation = CheckoutScenario.validInformation();
-    checkoutPage.submitCheckoutInformation(
-        validInformation.firstName(), validInformation.lastName(), validInformation.postalCode());
-    CheckoutOverviewPage overviewPage = new CheckoutOverviewPage(getDriver());
+    CheckoutOverviewPage overviewPage =
+        checkoutPage.submitValidCheckoutInformation(
+            validInformation.firstName(),
+            validInformation.lastName(),
+            validInformation.postalCode());
     CheckoutCompletePage completePage = overviewPage.finishCheckout();
 
     assertThat(completePage.getConfirmationMessage())
@@ -188,7 +196,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify checkout requires last name",
-      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION})
+      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Checkout validation")
   @Severity(SeverityLevel.NORMAL)
   public void verifyCheckoutRequiresLastName() {
@@ -204,7 +213,7 @@ public class CartTests extends BaseTestCase {
 
     assertThat(
             checkoutPage
-                .submitCheckoutInformation(
+                .submitInvalidCheckoutInformation(
                     missingLastName.firstName(),
                     missingLastName.lastName(),
                     missingLastName.postalCode())
@@ -216,7 +225,8 @@ public class CartTests extends BaseTestCase {
 
   @Test(
       testName = "Verify empty cart shows no items",
-      groups = {TestGroups.CART, TestGroups.REGRESSION})
+      groups = {TestGroups.CART, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyEmptyCartDisplaysNoItems() {

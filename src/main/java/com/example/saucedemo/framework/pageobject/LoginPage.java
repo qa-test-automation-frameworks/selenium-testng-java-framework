@@ -6,7 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 @Slf4j
-public class LoginPage extends BasePage {
+public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
 
   public LoginPage(WebDriver driver) {
     super(driver);
@@ -15,6 +15,12 @@ public class LoginPage extends BasePage {
   private final By usernameField = By.id("user-name");
   private final By passwordField = By.id("password");
   private final By loginButton = By.id("login-button");
+
+  @Override
+  public LoginPage waitUntilLoaded() {
+    waitUtils.waitUntilVisible(loginButton);
+    return this;
+  }
 
   @Step("Enter username: {0}")
   public LoginPage enterUsername(String username) {
@@ -41,10 +47,10 @@ public class LoginPage extends BasePage {
   public void login(String url, String username, String password) {
     log.info("Starting login process for user: {} at URL: {}", username, url);
     navigateTo(url);
+    waitUntilLoaded();
     enterUsername(username);
     enterPassword(password);
     clickLoginButton();
-    waitUtils.waitForPageLoad();
     log.info("Login process completed for user: {}", username);
   }
 

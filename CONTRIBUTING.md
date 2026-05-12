@@ -11,7 +11,7 @@
 1. Set the Sauce Demo password outside the repository:
 
    ```powershell
-   $env:APP_PASSWORD = "secret_sauce"
+   $env:APP_PASSWORD = "<sauce-demo-password>"
    ```
 
 2. Run the default regression suite:
@@ -24,6 +24,12 @@
 
    ```powershell
    .\mvnw.cmd clean verify -Dbrowser=FIREFOX -Dheadless=true -Dthread.count=2
+   ```
+
+4. Run no-secret contributor smoke coverage when you only need non-login UI validation:
+
+   ```powershell
+   .\mvnw.cmd clean test -Dgroups=inventory,cart -Dheadless=true
    ```
 
 ## Code Style

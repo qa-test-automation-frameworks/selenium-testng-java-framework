@@ -28,17 +28,13 @@ public abstract class BasePage {
   protected void navigateTo(String url) {
     log.info("Navigating to URL: {}", url);
     driver.navigate().to(url);
-    waitUtils.waitForPageLoad();
     log.debug("Page load completed for URL: {}", url);
   }
 
-  protected void assertCurrentUrlContains(String expectedUrlFragment) {
-    String currentUrl = driver.getCurrentUrl();
-    if (!currentUrl.contains(expectedUrlFragment)) {
-      throw new AssertionError(
-          String.format(
-              "Expected current URL to contain '%s' but was '%s'",
-              expectedUrlFragment, currentUrl));
-    }
+  protected void waitUntilUrlContains(String expectedUrlFragment) {
+    waitUtils.waitUntil(
+        currentDriver -> currentDriver.getCurrentUrl().contains(expectedUrlFragment),
+        String.format(
+            "Current URL did not contain '%s' within the configured timeout", expectedUrlFragment));
   }
 }

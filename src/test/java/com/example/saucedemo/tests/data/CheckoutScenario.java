@@ -5,16 +5,56 @@ public final class CheckoutScenario {
   private CheckoutScenario() {}
 
   public static CheckoutInformation emptyInformation() {
-    return new CheckoutInformation(null, null, null);
+    return CheckoutInformation.empty();
   }
 
   public static CheckoutInformation missingLastName() {
-    return new CheckoutInformation("Pat", null, "411001");
+    return CheckoutInformation.builder().firstName("Pat").postalCode("411001").build();
   }
 
   public static CheckoutInformation validInformation() {
-    return new CheckoutInformation("Pat", "Tester", "411001");
+    return CheckoutInformation.builder()
+        .firstName("Pat")
+        .lastName("Tester")
+        .postalCode("411001")
+        .build();
   }
 
-  public record CheckoutInformation(String firstName, String lastName, String postalCode) {}
+  public record CheckoutInformation(String firstName, String lastName, String postalCode) {
+
+    public static CheckoutInformation empty() {
+      return builder().build();
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    public static final class Builder {
+      private String firstName;
+      private String lastName;
+      private String postalCode;
+
+      private Builder() {}
+
+      public Builder firstName(String firstName) {
+        this.firstName = firstName;
+        return this;
+      }
+
+      public Builder lastName(String lastName) {
+        this.lastName = lastName;
+        return this;
+      }
+
+      public Builder postalCode(String postalCode) {
+        this.postalCode = postalCode;
+        return this;
+      }
+
+      public CheckoutInformation build() {
+        return new CheckoutInformation(firstName, lastName, postalCode);
+      }
+    }
+  }
 }

@@ -6,7 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 @Slf4j
-public class CheckoutPage extends BasePage {
+public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage> {
 
   private final By firstName = By.cssSelector("[data-test='firstName']");
   private final By lastName = By.cssSelector("[data-test='lastName']");
@@ -16,10 +16,32 @@ public class CheckoutPage extends BasePage {
 
   public CheckoutPage(WebDriver driver) {
     super(driver);
+    waitUntilLoaded();
   }
 
-  @Step("Submit checkout information")
-  public CheckoutPage submitCheckoutInformation(String firstName, String lastName, String zipCode) {
+  @Override
+  public CheckoutPage waitUntilLoaded() {
+    waitUntilUrlContains("checkout-step-one");
+    waitUtils.waitUntilVisible(continueButton);
+    return this;
+  }
+
+  @Step("Submit valid checkout information")
+  public CheckoutOverviewPage submitValidCheckoutInformation(
+      String firstName, String lastName, String zipCode) {
+    submitCheckoutInformation(firstName, lastName, zipCode);
+    return new CheckoutOverviewPage(driver);
+  }
+
+  @Step("Submit invalid checkout information")
+  public CheckoutPage submitInvalidCheckoutInformation(
+      String firstName, String lastName, String zipCode) {
+    submitCheckoutInformation(firstName, lastName, zipCode);
+    waitUtils.waitUntilVisible(errorMessage);
+    return this;
+  }
+
+  private void submitCheckoutInformation(String firstName, String lastName, String zipCode) {
     log.info("Submitting checkout information");
     if (firstName != null) {
       waitUtils.type(this.firstName, firstName);
@@ -31,8 +53,6 @@ public class CheckoutPage extends BasePage {
       waitUtils.type(this.postalCode, zipCode);
     }
     waitUtils.click(continueButton);
-    waitUtils.waitForPageLoad();
-    return this;
   }
 
   @Step("Get checkout error message")

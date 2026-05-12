@@ -46,5 +46,9 @@ services:
       - ENV=${ENV:-qa}
       - APP_USERNAME=${APP_USERNAME:-standard_user}
       - APP_PASSWORD=${APP_PASSWORD:?APP_PASSWORD is required}
-    entrypoint: ["./mvnw"]
-    command: ["verify", "-Dheadless=true"]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        until curl -sf http://selenium-hub:4444/status | grep -q '"ready":true';
+        do echo "Waiting for Selenium Grid to become ready..."; sleep 2; done;
+        ./mvnw verify -Dheadless=true -Dbrowser=$${BROWSER} -Dexecution.type=remote -Dremote.url=$${REMOTE_URL}

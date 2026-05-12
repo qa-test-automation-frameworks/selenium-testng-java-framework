@@ -32,19 +32,23 @@ graph TD;
 ## Features
 - Java 21 and Maven wrapper for repeatable local and CI execution.
 - Selenium Grid support through Docker Compose.
-- Custom typed configuration with environment-specific properties and system/environment overrides.
-- Page objects and reusable page components with waits inside page actions.
+- Custom typed configuration with classpath-based profile loading and system/environment overrides.
+- Page objects and reusable page components with page-specific readiness checks inside page actions.
 - TestNG groups, parallel method execution, and opt-in retry support.
-- Allure reports with screenshots, URL, page source, capabilities, and console logs on failure.
-- Spotless, Checkstyle, and Maven Enforcer quality gates.
+- Allure reports with redacted screenshots, URL, page source, capabilities, and console logs on failure.
+- Spotless, Checkstyle, and Maven Enforcer quality gates with stronger maintainability rules.
 
 ## Framework Highlights
 - Thread-safe parallel execution through `ThreadLocal<WebDriver>`.
 - Explicit-only wait strategy with implicit waits set to zero.
-- Cookie-based authentication shortcut for non-login scenarios.
+- Cookie-based authentication strategy for non-login scenarios.
 - Page Component Model for shared header and inventory list behavior.
 - Opt-in retry analyzer with Allure retry context.
 - CI-ready quality gates for formatting, style checks, dependency rules, tests, and reporting.
+
+## Known Limitations
+- Forked pull requests run only no-secret UI smoke coverage (`inventory`, `cart`). Full login regression requires repository secrets.
+- Safari remains local headed macOS-only and requires Safari remote automation to be enabled manually.
 
 ## Getting Started
 
@@ -58,9 +62,19 @@ graph TD;
 APP_PASSWORD=your_password ./mvnw clean verify
 ```
 
+Run no-secret UI smoke coverage without login scenarios:
+```bash
+./mvnw clean test -Dgroups=inventory,cart -Dheadless=true
+```
+
 Use headless mode or a different browser when needed:
 ```bash
 APP_PASSWORD=your_password ./mvnw clean verify -Dheadless=true -Dbrowser=FIREFOX
+```
+
+Run a trusted full regression against a specific profile:
+```bash
+APP_PASSWORD=your_password ./mvnw clean verify -Denv=dev -Dheadless=true -Dbrowser=CHROME
 ```
 
 ### Docker Grid Run
@@ -73,8 +87,13 @@ APP_PASSWORD=your_password docker compose up --build --exit-code-from test-runne
 ./mvnw allure:serve
 ```
 
+To generate an Allure report even when tests fail, use the helper scripts in `scripts/`:
+```bash
+./scripts/run-ui-tests-with-allure-report.sh
+```
+
 ## Configuration
-Configuration is loaded from `src/test/resources/config.properties`, optional profile files such as `qa.properties`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority.
+Configuration is loaded from classpath resources (`src/test/resources/config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`.
 
 | Property | Description | Default |
 |----------|-------------|---------|
@@ -95,7 +114,7 @@ Configuration is loaded from `src/test/resources/config.properties`, optional pr
 | `retry.enabled` | Enable TestNG retry analyzer | `false` |
 | `retry.count` | Retry count when retries are enabled | `2` |
 
-Credentials are supplied through environment variables or Maven system properties. Prefer environment variables locally and GitHub Actions secrets in CI so passwords are not written into Maven command lines. Do not commit real credentials to repository files.
+Credentials are supplied through environment variables or Maven system properties. Prefer environment variables locally and GitHub Actions secrets in CI so passwords are not written into Maven command lines. `APP_PASSWORD` is required only for login scenarios; inventory/cart UI smoke coverage can run without it. Do not commit real credentials to repository files.
 
 ## Browser Support
 | Browser | Local headed | Local headless | Docker Grid | GitHub Actions |

@@ -3,6 +3,7 @@ package com.example.saucedemo.framework.util;
 import com.example.saucedemo.framework.config.FrameworkConfig;
 import java.time.Duration;
 import java.util.List;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -22,6 +23,7 @@ public class WaitUtils {
 
   private final WebDriver driver;
   private final WebDriverWait wait;
+  private final Duration pollingInterval;
 
   /**
    * Initializes WaitUtils with a specific WebDriver instance.
@@ -30,11 +32,10 @@ public class WaitUtils {
    */
   public WaitUtils(WebDriver driver, FrameworkConfig config) {
     this.driver = driver;
+    this.pollingInterval = Duration.ofMillis(config.pollingIntervalMs());
     this.wait =
         new WebDriverWait(
-            driver,
-            Duration.ofSeconds(config.explicitWaitSeconds()),
-            Duration.ofMillis(config.pollingIntervalMs()));
+            driver, Duration.ofSeconds(config.explicitWaitSeconds()), pollingInterval);
     this.wait.ignoring(StaleElementReferenceException.class);
   }
 
@@ -141,10 +142,30 @@ public class WaitUtils {
   }
 
   public boolean isVisible(By locator) {
+    return isVisible(locator, pollingInterval);
+  }
+
+  public boolean isVisible(By locator, Duration timeout) {
     try {
-      return waitUntilVisible(locator).isDisplayed();
+      return new WebDriverWait(driver, timeout, pollingInterval)
+          .until(ExpectedConditions.visibilityOfElementLocated(locator))
+          .isDisplayed();
     } catch (TimeoutException e) {
       return false;
+    }
+  }
+
+  public boolean isPresent(By locator) {
+    return !driver.findElements(locator).isEmpty();
+  }
+
+  public <T> T waitUntil(Function<WebDriver, T> condition, String failureMessage) {
+    log.debug("Waiting for custom condition: {}", failureMessage);
+    try {
+      return wait.until(condition);
+    } catch (TimeoutException e) {
+      log.error("Timeout waiting for custom condition: {}", failureMessage);
+      throw new TimeoutException(failureMessage, e);
     }
   }
 
