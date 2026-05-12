@@ -7,12 +7,12 @@ import org.testng.ITestResult;
 
 final class RetryRegistry {
 
-  private static final Queue<String> retries = new ConcurrentLinkedQueue<>();
+  private static final Queue<String> RETRIES = new ConcurrentLinkedQueue<>();
 
   private RetryRegistry() {}
 
   static void record(ITestResult result, int attempt, int maxAttempts) {
-    retries.add(
+    RETRIES.add(
         String.format(
             "%s.%s retried %d/%d",
             result.getTestClass().getName(),
@@ -22,10 +22,10 @@ final class RetryRegistry {
   }
 
   static List<String> snapshot() {
-    return List.copyOf(retries);
+    return List.copyOf(RETRIES);
   }
 
   static void clear() {
-    retries.clear();
+    RETRIES.clear();
   }
 }

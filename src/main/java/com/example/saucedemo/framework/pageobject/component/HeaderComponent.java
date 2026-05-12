@@ -2,11 +2,10 @@ package com.example.saucedemo.framework.pageobject.component;
 
 import com.example.saucedemo.framework.pageobject.BaseComponent;
 import io.qameta.allure.Step;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 @Slf4j
 public class HeaderComponent extends BaseComponent {
@@ -37,10 +36,14 @@ public class HeaderComponent extends BaseComponent {
 
   @Step("Get product count from cart badge")
   public int getProductAddedToCartCount() {
-    List<WebElement> badges = driver.findElements(cartItemCount);
-    int count = badges.isEmpty() ? 0 : Integer.parseInt(badges.get(0).getText());
-    log.info("Current product count in cart badge: {}", count);
-    return count;
+    try {
+      int count = Integer.parseInt(waitUtils.waitUntilVisible(cartItemCount).getText());
+      log.info("Current product count in cart badge: {}", count);
+      return count;
+    } catch (TimeoutException e) {
+      log.info("Cart badge is not visible; treating cart count as 0");
+      return 0;
+    }
   }
 
   public void waitForProductAddedToCartCount(int expectedCount) {

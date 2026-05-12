@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.saucedemo.framework.data.AppConstants;
 import com.example.saucedemo.framework.pageobject.CartPage;
+import com.example.saucedemo.framework.pageobject.CheckoutCompletePage;
+import com.example.saucedemo.framework.pageobject.CheckoutOverviewPage;
 import com.example.saucedemo.framework.pageobject.CheckoutPage;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
@@ -40,17 +42,20 @@ public class CartTests extends BaseTestCase {
   @Severity(SeverityLevel.CRITICAL)
   public void verifyUserCanAddProductsToCart() {
     log.info("Starting test: verifyUserCanAddProductsToCart");
-    assertThat(inventoryPage().getHeaderText())
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+
+    assertThat(inventoryPage.getHeaderText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
 
     log.info("Adding two products to the cart");
-    inventoryPage()
+    inventoryPage
         .addProductToCart(ProductCatalog.BACKPACK.name())
         .addProductToCart(ProductCatalog.BOLT_TSHIRT.name());
-    header().waitForProductAddedToCartCount(2);
+    header.waitForProductAddedToCartCount(2);
 
-    assertThat(header().getProductAddedToCartCount())
+    assertThat(header.getProductAddedToCartCount())
         .as("The cart badge should show 2 items added")
         .isEqualTo(2);
     log.info("Finished test successfully: verifyUserCanAddProductsToCart");
@@ -63,28 +68,29 @@ public class CartTests extends BaseTestCase {
   @Severity(SeverityLevel.NORMAL)
   public void verifyCartDisplaysSelectedProducts() {
     log.info("Starting test: verifyCartDisplaysSelectedProducts");
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+
     log.info("Adding products to cart and navigating to cart page");
-    inventoryPage()
+    inventoryPage
         .addProductToCart(ProductCatalog.BACKPACK.name())
         .addProductToCart(ProductCatalog.BOLT_TSHIRT.name());
 
-    header().navigateToCart();
+    header.navigateToCart();
+    CartPage cartPage = new CartPage(getDriver());
 
-    assertThat(
-            cartPage().getInventoryList().getProductDetailsByName(ProductCatalog.BACKPACK.name()))
+    assertThat(cartPage.getInventoryList().getProductDetailsByName(ProductCatalog.BACKPACK.name()))
         .as("Backpack details in cart should match catalog")
         .isEqualTo(ProductCatalog.BACKPACK);
-    assertThat(cartPage().getProductQuantityByIndex(0))
+    assertThat(cartPage.getProductQuantityByIndex(0))
         .as("Quantity for the first item in cart should be 1")
         .isEqualTo(1);
 
     assertThat(
-            cartPage()
-                .getInventoryList()
-                .getProductDetailsByName(ProductCatalog.BOLT_TSHIRT.name()))
+            cartPage.getInventoryList().getProductDetailsByName(ProductCatalog.BOLT_TSHIRT.name()))
         .as("Bolt T-shirt details in cart should match catalog")
         .isEqualTo(ProductCatalog.BOLT_TSHIRT);
-    assertThat(cartPage().getProductQuantityByIndex(1))
+    assertThat(cartPage.getProductQuantityByIndex(1))
         .as("Quantity for the second item in cart should be 1")
         .isEqualTo(1);
     log.info("Finished test successfully: verifyCartDisplaysSelectedProducts");
@@ -97,25 +103,30 @@ public class CartTests extends BaseTestCase {
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanRemoveProductsFromCart() {
     log.info("Starting test: verifyUserCanRemoveProductsFromCart");
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+
     log.info("Adding products and navigating to cart for removal");
-    inventoryPage()
+    inventoryPage
         .addProductToCart(ProductCatalog.BACKPACK.name())
         .addProductToCart(ProductCatalog.BIKE_LIGHT.name());
 
-    header().navigateToCart();
-    assertThat(cartPage().getInventoryList().getListItemsCount())
+    header.navigateToCart();
+    CartPage cartPage = new CartPage(getDriver());
+
+    assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("There should be 2 items in the cart initially")
         .isEqualTo(2);
 
     log.info("Removing first item from cart");
-    cartPage().removeCartItemAtIndex(0);
-    assertThat(cartPage().getInventoryList().getListItemsCount())
+    cartPage.removeCartItemAtIndex(0);
+    assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("After removing one item, there should be 1 item left in the cart")
         .isEqualTo(1);
 
     log.info("Removing second item from cart");
-    cartPage().removeCartItemAtIndex(0);
-    assertThat(cartPage().getInventoryList().getListItemsCount())
+    cartPage.removeCartItemAtIndex(0);
+    assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("After removing all items, the cart should be empty")
         .isEqualTo(0);
     log.info("Finished test successfully: verifyUserCanRemoveProductsFromCart");
@@ -128,10 +139,14 @@ public class CartTests extends BaseTestCase {
   @Severity(SeverityLevel.CRITICAL)
   public void verifyCheckoutShowsValidationForMissingRequiredFields() {
     log.info("Starting test: verifyCheckoutShowsValidationForMissingRequiredFields");
-    inventoryPage().addProductToCart(ProductCatalog.BACKPACK.name());
-    header().navigateToCart();
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
 
-    CheckoutPage checkoutPage = cartPage().continueToCheckout();
+    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
+    header.navigateToCart();
+
+    CartPage cartPage = new CartPage(getDriver());
+    CheckoutPage checkoutPage = cartPage.continueToCheckout();
     CheckoutInformation missingInformation = CheckoutScenario.emptyInformation();
     assertThat(
             checkoutPage
@@ -145,15 +160,75 @@ public class CartTests extends BaseTestCase {
     log.info("Finished test successfully: verifyCheckoutShowsValidationForMissingRequiredFields");
   }
 
-  private InventoryPage inventoryPage() {
-    return new InventoryPage(getDriver());
+  @Test(
+      testName = "Verify user can complete checkout",
+      groups = {TestGroups.SMOKE, TestGroups.CHECKOUT})
+  @Story("Checkout completion")
+  @Severity(SeverityLevel.BLOCKER)
+  public void verifyUserCanCompleteCheckout() {
+    log.info("Starting test: verifyUserCanCompleteCheckout");
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+
+    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
+    header.navigateToCart();
+
+    CheckoutPage checkoutPage = new CartPage(getDriver()).continueToCheckout();
+    CheckoutInformation validInformation = CheckoutScenario.validInformation();
+    checkoutPage.submitCheckoutInformation(
+        validInformation.firstName(), validInformation.lastName(), validInformation.postalCode());
+    CheckoutOverviewPage overviewPage = new CheckoutOverviewPage(getDriver());
+    CheckoutCompletePage completePage = overviewPage.finishCheckout();
+
+    assertThat(completePage.getConfirmationMessage())
+        .as("Checkout success message should be displayed")
+        .isEqualTo("Thank you for your order!");
+    log.info("Finished test successfully: verifyUserCanCompleteCheckout");
   }
 
-  private CartPage cartPage() {
-    return new CartPage(getDriver());
+  @Test(
+      testName = "Verify checkout requires last name",
+      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION})
+  @Story("Checkout validation")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyCheckoutRequiresLastName() {
+    log.info("Starting test: verifyCheckoutRequiresLastName");
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+
+    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
+    header.navigateToCart();
+
+    CheckoutPage checkoutPage = new CartPage(getDriver()).continueToCheckout();
+    CheckoutInformation missingLastName = CheckoutScenario.missingLastName();
+
+    assertThat(
+            checkoutPage
+                .submitCheckoutInformation(
+                    missingLastName.firstName(),
+                    missingLastName.lastName(),
+                    missingLastName.postalCode())
+                .getErrorMessage())
+        .as("Checkout should require last name when first name is present")
+        .isEqualTo("Error: Last Name is required");
+    log.info("Finished test successfully: verifyCheckoutRequiresLastName");
   }
 
-  private HeaderComponent header() {
-    return new HeaderComponent(getDriver());
+  @Test(
+      testName = "Verify empty cart shows no items",
+      groups = {TestGroups.CART, TestGroups.REGRESSION})
+  @Story("Cart contents")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyEmptyCartDisplaysNoItems() {
+    log.info("Starting test: verifyEmptyCartDisplaysNoItems");
+    HeaderComponent header = new HeaderComponent(getDriver());
+
+    header.navigateToCart();
+    CartPage cartPage = new CartPage(getDriver());
+
+    assertThat(cartPage.getInventoryList().getListItemsCount())
+        .as("A cart opened before adding products should not contain items")
+        .isZero();
+    log.info("Finished test successfully: verifyEmptyCartDisplaysNoItems");
   }
 }

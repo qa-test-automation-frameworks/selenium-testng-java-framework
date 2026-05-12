@@ -1,5 +1,6 @@
 package com.example.saucedemo.framework.pageobject;
 
+import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.util.WaitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
@@ -21,7 +22,7 @@ public abstract class BasePage {
    */
   protected BasePage(WebDriver driver) {
     this.driver = driver;
-    this.waitUtils = new WaitUtils(driver);
+    this.waitUtils = new WaitUtils(driver, ConfigFactory.getConfig());
   }
 
   protected void navigateTo(String url) {
@@ -29,5 +30,15 @@ public abstract class BasePage {
     driver.navigate().to(url);
     waitUtils.waitForPageLoad();
     log.debug("Page load completed for URL: {}", url);
+  }
+
+  protected void assertCurrentUrlContains(String expectedUrlFragment) {
+    String currentUrl = driver.getCurrentUrl();
+    if (!currentUrl.contains(expectedUrlFragment)) {
+      throw new AssertionError(
+          String.format(
+              "Expected current URL to contain '%s' but was '%s'",
+              expectedUrlFragment, currentUrl));
+    }
   }
 }

@@ -7,6 +7,7 @@ import com.example.saucedemo.framework.data.AppConstants;
 import com.example.saucedemo.framework.data.ProductDetails;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
+import com.example.saucedemo.framework.pageobject.component.InventoryListComponent;
 import com.example.saucedemo.framework.util.AuthService;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
@@ -40,15 +41,16 @@ public class InventoryTests extends BaseTestCase {
   @Severity(SeverityLevel.CRITICAL)
   public void verifyInventoryDisplaysHeaderAndMenu() {
     log.info("Starting test: verifyInventoryDisplaysHeaderAndMenu");
-    assertThat(inventoryPage().getHeaderText())
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
+
+    assertThat(inventoryPage.getHeaderText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
-    assertThat(header().isMenuButtonVisible())
+    assertThat(header.isMenuButtonVisible())
         .as("Side menu burger button should be visible")
         .isTrue();
-    assertThat(header().isCartButtonVisible())
-        .as("Shopping cart button should be visible")
-        .isTrue();
+    assertThat(header.isCartButtonVisible()).as("Shopping cart button should be visible").isTrue();
     log.info("Finished test successfully: verifyInventoryDisplaysHeaderAndMenu");
   }
 
@@ -59,10 +61,12 @@ public class InventoryTests extends BaseTestCase {
   @Severity(SeverityLevel.NORMAL)
   public void verifyInventoryDisplaysAllProducts() {
     log.info("Starting test: verifyInventoryDisplaysAllProducts");
-    assertThat(inventoryPage().getHeaderText())
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+
+    assertThat(inventoryPage.getHeaderText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
-    assertThat(inventoryPage().getInventoryList().getListItemsCount())
+    assertThat(inventoryPage.getInventoryList().getListItemsCount())
         .as(
             "The product inventory list should contain %s items",
             ProductCatalog.EXPECTED_PRODUCT_COUNT)
@@ -77,10 +81,13 @@ public class InventoryTests extends BaseTestCase {
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsMatchCatalogDetails() {
     log.info("Starting test: verifyProductsMatchCatalogDetails");
-    assertThat(inventoryPage().getHeaderText())
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    InventoryListComponent inventoryList = inventoryPage.getInventoryList();
+
+    assertThat(inventoryPage.getHeaderText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
-    assertThat(inventoryPage().getInventoryList().getListItemsCount())
+    assertThat(inventoryList.getListItemsCount())
         .as("Total product count should be %s", ProductCatalog.EXPECTED_PRODUCT_COUNT)
         .isEqualTo(ProductCatalog.EXPECTED_PRODUCT_COUNT);
 
@@ -99,10 +106,7 @@ public class InventoryTests extends BaseTestCase {
             expectedProducts.forEach(
                 expectedProduct ->
                     softly
-                        .assertThat(
-                            inventoryPage()
-                                .getInventoryList()
-                                .getProductDetailsByName(expectedProduct.name()))
+                        .assertThat(inventoryList.getProductDetailsByName(expectedProduct.name()))
                         .as("%s details should match catalog", expectedProduct.name())
                         .isEqualTo(expectedProduct)));
     log.info("Finished test successfully: verifyProductsMatchCatalogDetails");
@@ -115,8 +119,9 @@ public class InventoryTests extends BaseTestCase {
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsCanBeSortedByPriceLowToHigh() {
     log.info("Starting test: verifyProductsCanBeSortedByPriceLowToHigh");
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
     List<Double> actualPrices =
-        inventoryPage().sortProductsByPriceLowToHigh().getDisplayedProductPrices();
+        inventoryPage.sortProductsByPriceLowToHigh().getDisplayedProductPrices();
     List<Double> sortedPrices = new ArrayList<>(actualPrices);
     sortedPrices.sort(Double::compareTo);
 
@@ -126,11 +131,24 @@ public class InventoryTests extends BaseTestCase {
     log.info("Finished test successfully: verifyProductsCanBeSortedByPriceLowToHigh");
   }
 
-  private InventoryPage inventoryPage() {
-    return new InventoryPage(getDriver());
-  }
+  @Test(
+      testName = "Verify removing a product from inventory clears cart badge",
+      groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION})
+  @Story("Inventory cart controls")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyRemovingProductFromInventoryClearsCartBadge() {
+    log.info("Starting test: verifyRemovingProductFromInventoryClearsCartBadge");
+    InventoryPage inventoryPage = new InventoryPage(getDriver());
+    HeaderComponent header = new HeaderComponent(getDriver());
 
-  private HeaderComponent header() {
-    return new HeaderComponent(getDriver());
+    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
+    header.waitForProductAddedToCartCount(1);
+    inventoryPage.removeProductFromCart(ProductCatalog.BACKPACK.name());
+    header.waitForProductAddedToCartCount(0);
+
+    assertThat(header.getProductAddedToCartCount())
+        .as("Cart badge should disappear after removing the only product")
+        .isZero();
+    log.info("Finished test successfully: verifyRemovingProductFromInventoryClearsCartBadge");
   }
 }

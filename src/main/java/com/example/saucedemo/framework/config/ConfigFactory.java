@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class ConfigFactory {
 
-  private static final AtomicBoolean validated = new AtomicBoolean(false);
+  private static final AtomicBoolean VALIDATED = new AtomicBoolean(false);
   private static final FrameworkConfig CONFIG = loadConfig();
 
   private ConfigFactory() {}
@@ -26,16 +26,10 @@ public final class ConfigFactory {
    * @return An instance of {@link FrameworkConfig}.
    */
   public static FrameworkConfig getConfig() {
-    if (validated.compareAndSet(false, true)) {
+    if (VALIDATED.compareAndSet(false, true)) {
       validateConfig(CONFIG);
     }
     return CONFIG;
-  }
-
-  public static FrameworkConfig load() {
-    FrameworkConfig config = loadConfig();
-    validateConfig(config);
-    return config;
   }
 
   private static FrameworkConfig loadConfig() {
@@ -63,7 +57,6 @@ public final class ConfigFactory {
     properties.setProperty("viewport.height", "1080");
     properties.setProperty("thread.count", System.getProperty("thread.count", "1"));
     properties.setProperty("app.url", "https://www.saucedemo.com/");
-    properties.setProperty("APP_USERNAME", "standard_user");
     properties.setProperty("APP_PASSWORD", "");
     properties.setProperty("retry.enabled", "false");
     properties.setProperty("retry.count", "2");

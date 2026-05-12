@@ -224,8 +224,11 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <lineEndings>UNIX</lineEndings>
                     <java>
                         <googleJavaFormat/>
+                        <endWithNewline/>
+                        <trimTrailingWhitespace/>
                     </java>
                 </configuration>
             </plugin>

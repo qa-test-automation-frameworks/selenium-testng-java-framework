@@ -20,6 +20,7 @@ public class CheckoutPage extends BasePage {
 
   @Step("Submit checkout information")
   public CheckoutPage submitCheckoutInformation(String firstName, String lastName, String zipCode) {
+    log.info("Submitting checkout information");
     if (firstName != null) {
       waitUtils.type(this.firstName, firstName);
     }
@@ -30,11 +31,13 @@ public class CheckoutPage extends BasePage {
       waitUtils.type(this.postalCode, zipCode);
     }
     waitUtils.click(continueButton);
+    waitUtils.waitForPageLoad();
     return this;
   }
 
   @Step("Get checkout error message")
   public String getErrorMessage() {
+    log.info("Retrieving checkout error message");
     return waitUtils.waitUntilVisible(errorMessage).getText();
   }
 }

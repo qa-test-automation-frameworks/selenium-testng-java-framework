@@ -47,11 +47,12 @@ public class LoginTests extends BaseTestCase {
   public void verifyLoginShowsExpectedErrorMessage(
       Credentials credentials, String expectedErrorMessage) {
     log.info("Starting test: verifyLoginShowsExpectedErrorMessage for {}", credentials.username());
-    loginPage()
-        .login(ConfigFactory.getConfig().appUrl(), credentials.username(), credentials.password());
+    LoginPage loginPage = new LoginPage(getDriver());
+    loginPage.login(
+        ConfigFactory.getConfig().appUrl(), credentials.username(), credentials.password());
 
     log.info("Verifying login error message");
-    String error = loginPage().getErrorMessage();
+    String error = loginPage.getErrorMessage();
     assertThat(error)
         .as("The login error message should match the expected scenario")
         .contains(expectedErrorMessage);
@@ -73,13 +74,10 @@ public class LoginTests extends BaseTestCase {
         .isEqualTo(AppConstants.HEADER_TITLE);
     log.info("Performing logout operation");
     header.logout();
-    assertThat(loginPage().isLoginButtonVisible())
+    LoginPage loginPage = new LoginPage(getDriver());
+    assertThat(loginPage.isLoginButtonVisible())
         .as("Logout should return the browser to the login page")
         .isTrue();
     log.info("Finished test successfully: verifyUserCanLogout");
-  }
-
-  private LoginPage loginPage() {
-    return new LoginPage(getDriver());
   }
 }

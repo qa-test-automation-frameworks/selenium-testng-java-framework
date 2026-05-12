@@ -1,4 +1,5 @@
 # Global Execution Configuration
+APP_USERNAME=standard_user
 browser=CHROME
 execution.type=local
 headless=false

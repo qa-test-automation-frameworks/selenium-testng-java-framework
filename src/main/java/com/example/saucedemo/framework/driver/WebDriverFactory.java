@@ -34,7 +34,7 @@ import org.openqa.selenium.safari.SafariDriver;
 @Slf4j
 public class WebDriverFactory {
 
-  private static final ThreadLocal<WebDriver> webDriver = new ThreadLocal<>();
+  private static final ThreadLocal<WebDriver> WEB_DRIVER = new ThreadLocal<>();
 
   private WebDriverFactory() {
     /*Singleton pattern*/
@@ -147,13 +147,13 @@ public class WebDriverFactory {
   /** Quits the current thread's WebDriver and removes it from ThreadLocal storage. */
   public static void cleanUpDriver() {
     try {
-      if (webDriver.get() != null) {
-        webDriver.get().quit();
+      if (WEB_DRIVER.get() != null) {
+        WEB_DRIVER.get().quit();
       }
     } catch (Exception e) {
       log.error("Error quitting driver", e);
     } finally {
-      webDriver.remove();
+      WEB_DRIVER.remove();
       log.debug("ThreadLocal WebDriver reference cleared.");
     }
   }
@@ -235,12 +235,12 @@ public class WebDriverFactory {
 
   /** Initializes a new driver for the current thread. */
   public static void initThreadLocalDriver() {
-    initThreadLocalDriver(ConfigFactory.load());
+    initThreadLocalDriver(ConfigFactory.getConfig());
   }
 
   public static void initThreadLocalDriver(FrameworkConfig config) {
     try {
-      webDriver.set(getDriver(config));
+      WEB_DRIVER.set(getDriver(config));
     } catch (Exception e) {
       log.error("Error initializing driver", e);
       throw new IllegalStateException("Failed to initialize WebDriver", e);
@@ -253,6 +253,6 @@ public class WebDriverFactory {
    * @return The active WebDriver for this thread.
    */
   public static WebDriver getThreadLocalWebDriver() {
-    return webDriver.get();
+    return WEB_DRIVER.get();
   }
 }

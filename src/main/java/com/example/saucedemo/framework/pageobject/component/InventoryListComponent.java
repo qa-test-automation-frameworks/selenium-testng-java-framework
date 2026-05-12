@@ -14,8 +14,7 @@ import org.openqa.selenium.WebElement;
 public class InventoryListComponent extends BaseComponent {
 
   protected final By listItems =
-      By.cssSelector(
-          "[data-test='inventory-item'], [data-test='cart-item'], .inventory_item, .cart_item");
+      By.cssSelector("[data-test='inventory-item'], [data-test='cart-item']");
   protected final By productNameElement = By.cssSelector("[data-test='inventory-item-name']");
   protected final By productDescriptionElement =
       By.cssSelector("[data-test='inventory-item-desc']");

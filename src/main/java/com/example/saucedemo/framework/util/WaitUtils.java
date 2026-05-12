@@ -1,6 +1,5 @@
 package com.example.saucedemo.framework.util;
 
-import com.example.saucedemo.framework.config.ConfigFactory;
 import com.example.saucedemo.framework.config.FrameworkConfig;
 import java.time.Duration;
 import java.util.List;
@@ -29,9 +28,8 @@ public class WaitUtils {
    *
    * @param driver The WebDriver instance to use for waits.
    */
-  public WaitUtils(WebDriver driver) {
+  public WaitUtils(WebDriver driver, FrameworkConfig config) {
     this.driver = driver;
-    FrameworkConfig config = ConfigFactory.getConfig();
     this.wait =
         new WebDriverWait(
             driver,
