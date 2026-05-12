@@ -10,6 +10,7 @@ import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
+import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
@@ -17,8 +18,6 @@ import org.testng.annotations.Listeners;
 @Slf4j
 @Listeners(FrameworkListener.class)
 public abstract class BaseTestCase {
-
-  private static final FrameworkListener DIAGNOSTICS = new FrameworkListener();
 
   protected WebDriver getDriver() {
     return WebDriverFactory.getThreadLocalWebDriver();
@@ -33,6 +32,15 @@ public abstract class BaseTestCase {
     WebDriverFactory.cleanUpDriver();
   }
 
+  protected void assumePasswordConfigured() {
+    String password =
+        com.example.saucedemo.framework.config.ConfigFactory.getConfig().appPassword();
+    if (password == null || password.isBlank()) {
+      throw new SkipException(
+          "Skipping password-dependent test because APP_PASSWORD is not configured.");
+    }
+  }
+
   @BeforeMethod(alwaysRun = true, description = "Initialize WebDriver")
   public void beforeMethod(ITestResult result) {
     log.info("BeforeMethod: Initializing driver for test: {}", result.getMethod().getMethodName());
@@ -43,7 +51,7 @@ public abstract class BaseTestCase {
   public void afterMethod(ITestResult result) {
     log.info("AfterMethod: Tearing down driver for test: {}", result.getMethod().getMethodName());
     if (result.getStatus() == ITestResult.FAILURE) {
-      DIAGNOSTICS.attachTestFailureDiagnostics(getDriver());
+      FrameworkListener.attachTestFailureDiagnostics(getDriver());
     }
     quitWebDriver();
   }

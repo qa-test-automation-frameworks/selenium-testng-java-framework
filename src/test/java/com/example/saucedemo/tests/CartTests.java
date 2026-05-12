@@ -9,7 +9,6 @@ import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
-import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -37,8 +36,6 @@ public class CartTests extends BaseTestCase {
           "Adds two products from the inventory page and verifies the cart badge reflects the combined count.",
       groups = {TestGroups.SMOKE, TestGroups.CART},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Adds two products from the inventory page and verifies the cart badge reflects the combined count.")
   @Story("Add products to cart")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyUserCanAddProductsToCart() {
@@ -62,8 +59,6 @@ public class CartTests extends BaseTestCase {
           "Adds products from inventory, opens the cart, and verifies the selected item details and quantities.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Adds products from inventory, opens the cart, and verifies the selected item details and quantities.")
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyCartDisplaysSelectedProducts() {
@@ -99,8 +94,6 @@ public class CartTests extends BaseTestCase {
           "Removes products one by one from the cart page and verifies the item count decreases to zero.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Removes products one by one from the cart page and verifies the item count decreases to zero.")
   @Story("Remove products from cart")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanRemoveProductsFromCart() {
@@ -118,17 +111,17 @@ public class CartTests extends BaseTestCase {
         .as("There should be 2 items in the cart initially")
         .isEqualTo(2);
 
-    log.info("Removing first item from cart");
-    cartPage.removeCartItemAtIndex(0);
+    log.info("Removing Backpack from cart");
+    cartPage.removeProduct(ProductCatalog.BACKPACK.name());
     assertThat(cartPage.getInventoryList().getListItemsCount())
-        .as("After removing one item, there should be 1 item left in the cart")
+        .as("After removing Backpack, there should be 1 item left in the cart")
         .isEqualTo(1);
 
-    log.info("Removing second item from cart");
-    cartPage.removeCartItemAtIndex(0);
+    log.info("Removing Bike Light from cart");
+    cartPage.removeProduct(ProductCatalog.BIKE_LIGHT.name());
     assertThat(cartPage.getInventoryList().getListItemsCount())
         .as("After removing all items, the cart should be empty")
-        .isEqualTo(0);
+        .isZero();
   }
 
   @Test(
@@ -137,8 +130,6 @@ public class CartTests extends BaseTestCase {
           "Opens the cart before adding any products and verifies that no cart items are displayed.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Opens the cart before adding any products and verifies that no cart items are displayed.")
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyEmptyCartDisplaysNoItems() {

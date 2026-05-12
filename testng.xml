@@ -4,17 +4,33 @@
 <suite name="Sauce Demo UI Regression" parallel="methods" thread-count="1">
     <listeners>
         <listener class-name="com.example.saucedemo.framework.listener.SuiteConfigurationListener"/>
+        <!-- Suite-level registration keeps retry annotation transformation active before test execution. -->
         <listener class-name="com.example.saucedemo.framework.listener.AnnotationTransformer"/>
     </listeners>
-    <test name="Inventory, Cart, Checkout and Login Scenarios">
+    <test name="Inventory Scenarios">
         <classes>
             <class name="com.example.saucedemo.tests.InventoryTests"/>
+        </classes>
+    </test>
+    <test name="Cart Scenarios">
+        <classes>
             <class name="com.example.saucedemo.tests.CartTests"/>
+        </classes>
+    </test>
+    <test name="Checkout Scenarios">
+        <classes>
             <class name="com.example.saucedemo.tests.CheckoutTests"/>
+        </classes>
+    </test>
+    <test name="Login Scenarios">
+        <classes>
             <class name="com.example.saucedemo.tests.LoginTests"/>
+        </classes>
+    </test>
+    <test name="End-to-End Journey Scenarios">
+        <classes>
             <class name="com.example.saucedemo.tests.EndToEndJourneyTests"/>
         </classes>
     </test>
 </suite>
-
 

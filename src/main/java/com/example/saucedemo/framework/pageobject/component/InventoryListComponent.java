@@ -2,6 +2,7 @@ package com.example.saucedemo.framework.pageobject.component;
 
 import com.example.saucedemo.framework.data.ProductDetails;
 import com.example.saucedemo.framework.pageobject.BaseComponent;
+import com.example.saucedemo.framework.pageobject.ProductDetailPage;
 import io.qameta.allure.Step;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,10 @@ public class InventoryListComponent extends BaseComponent {
   }
 
   /**
-   * Returns a list of all product web elements currently on the page.
+   * Returns all visible list items after at least one item appears.
+   *
+   * <p>Do not call this method when the list may legitimately be empty, such as an empty cart. Use
+   * {@link #getListItemsCount()} for empty-state assertions.
    *
    * @return List of WebElements.
    */
@@ -128,6 +132,23 @@ public class InventoryListComponent extends BaseComponent {
     waitUtils.waitUntilNestedClickable(product, REMOVE_BUTTON).click();
     log.debug("Successfully removed product from cart: {}", name);
     return this;
+  }
+
+  @Step("Open product detail page for '{0}'")
+  public ProductDetailPage openProductDetail(String name) {
+    log.info("Opening product detail page for: {}", name);
+    WebElement product = getProductByName(name);
+    waitUtils.waitUntilNestedClickable(product, PRODUCT_NAME_ELEMENT).click();
+    return new ProductDetailPage(driver).waitUntilLoaded();
+  }
+
+  @Step("Get action button text for product '{0}'")
+  public String getActionButtonText(String name) {
+    WebElement product = getProductByName(name);
+    if (product.findElements(ADD_TO_CART_BUTTON).stream().anyMatch(WebElement::isDisplayed)) {
+      return product.findElement(ADD_TO_CART_BUTTON).getText();
+    }
+    return product.findElement(REMOVE_BUTTON).getText();
   }
 
   @Step("Remove product at index {0} from cart")

@@ -44,26 +44,44 @@ public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
     return this;
   }
 
-  @Step("Click login button")
-  public void clickLoginButton() {
-    log.info("Clicking login button");
+  @Step("Submit login and expect success")
+  public InventoryPage loginExpectingSuccess() {
+    log.info("Clicking login button and expecting inventory page");
     waitUtils.click(LOGIN_BUTTON);
+    return new InventoryPage(driver).waitUntilLoaded();
   }
 
+  @Step("Submit login and expect error")
+  public LoginPage loginExpectingError() {
+    log.info("Clicking login button and expecting login error");
+    waitUtils.click(LOGIN_BUTTON);
+    waitUtils.waitUntilVisible(ERROR_MESSAGE);
+    return this;
+  }
+
+  /**
+   * Opens the login page, submits credentials, and waits for a successful inventory landing page.
+   * Call {@link #open(String)} only for standalone navigation or assertions before submitting the
+   * form.
+   */
   @Step("Login to {0} with username {1}")
-  public LoginPage login(String url, String username, String password) {
+  public InventoryPage login(String url, String username, String password) {
     return login(new LoginRequest(url, username, password));
   }
 
+  /**
+   * Opens the login page, submits credentials, and waits for a successful inventory landing page.
+   * Use {@link #loginExpectingError()} after manually entering credentials for negative scenarios.
+   */
   @Step("Login using request for username {0.username}")
-  public LoginPage login(LoginRequest request) {
+  public InventoryPage login(LoginRequest request) {
     log.info("Starting login process for user: {} at URL: {}", request.username(), request.url());
     open(request.url());
     enterUsername(request.username());
     enterPassword(request.password());
-    clickLoginButton();
+    InventoryPage inventoryPage = loginExpectingSuccess();
     log.info("Login process completed for user: {}", request.username());
-    return this;
+    return inventoryPage;
   }
 
   @Step("Get login error message")

@@ -10,14 +10,12 @@ import com.example.saucedemo.framework.pageobject.CheckoutCompletePage;
 import com.example.saucedemo.framework.pageobject.CheckoutOverviewPage;
 import com.example.saucedemo.framework.pageobject.CheckoutPage;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
-import com.example.saucedemo.framework.pageobject.LoginPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import com.example.saucedemo.tests.data.CheckoutScenario;
 import com.example.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
-import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -25,6 +23,7 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -36,27 +35,27 @@ import org.testng.annotations.Test;
 @Owner("QA Automation")
 public class EndToEndJourneyTests extends BaseTestCase {
 
+  private static final BigDecimal SAUCE_DEMO_TAX_RATE = new BigDecimal("0.08");
+
   @Test(
       testName = "Verify standard user can complete a realistic shopping journey",
       description =
           "Logs in through the UI, sorts inventory, adds a product, verifies the cart and checkout overview, completes the order, and logs out.",
       groups = {TestGroups.JOURNEY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Logs in through the UI, sorts inventory, adds a product, verifies the cart and checkout overview, completes the order, and logs out.")
   @Story("Full purchase journey")
   @Severity(SeverityLevel.BLOCKER)
   public void verifyStandardUserCanCompleteShoppingJourney() {
     var config = ConfigFactory.getConfig();
-    ConfigFactory.requireLoginPassword(config);
+    assumePasswordConfigured();
 
-    LoginPage loginPage = pages().login();
-    loginPage.login(new LoginRequest(config.appUrl(), config.appUsername(), config.appPassword()));
-
-    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    InventoryPage inventoryPage =
+        pages()
+            .login()
+            .login(new LoginRequest(config.appUrl(), config.appUsername(), config.appPassword()));
     HeaderComponent header = pages().header();
 
-    assertThat(inventoryPage.getHeaderText())
+    assertThat(inventoryPage.getAppLogoText())
         .as("The authenticated journey should start on the inventory page")
         .isEqualTo(AppConstants.HEADER_TITLE);
 
@@ -92,7 +91,7 @@ public class EndToEndJourneyTests extends BaseTestCase {
         .isEqualTo(ProductCatalog.BACKPACK);
     assertThat(overviewPage.getTotal())
         .as("Checkout total should include backpack item total and tax")
-        .isEqualByComparingTo(new BigDecimal("32.39"));
+        .isEqualByComparingTo(expectedTotal(ProductCatalog.BACKPACK.price()));
 
     CheckoutCompletePage completePage = overviewPage.finishCheckout();
     assertThat(completePage.getConfirmationMessage())
@@ -102,5 +101,11 @@ public class EndToEndJourneyTests extends BaseTestCase {
     assertThat(header.logout().isLoginButtonVisible())
         .as("The journey should leave the application in a logged-out state")
         .isTrue();
+  }
+
+  private static BigDecimal expectedTotal(String price) {
+    BigDecimal itemTotal = new BigDecimal(price.replace("$", ""));
+    BigDecimal tax = itemTotal.multiply(SAUCE_DEMO_TAX_RATE).setScale(2, RoundingMode.HALF_UP);
+    return itemTotal.add(tax);
   }
 }

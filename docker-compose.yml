@@ -12,6 +12,7 @@ services:
   chrome:
     image: selenium/node-chrome:4.43.0
     shm_size: 2gb
+    mem_limit: 2g
     depends_on:
       - selenium-hub
     environment:
@@ -22,6 +23,7 @@ services:
   firefox:
     image: selenium/node-firefox:4.43.0
     shm_size: 2gb
+    mem_limit: 2g
     depends_on:
       - selenium-hub
     environment:
@@ -32,6 +34,7 @@ services:
   edge:
     image: selenium/node-edge:4.43.0
     shm_size: 2gb
+    mem_limit: 2g
     depends_on:
       - selenium-hub
     environment:

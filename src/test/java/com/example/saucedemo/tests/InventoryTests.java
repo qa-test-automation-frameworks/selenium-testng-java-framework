@@ -5,13 +5,14 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.example.saucedemo.app.auth.AuthService;
 import com.example.saucedemo.framework.data.AppConstants;
+import com.example.saucedemo.framework.listener.Retryable;
 import com.example.saucedemo.framework.pageobject.InventoryPage;
+import com.example.saucedemo.framework.pageobject.ProductDetailPage;
 import com.example.saucedemo.framework.pageobject.component.HeaderComponent;
 import com.example.saucedemo.framework.pageobject.component.InventoryListComponent;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
-import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -42,15 +43,13 @@ public class InventoryTests extends BaseTestCase {
           "Opens the inventory page through cookie authentication and verifies the main header and menu controls are visible.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Opens the inventory page through cookie authentication and verifies the main header and menu controls are visible.")
   @Story("Inventory navigation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyInventoryDisplaysHeaderAndMenu() {
     InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
     HeaderComponent header = pages().header();
 
-    assertThat(inventoryPage.getHeaderText())
+    assertThat(inventoryPage.getAppLogoText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
     assertThat(header.isMenuButtonVisible())
@@ -65,7 +64,6 @@ public class InventoryTests extends BaseTestCase {
           "Validates that the inventory page renders the complete fixed Sauce Demo catalog.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description("Validates that the inventory page renders the complete fixed Sauce Demo catalog.")
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyInventoryDisplaysAllProducts() {
@@ -84,8 +82,6 @@ public class InventoryTests extends BaseTestCase {
           "Checks that each displayed inventory item matches the centralized demo catalog data.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Checks that each displayed inventory item matches the centralized demo catalog data.")
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsMatchCatalogDetails() {
@@ -116,8 +112,6 @@ public class InventoryTests extends BaseTestCase {
           "Sorts the inventory by ascending price and verifies the rendered product prices follow that order.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Sorts the inventory by ascending price and verifies the rendered product prices follow that order.")
   @Story("Product sorting")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsCanBeSortedByPriceLowToHigh() {
@@ -138,8 +132,7 @@ public class InventoryTests extends BaseTestCase {
           "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.",
       groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.")
+  @Retryable
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyRemovingProductFromInventoryClearsCartBadge() {
@@ -154,5 +147,51 @@ public class InventoryTests extends BaseTestCase {
     assertThat(header.getProductAddedToCartCount())
         .as("Cart badge should disappear after removing the only product")
         .isZero();
+  }
+
+  @Test(
+      testName = "Verify product detail page displays catalog details",
+      description =
+          "Opens a product from inventory, verifies its detail page content, adds it to cart, and returns to inventory.",
+      groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Story("Product detail")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyProductDetailPageMatchesCatalog() {
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
+
+    ProductDetailPage detailPage = inventoryPage.openProductDetail(ProductCatalog.BACKPACK.name());
+
+    assertThat(detailPage.getProductDetails())
+        .as("Product detail page should match the selected catalog item")
+        .isEqualTo(ProductCatalog.BACKPACK);
+
+    detailPage.addToCart();
+    header.waitForProductAddedToCartCount(1);
+
+    assertThat(detailPage.getActionButtonText())
+        .as("Detail page action should switch to Remove after adding the product")
+        .isEqualTo("Remove");
+    assertThat(detailPage.goBack().getAppLogoText())
+        .as("Back to products should return to the inventory page")
+        .isEqualTo(AppConstants.HEADER_TITLE);
+  }
+
+  @Test(
+      testName = "Verify add-to-cart button changes to remove after adding product",
+      description = "Adds a product and verifies the inventory button switches to Remove state.",
+      groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+  @Story("Inventory cart controls")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyAddToCartButtonTogglesAfterAddingProduct() {
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+
+    inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
+
+    assertThat(inventoryPage.getInventoryList().getActionButtonText(ProductCatalog.BACKPACK.name()))
+        .as("Added product action button should switch to Remove")
+        .isEqualTo("Remove");
   }
 }

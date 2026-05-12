@@ -13,7 +13,8 @@ import org.openqa.selenium.support.ui.Select;
 @Slf4j
 public class InventoryPage extends BasePage implements PageLoadable<InventoryPage> {
 
-  private static final By PRIMARY_HEADER = By.className("app_logo");
+  // Sauce Demo does not expose a data-test attribute on the app logo.
+  private static final By APP_LOGO = By.className("app_logo");
   private static final By PRODUCT_SORT = By.cssSelector("[data-test='product-sort-container']");
   private static final By PRODUCT_PRICE = By.cssSelector("[data-test='inventory-item-price']");
 
@@ -31,16 +32,16 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
   @Override
   public InventoryPage waitUntilLoaded() {
     waitUntilUrlContains("inventory");
-    waitUtils.waitUntilVisible(PRIMARY_HEADER);
+    waitUtils.waitUntilVisible(APP_LOGO);
     waitUtils.waitUntilVisible(PRODUCT_SORT);
     return this;
   }
 
-  @Step("Get header text from landing page")
-  public String getHeaderText() {
-    log.info("Retrieving the main header text from the inventory page");
-    String text = waitUtils.waitUntilVisible(PRIMARY_HEADER).getText();
-    log.debug("Inventory page header text retrieved: {}", text);
+  @Step("Get app logo text from inventory page")
+  public String getAppLogoText() {
+    log.info("Retrieving the app logo text from the inventory page");
+    String text = waitUtils.waitUntilVisible(APP_LOGO).getText();
+    log.debug("Inventory page app logo text retrieved: {}", text);
     return text;
   }
 
@@ -48,6 +49,11 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
   public InventoryPage addProductToCart(String productName) {
     inventoryList.addProductToCart(productName);
     return this;
+  }
+
+  @Step("Open product detail page for '{0}'")
+  public ProductDetailPage openProductDetail(String productName) {
+    return inventoryList.openProductDetail(productName);
   }
 
   @Step("Remove product '{0}' from inventory")

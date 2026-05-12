@@ -53,6 +53,10 @@
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
+            <!--
+                CDP DevTools artifact version maps to the Chrome major version supported by Selenium.
+                When upgrading Selenium, verify whether this artifact name must move from v145 to vNNN.
+            -->
             <artifactId>selenium-devtools-v145</artifactId>
             <version>${selenium.version}</version>
         </dependency>
@@ -310,6 +314,7 @@
                     <threshold>Medium</threshold>
                     <effort>Max</effort>
                     <includeTests>true</includeTests>
+                    <excludeFilterFile>config/spotbugs/exclude.xml</excludeFilterFile>
                 </configuration>
             </plugin>
 

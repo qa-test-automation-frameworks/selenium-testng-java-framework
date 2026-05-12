@@ -23,7 +23,7 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 1. Create a test class in `src/test/java/com/example/saucedemo/tests`.
 2. Extend `BaseTestCase`.
 3. Annotate test methods with `@Test`.
-4. Use the `testName` and `description` attributes in `@Test`, and add Allure `@Description` when you want the description rendered in the dedicated Allure panel.
+4. Use the `testName` and `description` attributes in `@Test`; Allure reads the TestNG description automatically.
 5. Instantiate Page Objects close to where they are used and call `waitUntilLoaded()` explicitly when the scenario depends on page readiness.
 6. Use **AssertJ** for assertions. Always include a descriptive message using `.as()`.
 7. Add meaningful TestNG groups such as `smoke`, `login`, `inventory`, `cart`, or `regression`.
@@ -33,7 +33,6 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 
 ### Example Test Annotation
 ```java
-@Description("Adds two products and verifies the cart badge count updates to match.")
 @Test(
     testName = "Verify adding multiple products to cart",
     description = "Adds two products and verifies the cart badge count updates to match.",
@@ -57,5 +56,4 @@ assertThat(page.getSomeValue())
 - **Components**: `SomethingComponent`
 - **Tests**: use descriptive camelCase names, for example `verifyUserCanAddProductsToCart`.
 - **End-to-end journeys**: use a dedicated journey class when a test intentionally spans login, browsing, cart, checkout, and logout.
-
 

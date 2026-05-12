@@ -13,7 +13,6 @@ import com.example.saucedemo.tests.data.LoginScenario;
 import com.example.saucedemo.tests.data.LoginScenario.InvalidLoginCase;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
-import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -83,20 +82,18 @@ public class LoginTests extends BaseTestCase {
       groups = {TestGroups.LOGIN},
       dataProvider = "invalidUsers",
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Attempts invalid login scenarios and verifies the expected authentication error message for each credential set.")
   @Story("Invalid login handling")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyLoginShowsExpectedErrorMessage(InvalidLoginCase scenario) {
     if (scenario.requiresConfiguredPassword()) {
-      ConfigFactory.requireLoginPassword(ConfigFactory.getConfig());
+      assumePasswordConfigured();
     }
     LoginPage loginPage = pages().login();
-    loginPage.login(
-        new LoginRequest(
-            ConfigFactory.getConfig().appUrl(),
-            scenario.credentials().username(),
-            scenario.credentials().password()));
+    loginPage
+        .open(ConfigFactory.getConfig().appUrl())
+        .enterUsername(scenario.credentials().username())
+        .enterPassword(scenario.credentials().password())
+        .loginExpectingError();
 
     log.info("Verifying login error message");
     String error = loginPage.getErrorMessage();
@@ -111,19 +108,18 @@ public class LoginTests extends BaseTestCase {
           "Logs in through the real UI form with configured standard-user credentials and verifies the inventory landing page.",
       groups = {TestGroups.LOGIN},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Logs in through the real UI form with configured standard-user credentials and verifies the inventory landing page.")
   @Story("Valid login")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyStandardUserCanLogin() {
     var config = ConfigFactory.getConfig();
-    ConfigFactory.requireLoginPassword(config);
+    assumePasswordConfigured();
 
-    pages()
-        .login()
-        .login(new LoginRequest(config.appUrl(), config.appUsername(), config.appPassword()));
+    InventoryPage inventoryPage =
+        pages()
+            .login()
+            .login(new LoginRequest(config.appUrl(), config.appUsername(), config.appPassword()));
 
-    assertThat(pages().inventory().waitUntilLoaded().getHeaderText())
+    assertThat(inventoryPage.getAppLogoText())
         .as("A valid standard user login should land on the inventory page")
         .isEqualTo(AppConstants.HEADER_TITLE);
   }
@@ -135,8 +131,6 @@ public class LoginTests extends BaseTestCase {
       groups = {TestGroups.LOGIN, TestGroups.REGRESSION},
       dataProvider = "protectedRoutes",
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Attempts to open protected application routes without a session and verifies Sauce Demo redirects to login with the correct access error.")
   @Story("Protected route access")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyProtectedRoutesRequireAuthentication(
@@ -157,15 +151,13 @@ public class LoginTests extends BaseTestCase {
           "Authenticates with the cookie shortcut, performs logout, and verifies the browser returns to the login page.",
       groups = {TestGroups.SMOKE, TestGroups.LOGIN},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Authenticates with the cookie shortcut, performs logout, and verifies the browser returns to the login page.")
   @Story("Authenticated user logout")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanLogout() {
     AuthService.injectLoginCookieAndNavigate(getDriver());
     InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
     HeaderComponent header = pages().header();
-    assertThat(inventoryPage.getHeaderText())
+    assertThat(inventoryPage.getAppLogoText())
         .as("Inventory page header title should be Swag Labs")
         .isEqualTo(AppConstants.HEADER_TITLE);
     log.info("Performing logout operation");

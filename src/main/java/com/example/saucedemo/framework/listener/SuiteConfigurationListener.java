@@ -2,6 +2,7 @@ package com.example.saucedemo.framework.listener;
 
 import com.example.saucedemo.framework.config.FrameworkConfig;
 import com.example.saucedemo.framework.config.TestRunContext;
+import com.example.saucedemo.framework.util.DiagnosticRedactor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +36,7 @@ public class SuiteConfigurationListener implements IAlterSuiteListener {
     log.info("Headless: {}", config.headless());
     log.info("Execution Type: {}", config.executionType());
     log.info("Thread Count: {}", config.threadCount());
-    log.info("App URL: {}", config.appUrl());
+    log.info("App URL: {}", DiagnosticRedactor.redact(config.appUrl()));
     log.info("Retry Enabled: {}", config.retryEnabled());
     log.info("Retry Count: {}", config.retryCount());
     log.info("Explicit Wait Seconds: {}", config.explicitWaitSeconds());

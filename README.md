@@ -179,6 +179,9 @@ Configuration is loaded from built-in safe defaults, optional classpath resource
 | `retry.enabled` | Enable TestNG retry analyzer | `false` |
 | `retry.count` | Retry count when retries are enabled | `2` |
 
+Tests annotated with `@Retryable` are eligible for retry when `retry.enabled=true`. The retry
+summary is attached to Allure at suite finish so retry behavior is visible in reports.
+
 Credentials are supplied through environment variables or Maven system properties. Prefer setting environment variables before running Maven and use GitHub Actions secrets in CI so passwords are not written into Maven command lines or committed files. `APP_PASSWORD` is required only for password-backed login scenarios; inventory/cart UI smoke coverage can run without it. Do not commit real credentials to repository files.
 
 ## Fork Setup Notes

@@ -13,7 +13,6 @@ import com.example.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;
 import com.example.saucedemo.tests.data.ProductCatalog;
 import com.example.saucedemo.tests.data.TestGroups;
 import com.example.saucedemo.tests.data.TestTimeouts;
-import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -21,6 +20,7 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 @Feature("Checkout")
 @Owner("QA Automation")
 public class CheckoutTests extends BaseTestCase {
+
+  private static final BigDecimal SAUCE_DEMO_TAX_RATE = new BigDecimal("0.08");
 
   @BeforeMethod(alwaysRun = true, description = "Authenticate via cookie and open inventory page")
   public void setupTest() {
@@ -53,8 +55,6 @@ public class CheckoutTests extends BaseTestCase {
       groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
       dataProvider = "invalidCheckoutScenarios",
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Attempts checkout with invalid required-field combinations and verifies the matching validation message for each scenario.")
   @Story("Checkout validation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyCheckoutValidation(
@@ -78,8 +78,6 @@ public class CheckoutTests extends BaseTestCase {
           "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.",
       groups = {TestGroups.SMOKE, TestGroups.CHECKOUT},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Description(
-      "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.")
   @Story("Checkout completion")
   @Severity(SeverityLevel.BLOCKER)
   public void verifyUserCanCompleteCheckout() {
@@ -94,15 +92,20 @@ public class CheckoutTests extends BaseTestCase {
     assertThat(overviewPage.getProductDetailsByName(ProductCatalog.BACKPACK.name()))
         .as("Checkout overview should show the selected backpack details")
         .isEqualTo(ProductCatalog.BACKPACK);
+    BigDecimal expectedItemTotal = catalogPrice(ProductCatalog.BACKPACK.price());
+    BigDecimal expectedTax =
+        expectedItemTotal.multiply(SAUCE_DEMO_TAX_RATE).setScale(2, RoundingMode.HALF_UP);
+    BigDecimal expectedTotal = expectedItemTotal.add(expectedTax);
+
     assertThat(overviewPage.getItemTotal())
-        .as("Checkout item total should equal the selected backpack price")
-        .isEqualByComparingTo(new BigDecimal("29.99"));
+        .as("Checkout item total should equal the selected backpack catalog price")
+        .isEqualByComparingTo(expectedItemTotal);
     assertThat(overviewPage.getTax())
-        .as("Checkout tax should match Sauce Demo's displayed tax for the backpack")
-        .isEqualByComparingTo(new BigDecimal("2.40"));
+        .as("Checkout tax should be Sauce Demo's 8%% tax for the backpack")
+        .isEqualByComparingTo(expectedTax);
     assertThat(overviewPage.getTotal())
         .as("Checkout total should include item total and tax")
-        .isEqualByComparingTo(new BigDecimal("32.39"));
+        .isEqualByComparingTo(expectedTotal);
 
     CheckoutCompletePage completePage = overviewPage.finishCheckout();
 
@@ -117,5 +120,9 @@ public class CheckoutTests extends BaseTestCase {
 
     inventoryPage.addProductToCart(ProductCatalog.BACKPACK.name());
     return header.navigateToCart().continueToCheckout();
+  }
+
+  private BigDecimal catalogPrice(String price) {
+    return new BigDecimal(price.replace("$", ""));
   }
 }
