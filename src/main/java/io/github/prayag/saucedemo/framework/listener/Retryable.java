@@ -8,4 +8,6 @@ import java.lang.annotation.Target;
 /** Marks a TestNG test method as eligible for the opt-in retry analyzer. */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Retryable {}
+public @interface Retryable {
+  String reason();
+}

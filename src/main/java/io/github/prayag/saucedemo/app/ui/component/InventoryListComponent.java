@@ -22,8 +22,6 @@ public class InventoryListComponent extends BaseComponent {
       By.cssSelector("[data-test='inventory-item-desc']");
   private static final By PRODUCT_PRICE_ELEMENT =
       By.cssSelector("[data-test='inventory-item-price']");
-  private static final By ADD_TO_CART_BUTTON = By.cssSelector("button[data-test^='add-to-cart']");
-  private static final By REMOVE_BUTTON = By.cssSelector("button[data-test^='remove']");
 
   private final By rootLocator;
 
@@ -82,6 +80,15 @@ public class InventoryListComponent extends BaseComponent {
    */
   @Step("Find product '{0}' in inventory list")
   public WebElement getProductByName(String name) {
+    return findProductElementByName(name);
+  }
+
+  @Step("Get product item component for '{0}'")
+  public ProductItemComponent getProductItemByName(String name) {
+    return new ProductItemComponent(driver, () -> findProductElementByName(name));
+  }
+
+  private WebElement findProductElementByName(String name) {
     log.info("Searching for product by name: {}", name);
     List<WebElement> items = getItemList();
     return items.stream()
@@ -99,12 +106,7 @@ public class InventoryListComponent extends BaseComponent {
   @Step("Get product details for '{0}'")
   public ProductDetails getProductDetailsByName(String name) {
     log.info("Retrieving details for product: {}", name);
-    WebElement product = getProductByName(name);
-    ProductDetails details =
-        new ProductDetails(
-            product.findElement(PRODUCT_NAME_ELEMENT).getText(),
-            product.findElement(PRODUCT_DESCRIPTION_ELEMENT).getText(),
-            product.findElement(PRODUCT_PRICE_ELEMENT).getText());
+    ProductDetails details = getProductItemByName(name).details();
     log.debug("Product details retrieved: {}", details);
     return details;
   }
@@ -117,7 +119,7 @@ public class InventoryListComponent extends BaseComponent {
   @Step("Add product '{0}' to cart")
   public InventoryListComponent addProductToCart(String name) {
     log.info("Adding product to cart: {}", name);
-    waitUtils.waitUntilNestedClickable(() -> getProductByName(name), ADD_TO_CART_BUTTON).click();
+    getProductItemByName(name).addToCart();
     waitForActionButtonText(name, "Remove");
     log.debug("Successfully added product to cart: {}", name);
     return this;
@@ -128,7 +130,7 @@ public class InventoryListComponent extends BaseComponent {
     log.info("Removing product from cart: {}", name);
     boolean cartList = rootLocator.toString().contains("cart-list");
     int startingCount = getListItemsCount();
-    waitUtils.waitUntilNestedClickable(() -> getProductByName(name), REMOVE_BUTTON).click();
+    getProductItemByName(name).removeFromCart();
     if (cartList) {
       waitForItemCount(startingCount - 1);
     } else {
@@ -141,17 +143,13 @@ public class InventoryListComponent extends BaseComponent {
   @Step("Open product detail page for '{0}'")
   public ProductDetailPage openProductDetail(String name) {
     log.info("Opening product detail page for: {}", name);
-    waitUtils.waitUntilNestedClickable(() -> getProductByName(name), PRODUCT_NAME_ELEMENT).click();
+    getProductItemByName(name).openDetail();
     return new ProductDetailPage(driver).waitUntilLoaded();
   }
 
   @Step("Get action button text for product '{0}'")
   public String getActionButtonText(String name) {
-    WebElement product = getProductByName(name);
-    if (product.findElements(ADD_TO_CART_BUTTON).stream().anyMatch(WebElement::isDisplayed)) {
-      return product.findElement(ADD_TO_CART_BUTTON).getText();
-    }
-    return product.findElement(REMOVE_BUTTON).getText();
+    return getProductItemByName(name).actionButtonText();
   }
 
   @Step("Remove product at index {0} from cart")
@@ -163,7 +161,8 @@ public class InventoryListComponent extends BaseComponent {
           String.format("Product list has %d items; cannot remove index %d", items.size(), index));
     }
 
-    waitUtils.waitUntilNestedClickable(items.get(index), REMOVE_BUTTON).click();
+    ProductItemComponent item = new ProductItemComponent(driver, () -> items.get(index));
+    item.removeFromCart();
     waitForItemCount(items.size() - 1);
     log.debug("Successfully removed product at index: {}", index);
     return this;

@@ -59,7 +59,7 @@ graph LR
 - **App Page Objects**: Sauce Demo-specific pages live under `io.github.prayag.saucedemo.app.ui.page`; reusable page fragments live under `io.github.prayag.saucedemo.app.ui.component`.
 - **Stateless Design**: Page Objects represent the UI state and actions but do not contain assertions (delegated to the test layer).
 - **Explicit Readiness**: Page objects are constructed lazily; callers invoke `waitUntilLoaded()` explicitly when page readiness must be asserted. Readiness means URL plus the minimum interactive controls and content required by that page.
-- **Component Model**: Complex app UI elements, such as headers and product lists, are extracted into app-specific components.
+- **Component Model**: Complex app UI elements, such as headers, product lists, and root-scoped product items, are extracted into app-specific components.
 - **Source Set**: Framework and orchestration code lives under `src/main/java`; concrete TestNG scenarios stay under `src/test/java`.
 
 ### 4. Test Layer (`tests`)
@@ -90,4 +90,4 @@ graph LR
 - Use `-Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub` for local grid runs.
 - Keep browser names aligned with supported values: `CHROME`, `FIREFOX`, `EDGE`, or `SAFARI`.
 - Prefer Docker Grid for reproducible browser diagnostics. Local evergreen browsers can be newer than Selenium's packaged DevTools artifacts and may emit CDP compatibility warnings even when functional tests pass.
-- Docker images are version-tag pinned for readability. Digest pinning is a supported owner choice, but should be paired with Dependabot Docker updates so pinned digests do not silently age.
+- Docker images are version-tag and digest pinned for reproducibility. Refresh image digests when Dependabot updates Selenium Grid tags.

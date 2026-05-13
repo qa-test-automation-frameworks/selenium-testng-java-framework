@@ -29,6 +29,8 @@ public interface FrameworkConfig {
 
   String appPassword();
 
+  String sensitiveDomSelectors();
+
   boolean allowPasswordlessSkips();
 
   boolean retryEnabled();

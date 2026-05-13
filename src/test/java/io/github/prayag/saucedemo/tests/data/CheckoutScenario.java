@@ -11,18 +11,24 @@ public final class CheckoutScenario {
   }
 
   public static CheckoutInformation missingLastName() {
-    return CheckoutInformation.builder().firstName("Pat").postalCode("411001").build();
+    return CheckoutInformation.builder()
+        .firstName(TestPerson.DEFAULT.firstName())
+        .postalCode(TestAddress.DEFAULT.postalCode())
+        .build();
   }
 
   public static CheckoutInformation missingPostalCode() {
-    return CheckoutInformation.builder().firstName("Pat").lastName("Tester").build();
+    return CheckoutInformation.builder()
+        .firstName(TestPerson.DEFAULT.firstName())
+        .lastName(TestPerson.DEFAULT.lastName())
+        .build();
   }
 
   public static CheckoutInformation validInformation() {
     return CheckoutInformation.builder()
-        .firstName("Pat")
-        .lastName("Tester")
-        .postalCode("411001")
+        .firstName(TestPerson.DEFAULT.firstName())
+        .lastName(TestPerson.DEFAULT.lastName())
+        .postalCode(TestAddress.DEFAULT.postalCode())
         .build();
   }
 

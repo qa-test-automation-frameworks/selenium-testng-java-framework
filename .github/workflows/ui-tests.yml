@@ -3,8 +3,14 @@ name: UI Tests
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 1-5'
@@ -20,6 +26,7 @@ jobs:
   dependency-review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,6 +36,7 @@ jobs:
 
   quality-gates:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,7 +52,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Validate Maven wrapper distribution
-        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Run formatting and static-analysis gates
         run: ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
@@ -52,6 +60,7 @@ jobs:
   dependency-governance:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,7 +76,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Validate Maven wrapper distribution
-        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Generate dependency update report
         run: |
@@ -93,6 +102,7 @@ jobs:
   test:
     needs: quality-gates
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
@@ -113,7 +123,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Validate Maven wrapper distribution
-        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Start Selenium Grid
         shell: bash
@@ -141,16 +151,16 @@ jobs:
           APP_USERNAME: standard_user
         run: |
           TEST_STATUS=0
-          ./mvnw clean test -Dgroups=inventory,cart -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub || TEST_STATUS=$?
-          ./mvnw allure:report -DskipTests
+          ./mvnw clean test -Dgroups=inventory,cart -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
+          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{}
           exit $TEST_STATUS
 
       - name: Run full UI regression
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
           TEST_STATUS=0
-          ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub || TEST_STATUS=$?
-          ./mvnw allure:report -DskipTests
+          ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
+          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{}
           exit $TEST_STATUS
         env:
           APP_USERNAME: standard_user
@@ -206,6 +216,7 @@ jobs:
     # Publish even on failed tests so the latest failure diagnostics remain inspectable.
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       pages: write
       id-token: write
@@ -228,7 +239,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Validate Maven wrapper distribution
-        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Download Allure results
         uses: actions/download-artifact@v4
@@ -254,7 +265,7 @@ jobs:
           fi
 
       - name: Generate Allure report
-        run: ./mvnw allure:report -DskipTests
+        run: ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{}
 
       - name: Preserve Allure history
         shell: bash

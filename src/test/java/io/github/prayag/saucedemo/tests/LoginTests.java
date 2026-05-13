@@ -3,12 +3,12 @@ package io.github.prayag.saucedemo.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.prayag.saucedemo.app.auth.AuthService;
+import io.github.prayag.saucedemo.app.data.AppConstants;
 import io.github.prayag.saucedemo.app.data.LoginRequest;
 import io.github.prayag.saucedemo.app.ui.component.HeaderComponent;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
 import io.github.prayag.saucedemo.app.ui.page.LoginPage;
 import io.github.prayag.saucedemo.framework.config.ConfigFactory;
-import io.github.prayag.saucedemo.framework.data.AppConstants;
 import io.github.prayag.saucedemo.tests.data.LoginScenario;
 import io.github.prayag.saucedemo.tests.data.LoginScenario.InvalidLoginCase;
 import io.github.prayag.saucedemo.tests.data.ProductCatalog;

@@ -1,5 +1,6 @@
-package io.github.prayag.saucedemo.framework.data;
+package io.github.prayag.saucedemo.app.data;
 
+/** Sauce Demo application-level constants used by UI tests. */
 public final class AppConstants {
   private AppConstants() {}
 

@@ -14,13 +14,14 @@
         <allure.report.version>2.39.0</allure.report.version>
         <allure.maven.version>3.0.1</allure.maven.version>
         <assertj.version>3.27.7</assertj.version>
-        <log4j.version>2.25.4</log4j.version>
+        <log4j.version>2.26.0</log4j.version>
         <lombok.version>1.18.46</lombok.version>
         <aspectj.version>1.9.25.1</aspectj.version>
-        <slf4j.version>2.0.17</slf4j.version>
+        <slf4j.version>2.0.18</slf4j.version>
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
         <maven.dependency.plugin.version>3.10.0</maven.dependency.plugin.version>
         <spotbugs.maven.plugin.version>4.9.8.3</spotbugs.maven.plugin.version>
+        <allure.issue.pattern>https://github.com/prayag/ta-java-selenium-testng/issues/{}</allure.issue.pattern>
         <groups></groups>
         <thread.count>1</thread.count>
     </properties>
@@ -101,6 +102,23 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>allure.properties</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>allure.properties</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -147,6 +165,15 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <propertiesEncoding>${project.build.sourceEncoding}</propertiesEncoding>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>

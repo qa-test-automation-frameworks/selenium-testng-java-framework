@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import io.github.prayag.saucedemo.app.auth.AuthService;
+import io.github.prayag.saucedemo.app.data.AppConstants;
 import io.github.prayag.saucedemo.app.ui.component.HeaderComponent;
 import io.github.prayag.saucedemo.app.ui.component.InventoryListComponent;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
 import io.github.prayag.saucedemo.app.ui.page.ProductDetailPage;
-import io.github.prayag.saucedemo.framework.data.AppConstants;
 import io.github.prayag.saucedemo.framework.listener.Retryable;
 import io.github.prayag.saucedemo.tests.data.ProductCatalog;
 import io.github.prayag.saucedemo.tests.data.TestGroups;
@@ -132,7 +132,8 @@ public class InventoryTests extends BaseTestCase {
           "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.",
       groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
       timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Retryable
+  @Retryable(
+      reason = "Cart badge transitions can be affected by transient remote Grid click timing")
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyRemovingProductFromInventoryClearsCartBadge() {

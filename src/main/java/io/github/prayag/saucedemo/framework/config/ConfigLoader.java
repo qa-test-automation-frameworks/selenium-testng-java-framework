@@ -63,6 +63,14 @@ public final class ConfigLoader {
     properties.setProperty("thread.count", systemProperties.getProperty("thread.count", "1"));
     properties.setProperty("app.url", "https://www.saucedemo.com/");
     properties.setProperty("APP_USERNAME", "standard_user");
+    properties.setProperty("APP_PASSWORD", "");
+    properties.setProperty(
+        "diagnostics.sensitive.dom.selectors",
+        "input[type='password'], input[name*='password'], input[id*='password'], "
+            + "input[autocomplete='current-password'], input[autocomplete='new-password'], "
+            + "input[type='email'], input[name*='email'], input[id*='email'], "
+            + "input[name*='token'], input[id*='token'], input[name*='secret'], "
+            + "input[id*='secret'], [data-sensitive='true']");
     properties.setProperty("allow.passwordless.skips", "false");
     properties.setProperty("retry.enabled", "false");
     properties.setProperty("retry.count", "2");
@@ -190,6 +198,25 @@ public final class ConfigLoader {
     config.attachPageSourceOnFailure();
     config.attachBrowserLogsOnFailure();
     config.attachFrameworkLogsOnFailure();
+    validateRequiredStrings(config);
+    validatePositiveNumbers(config);
+    validateRemoteExecution(config);
+  }
+
+  private void validateRequiredStrings(FrameworkConfig config) {
+    if (config.sensitiveDomSelectors() == null || config.sensitiveDomSelectors().isBlank()) {
+      throw new FrameworkConfigurationException(
+          "diagnostics.sensitive.dom.selectors must be provided");
+    }
+    if (config.appUrl() == null || config.appUrl().isBlank()) {
+      throw new FrameworkConfigurationException("app.url must be provided");
+    }
+    if (config.appUsername() == null || config.appUsername().isBlank()) {
+      throw new FrameworkConfigurationException("APP_USERNAME must be provided");
+    }
+  }
+
+  private void validatePositiveNumbers(FrameworkConfig config) {
     if (config.threadCount() < 1) {
       throw new FrameworkConfigurationException(
           "thread.count must be greater than zero; actual value was " + config.threadCount());
@@ -224,16 +251,13 @@ public final class ConfigLoader {
           "polling.interval.ms must be greater than zero; actual value was "
               + config.pollingIntervalMs());
     }
+  }
+
+  private void validateRemoteExecution(FrameworkConfig config) {
     if (config.executionType().equalsIgnoreCase("remote")
         && (config.remoteUrl() == null || config.remoteUrl().isBlank())) {
       throw new FrameworkConfigurationException(
           "remote.url must be provided when execution.type is remote");
-    }
-    if (config.appUrl() == null || config.appUrl().isBlank()) {
-      throw new FrameworkConfigurationException("app.url must be provided");
-    }
-    if (config.appUsername() == null || config.appUsername().isBlank()) {
-      throw new FrameworkConfigurationException("APP_USERNAME must be provided");
     }
   }
 
@@ -302,6 +326,11 @@ public final class ConfigLoader {
     @Override
     public String appPassword() {
       return get("APP_PASSWORD");
+    }
+
+    @Override
+    public String sensitiveDomSelectors() {
+      return get("diagnostics.sensitive.dom.selectors");
     }
 
     @Override

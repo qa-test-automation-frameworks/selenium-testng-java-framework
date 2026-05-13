@@ -24,7 +24,7 @@ public final class DiagnosticRedactor {
   private DiagnosticRedactor() {}
 
   public static String redact(String rawValue) {
-    return redact(rawValue, PatternHolder.PATTERNS);
+    return redact(rawValue, buildPatterns(ConfigFactory.getConfig()));
   }
 
   static String redact(String rawValue, FrameworkConfig config) {
@@ -52,12 +52,6 @@ public final class DiagnosticRedactor {
       patterns.add(Pattern.compile(Pattern.quote(config.appUsername()), Pattern.CASE_INSENSITIVE));
     }
     return List.copyOf(patterns);
-  }
-
-  private static final class PatternHolder {
-    private static final List<Pattern> PATTERNS = buildPatterns(ConfigFactory.getConfig());
-
-    private PatternHolder() {}
   }
 
   private static String replaceMatches(String input, Pattern pattern) {

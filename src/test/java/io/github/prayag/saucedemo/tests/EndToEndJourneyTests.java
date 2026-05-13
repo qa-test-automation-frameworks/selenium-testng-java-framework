@@ -2,6 +2,7 @@ package io.github.prayag.saucedemo.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.prayag.saucedemo.app.data.AppConstants;
 import io.github.prayag.saucedemo.app.data.LoginRequest;
 import io.github.prayag.saucedemo.app.ui.component.HeaderComponent;
 import io.github.prayag.saucedemo.app.ui.page.CartPage;
@@ -10,7 +11,6 @@ import io.github.prayag.saucedemo.app.ui.page.CheckoutOverviewPage;
 import io.github.prayag.saucedemo.app.ui.page.CheckoutPage;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
 import io.github.prayag.saucedemo.framework.config.ConfigFactory;
-import io.github.prayag.saucedemo.framework.data.AppConstants;
 import io.github.prayag.saucedemo.tests.data.CheckoutPricing;
 import io.github.prayag.saucedemo.tests.data.CheckoutScenario;
 import io.github.prayag.saucedemo.tests.data.CheckoutScenario.CheckoutInformation;

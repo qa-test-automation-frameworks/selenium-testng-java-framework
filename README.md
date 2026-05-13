@@ -21,6 +21,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [Execution Guide](docs/EXECUTION_GUIDE.md) - Local, headless, Docker Grid, and CI execution.
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md) - How to use Allure artifacts, logs, screenshots, and CI outputs to diagnose failures.
+- [GitHub Setup Guide](docs/GITHUB_SETUP.md) - Required secrets, Pages, branch protection, and workflow checks.
 - [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project does not add a framework unit-test layer.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
@@ -50,6 +51,7 @@ graph TD;
 - Allure reports with redacted screenshots, URL, page source, capabilities, console logs, network logs, and framework log excerpts on failure.
 - Spotless, Checkstyle, PMD, SpotBugs, and Maven Enforcer quality gates with stronger maintainability rules.
 - GitHub Actions browser matrix, artifact upload, and GitHub Pages publication for Allure reports.
+- Digest-pinned Docker and Selenium Grid images for reproducible container execution.
 
 ## Sample Allure Report
 
@@ -66,8 +68,8 @@ Representative report views are included below so reviewers can see the diagnost
 - Shared per-thread wait helper reuse across pages and components.
 - Explicit-only wait strategy with implicit waits set to zero.
 - Cookie-based authentication strategy for non-login scenarios.
-- Page Component Model for shared header and inventory list behavior.
-- Opt-in retry analyzer with Allure retry context.
+- Page Component Model for shared header, inventory list, and root-scoped product item behavior.
+- Opt-in retry analyzer with required retry reasons and Allure retry context.
 - CI-ready quality gates for formatting, style checks, dependency rules, tests, and reporting.
 
 ## Known Limitations
@@ -108,6 +110,8 @@ export APP_PASSWORD="<set-outside-repository>"
 export APP_PASSWORD="<set-outside-repository>"
 ./mvnw clean verify
 ```
+
+PowerShell users should set `$env:APP_PASSWORD = "<set-outside-repository>"` before running password-backed login, persona, journey, or full-regression scenarios.
 
 Run no-secret UI smoke coverage without login scenarios:
 ```bash
@@ -154,7 +158,9 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 On `main`, GitHub Actions also starts Selenium Grid browser nodes per matrix entry, merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
 ## Configuration
-Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`. Environment variable overrides apply only to known configuration keys, so each new setting must be added to defaults or a profile file before an environment variable can override it.
+Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`. Environment variable overrides apply only to known configuration keys, and `APP_PASSWORD` is a known blank-by-default key so secret injection works through environment variables and Maven system properties.
+
+The `.env.example` file is a convenience template for Docker Compose or for manually exporting shell variables. Local Maven runs do not auto-load `.env`.
 
 | Property | Description | Default |
 |----------|-------------|---------|
@@ -172,6 +178,7 @@ Configuration is loaded from built-in safe defaults, optional classpath resource
 | `diagnostics.attach.page.source.on.failure` | Attach redacted page source to Allure | `true` |
 | `diagnostics.attach.browser.logs.on.failure` | Attach browser console logs to Allure | `true` |
 | `diagnostics.attach.framework.logs.on.failure` | Attach framework log excerpts to Allure | `true` |
+| `diagnostics.sensitive.dom.selectors` | CSS selectors masked before screenshot/page-source capture | password, email, token, secret, and `[data-sensitive='true']` selectors |
 | `explicit.wait.seconds` | Explicit wait timeout | `10` |
 | `polling.interval.ms` | Explicit wait polling interval in milliseconds | `500` |
 | `page.load.timeout.seconds` | Page load timeout | `30` |
@@ -180,21 +187,22 @@ Configuration is loaded from built-in safe defaults, optional classpath resource
 | `retry.count` | Retry count when retries are enabled | `2` |
 | `allow.passwordless.skips` | Allow password-backed tests to skip when `APP_PASSWORD` is missing | `false` |
 
-Tests annotated with `@Retryable` are eligible for retry when `retry.enabled=true`. The retry
-summary is attached to Allure at suite finish so retry behavior is visible in reports.
+Tests annotated with `@Retryable(reason = "...")` are eligible for retry when `retry.enabled=true`. Every retryable test must declare why retry is acceptable. The retry summary is attached to Allure at suite finish so retry behavior is visible in reports.
 
 Credentials are supplied through environment variables or Maven system properties. Prefer setting environment variables before running Maven and use GitHub Actions secrets in CI so passwords are not written into Maven command lines or committed files. Full regression and password-backed login/persona/journey scenarios fail fast when `APP_PASSWORD` is missing. Inventory/cart UI smoke coverage can run without it; use `allow.passwordless.skips=true` only for intentional public no-secret demonstrations. Do not commit real credentials to repository files.
 
+The Allure issue-link pattern defaults to this repository and can be overridden with `-Dallure.issue.pattern=https://github.com/<owner>/<repo>/issues/{}`.
+
 ## Fork Setup Notes
 
-After forking, update the badge URLs, `allure.link.issue.pattern`, repository secrets, branch protection required checks, and GitHub Pages settings to match the fork owner and repository name.
+After forking, update the badge URLs, repository secrets, branch protection required checks, GitHub Pages settings, and the `allure.issue.pattern` Maven property to match the fork owner and repository name. See [GitHub Setup Guide](docs/GITHUB_SETUP.md).
 
 ## Current Limitations
 
 - Selenium Grid video support is link-based unless you connect the framework to a video-enabled Grid and set `diagnostics.grid.video.base.url`.
-- Network log attachments depend on browser/session support; unsupported sessions add an explicit "unavailable" attachment when network logging is enabled. Local Chrome versions newer than Selenium's packaged DevTools support can still emit CDP compatibility warnings, so Docker Grid is the preferred reproducible diagnostic path.
+- Network log attachments depend on browser/session support; unsupported sessions add an explicit "unavailable" attachment when network logging is enabled. Local Chrome versions newer than Selenium's packaged DevTools support can still emit CDP compatibility warnings or fall back from BiDi to legacy logs, so Docker Grid is the preferred reproducible diagnostic path.
 - Accessibility and visual regression checks are intentionally left as optional extension points so the repository stays focused on UI functional automation.
-- Docker images are version-tag pinned. Digest pinning is intentionally left to repository owners because image digests must be refreshed with the same dependency update workflow that updates Selenium Grid tags.
+- Docker images are version-tag and digest pinned. Refresh image digests when Dependabot updates Docker tags.
 
 ## Browser Support
 | Browser | Local headed | Local headless | Docker Grid | GitHub Actions |
@@ -205,11 +213,14 @@ After forking, update the badge URLs, `allure.link.issue.pattern`, repository se
 | Safari | macOS-only experimental | Not supported | Not supported | Not supported |
 
 ## Branch Protection
-Recommended GitHub branch protection for `main`:
+Recommended GitHub branch protection for `main` is detailed in [GitHub Setup Guide](docs/GITHUB_SETUP.md). At minimum:
 - Require pull request reviews before merge.
 - Require the `UI Tests` workflow jobs to pass, especially `quality-gates` and each browser matrix entry in `test`.
 - Require branches to be up to date before merging.
 - Restrict direct pushes to maintainers.
+
+## Dependency Governance
+Dependabot checks Maven, Docker, and GitHub Actions dependencies weekly. The scheduled `dependency-governance` workflow uploads Maven dependency/plugin update reports and a CycloneDX SBOM artifact for portfolio review.
 
 ## Tech Stack
 - Java 21

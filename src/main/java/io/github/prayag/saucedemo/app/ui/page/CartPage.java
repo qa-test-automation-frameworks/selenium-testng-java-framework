@@ -56,9 +56,7 @@ public class CartPage extends BasePage implements PageLoadable<CartPage> {
   @Step("Get quantity for product '{0}' in cart")
   public int getQuantityForProduct(String productName) {
     log.info("Retrieving product quantity for item '{}' in the cart", productName);
-    WebElement product = getInventoryList().getProductByName(productName);
-    String quantityText = product.findElement(PRODUCT_QUANTITY_ELEMENT).getText();
-    int quantity = Integer.parseInt(quantityText);
+    int quantity = getInventoryList().getProductItemByName(productName).quantity();
     log.debug("Quantity for product '{}': {}", productName, quantity);
     return quantity;
   }

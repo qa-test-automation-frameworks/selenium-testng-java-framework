@@ -1,2 +1,3 @@
 # DEV Environment Configuration
-app.url=https://dev.saucedemo.com/
+# Example only. Replace with a real reachable dev environment before activating this profile.
+app.url=https://dev.example.test/

@@ -25,6 +25,12 @@ public final class ConfigFactory {
     return CONFIG.get();
   }
 
+  public static FrameworkConfig reload(ConfigSources sources) {
+    FrameworkConfig loadedConfig = CONFIG_LOADER.load(sources);
+    CONFIG.set(loadedConfig);
+    return loadedConfig;
+  }
+
   static void resetForTesting() {
     CONFIG.set(null);
   }

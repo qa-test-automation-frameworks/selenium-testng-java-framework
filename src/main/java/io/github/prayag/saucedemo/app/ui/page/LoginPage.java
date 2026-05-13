@@ -34,7 +34,7 @@ public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
 
   @Step("Enter username: {0}")
   public LoginPage enterUsername(String username) {
-    log.info("Entering username: {}", username);
+    log.info("Entering username");
     waitUtils.type(USERNAME_FIELD, username);
     return this;
   }
@@ -77,12 +77,12 @@ public class LoginPage extends BasePage implements PageLoadable<LoginPage> {
    */
   @Step("Login using request for username {0.username}")
   public InventoryPage login(LoginRequest request) {
-    log.info("Starting login process for user: {} at URL: {}", request.username(), request.url());
+    log.info("Starting login process at URL: {}", request.url());
     open(request.url());
     enterUsername(request.username());
     enterPassword(request.password());
     InventoryPage inventoryPage = loginExpectingSuccess();
-    log.info("Login process completed for user: {}", request.username());
+    log.info("Login process completed");
     return inventoryPage;
   }
 

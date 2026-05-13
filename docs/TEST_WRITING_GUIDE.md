@@ -5,7 +5,7 @@ Follow these guidelines when adding new tests or modifying existing ones.
 This repository is intentionally UI-automation-only. Keep `src/test/java` focused on TestNG scenarios, data providers, and test data rather than adding a separate framework unit-test layer.
 
 ## Adding a New Page Object
-1. Create a new class in `src/main/java/com/example/saucedemo/framework/pageobject`.
+1. Create a new class in `src/main/java/io/github/prayag/saucedemo/app/ui/page`.
 2. Extend `BasePage`.
 3. Add a constructor that calls `super(driver)`.
 4. Define static locators using `private static final By` when the selector does not depend on runtime data.
@@ -20,7 +20,7 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 3. Instantiate it within the Page Objects that use it.
 
 ## Writing a New Test
-1. Create a test class in `src/test/java/com/example/saucedemo/tests`.
+1. Create a test class in `src/test/java/io/github/prayag/saucedemo/tests`.
 2. Extend `BaseTestCase`.
 3. Annotate test methods with `@Test`.
 4. Use the `testName` and `description` attributes in `@Test`; Allure reads the TestNG description automatically.
@@ -30,6 +30,7 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 8. Keep shared navigation or header assertions in dedicated coverage tests so unrelated scenarios fail for one clear reason.
 9. Add tests because they prove meaningful user behavior, not to inflate counts. Prefer focused negative cases and full user journeys that exercise realistic business paths.
 10. Do not add framework unit tests; ADR 005 explains why this repository keeps the framework itself as the UI automation layer.
+11. Use `@Retryable(reason = "...")` only for scenarios with a documented infrastructure timing risk. Do not use retries to hide product defects or weak waits.
 
 ### Example Test Annotation
 ```java
@@ -56,4 +57,3 @@ assertThat(page.getSomeValue())
 - **Components**: `SomethingComponent`
 - **Tests**: use descriptive camelCase names, for example `verifyUserCanAddProductsToCart`.
 - **End-to-end journeys**: use a dedicated journey class when a test intentionally spans login, browsing, cart, checkout, and logout.
-

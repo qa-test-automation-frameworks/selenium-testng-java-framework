@@ -33,7 +33,7 @@ public final class DiagnosticsAttacher {
 
     log.info("Attaching {} diagnostics to Allure report", label);
     FrameworkConfig config = ConfigFactory.getConfig();
-    safeAttach("Sensitive DOM Masking", () -> maskSensitiveInputs(driver));
+    safeAttach("Sensitive DOM Masking", () -> maskSensitiveDom(driver, config));
     if (config.attachScreenshotsOnFailure()) {
       safeAttach("Screenshot", () -> attachScreenshot(driver));
     }
@@ -64,17 +64,17 @@ public final class DiagnosticsAttacher {
     Allure.addAttachment("Screenshot", "image/png", new ByteArrayInputStream(screenshot), ".png");
   }
 
-  private void maskSensitiveInputs(WebDriver driver) {
+  private void maskSensitiveDom(WebDriver driver, FrameworkConfig config) {
     if (!(driver instanceof JavascriptExecutor javascriptExecutor)) {
       return;
     }
     javascriptExecutor.executeScript(
-        "document.querySelectorAll(\"input[type='password'], input[name*='password'],"
-            + " input[id*='password'], input[autocomplete='current-password'],"
-            + " input[autocomplete='new-password']\").forEach(function(input) {"
-            + " input.value = '<redacted>';"
-            + " input.setAttribute('value', '<redacted>');"
-            + "});");
+        "document.querySelectorAll(arguments[0]).forEach(function(element) {"
+            + " if ('value' in element) { element.value = '<redacted>'; }"
+            + " element.setAttribute('value', '<redacted>');"
+            + " if (element.children.length === 0) { element.textContent = '<redacted>'; }"
+            + "});",
+        config.sensitiveDomSelectors());
   }
 
   private void safeAttach(String attachmentName, Runnable attachmentAction) {
