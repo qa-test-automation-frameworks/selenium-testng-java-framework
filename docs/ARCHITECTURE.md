@@ -42,33 +42,34 @@ graph LR
 
 ## Layers
 
-### 1. Driver Layer (`com.example.saucedemo.framework.driver`)
+### 1. Driver Layer (`io.github.prayag.saucedemo.framework.driver`)
 - **WebDriverFactory**: Manages the lifecycle of WebDriver instances.
 - **ThreadLocal Storage**: Ensures each thread has its own isolated driver instance, enabling safe parallel execution.
 - **Shared Wait Helper**: Reuses a thread-local `WaitUtils` instance across pages and components created within the same driver lifecycle.
 - **Support**: Supports Chrome, Firefox, and Edge locally. Chrome and Firefox run on Selenium Grid by default, and Edge is available through the optional Docker Compose `edge` profile and GitHub Actions matrix. Safari is local macOS-only experimental support.
 
-### 2. Configuration Layer (`com.example.saucedemo.framework.config`)
+### 2. Configuration Layer (`io.github.prayag.saucedemo.framework.config`)
 - **Custom Typed Loader**: Uses `FrameworkConfig` plus `ConfigFactory` for typed configuration without depending on an unmaintained external library.
 - **Multi-Environment**: Supports environment profiles via `.properties` files or external `-Dconfig.file` overrides. The default `qa` environment can use built-in safe defaults; non-default environments fail fast if no profile or external config is supplied.
 - **Security**: Sensitive data (like passwords) are externalized via environment variables.
 - **Override Order**: Defaults are loaded first, then optional `config.properties`, then optional `${env}.properties`, then an optional external `-Dconfig.file`, then environment variables, then Maven/system properties.
 
-### 3. Page Object Model (`com.example.saucedemo.framework.pageobject`)
-- **BasePage**: The foundation for all page objects, providing common interaction methods and wait strategies.
+### 3. Page Object Model (`io.github.prayag.saucedemo.app.ui.page`)
+- **Framework UI Primitives**: `io.github.prayag.saucedemo.framework.ui` contains reusable base page/component contracts and shared wait access.
+- **App Page Objects**: Sauce Demo-specific pages live under `io.github.prayag.saucedemo.app.ui.page`; reusable page fragments live under `io.github.prayag.saucedemo.app.ui.component`.
 - **Stateless Design**: Page Objects represent the UI state and actions but do not contain assertions (delegated to the test layer).
-- **Explicit Readiness**: Page objects are constructed lazily; callers invoke `waitUntilLoaded()` explicitly when page readiness must be asserted.
-- **Component Model**: Complex UI elements (like Headers) are extracted into reusable components.
+- **Explicit Readiness**: Page objects are constructed lazily; callers invoke `waitUntilLoaded()` explicitly when page readiness must be asserted. Readiness means URL plus the minimum interactive controls and content required by that page.
+- **Component Model**: Complex app UI elements, such as headers and product lists, are extracted into app-specific components.
 - **Source Set**: Framework and orchestration code lives under `src/main/java`; concrete TestNG scenarios stay under `src/test/java`.
 
 ### 4. Test Layer (`tests`)
 - **BaseTestCase**: Handles setup (`BeforeMethod`) and teardown (`AfterMethod`) of the driver.
 - **UITests**: Implementation of business scenarios, including focused negative checks and end-to-end user journeys that increase coverage quality without inflating metrics.
 - **AssertJ**: Used for fluent, descriptive assertions with business-level error messages.
-- **Automation-Only Scope**: `src/test/java` is intentionally reserved for TestNG UI automation scenarios, test data, and supporting orchestration rather than a separate framework unit-test layer.
+- **Fast Framework Checks**: Narrow TestNG checks under the `framework` group cover pure configuration, redaction, and retry aggregation logic without starting browsers.
 
-### 5. Reporting Layer (`com.example.saucedemo.framework.listener`)
-- **Allure Reporting**: Integrated via a custom listener to capture URL, browser capabilities, configurable screenshots with password-field masking, configurable page source, configurable console logs, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, and environment details on failure.
+### 5. Reporting Layer (`io.github.prayag.saucedemo.framework.listener`)
+- **Allure Reporting**: Integrated via a custom listener to capture redacted URL/environment details, browser capabilities, configurable screenshots after DOM masking, redacted page source, configurable console logs, explicit unavailable diagnostics, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, and suite-level retry summaries.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
 ### 6. CI and Quality Gates
@@ -78,7 +79,7 @@ graph LR
 ## Design Principles
 - **Fail-Fast**: Configuration and environment checks happen at startup.
 - **Deterministic Waits**: Only explicit waits are used (no `Thread.sleep` or implicit waits).
-- **Automation-Focused Scope**: The repository emphasizes reusable UI automation architecture and end-to-end execution rather than maintaining a separate framework unit-test layer. ADR 005 documents why the framework itself is treated as the UI test layer in the SDLC.
+- **Automation-Focused Scope**: The repository emphasizes reusable UI automation architecture and end-to-end execution. ADR 005 allows only narrow fast checks for pure framework logic.
 - **Method-Level Isolation**: Each test method starts with a clean browser session. This is intentionally more expensive than driver reuse, but it keeps UI state leakage out of parallel runs.
 - **Clean Code**: Code style and bug-pattern detection are enforced via Checkstyle (Google Checks), Spotless, PMD, SpotBugs, and Maven Enforcer during `verify`.
 
@@ -89,4 +90,4 @@ graph LR
 - Use `-Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub` for local grid runs.
 - Keep browser names aligned with supported values: `CHROME`, `FIREFOX`, `EDGE`, or `SAFARI`.
 - Prefer Docker Grid for reproducible browser diagnostics. Local evergreen browsers can be newer than Selenium's packaged DevTools artifacts and may emit CDP compatibility warnings even when functional tests pass.
-
+- Docker images are version-tag pinned for readability. Digest pinning is a supported owner choice, but should be paired with Dependabot Docker updates so pinned digests do not silently age.

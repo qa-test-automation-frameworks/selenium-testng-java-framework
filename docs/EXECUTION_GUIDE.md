@@ -2,7 +2,7 @@
 
 This guide explains how to run tests in different environments and configurations.
 
-This repository is intentionally focused on UI automation execution. The `src/test/java` source set contains TestNG UI suites, test data, and supporting orchestration rather than a separate framework unit-test layer.
+This repository is intentionally focused on UI automation execution. The `src/test/java` source set contains TestNG UI suites, test data, supporting orchestration, and narrow fast checks for pure framework logic.
 
 ## Prerequisites
 - **JDK 21**
@@ -34,6 +34,7 @@ PowerShell examples must quote comma-separated groups and dotted Maven propertie
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
 - `-Dconfig.file`: Optional external properties file for private local overrides.
 - `-Dretry.enabled`: Enable retry analyzer for tests explicitly marked with `@Retryable` when investigating infrastructure flakes.
+- `-Dallow.passwordless.skips`: Allow password-backed tests to skip when `APP_PASSWORD` is missing. Keep this `false` for full regression; public smoke runs should use non-login groups instead.
 
 ### Group Execution
 ```bash
@@ -46,7 +47,7 @@ The framework includes a `docker-compose.yml` to spin up a Selenium Grid.
 
 1. **Start the Grid**:
    ```bash
-   export APP_PASSWORD="<set-outside-repository>"
+   export APP_PASSWORD="<set-outside-repository>" # required for full regression
    docker compose up --build --exit-code-from test-runner
    ```
 2. **Run tests on the Grid**:
@@ -64,8 +65,14 @@ docker compose --profile edge up --build --exit-code-from test-runner
 
 The Docker `test-runner` waits for Selenium Grid readiness before invoking Maven.
 
+Docker Compose also accepts `GROUPS`, `THREAD_COUNT`, `HEADLESS`, `RETRY_ENABLED`, and `ALLOW_PASSWORDLESS_SKIPS` environment variables:
+
+```bash
+GROUPS=inventory,cart THREAD_COUNT=2 docker compose up --build --exit-code-from test-runner
+```
+
 ## Jenkins Execution
-The Jenkins pipeline expects a secret text credential with ID `sauce-demo-password` and passes it to Docker Compose as `APP_PASSWORD`.
+The Jenkins pipeline expects a secret text credential with ID `sauce-demo-password` and passes it to Docker Compose as `APP_PASSWORD`. Jenkins parameters mirror the main Docker controls: browser, groups, thread count, headless mode, retry enablement, and passwordless skip mode.
 
 ## Allure Reporting
 Allure results are generated in `target/allure-results`, and the generated report is written to `target/allure-report`.
@@ -82,12 +89,10 @@ pwsh ./scripts/run-ui-tests-with-allure-report.ps1
 ```
 
 ## Retry Policy
-Retries are disabled by default and should be used only while investigating infrastructure instability. Enable them with `-Dretry.enabled=true`, mark only eligible tests with `@Retryable`, and keep `retry.count` low. The framework validates that `retry.count` is not negative and records the retry failure type, retry summary, and Allure retry labels when a retry is used.
+Retries are disabled by default and should be used only while investigating infrastructure instability. Enable them with `-Dretry.enabled=true`, mark only eligible tests with `@Retryable`, and keep `retry.count` low. The framework validates that `retry.count` is not negative and records the retry failure type, Allure retry labels, and one suite-level retry summary when a retry is used.
 
 ## Diagnostics
-Failure diagnostics include current URL, browser capabilities, screenshots, browser console logs, page source, and a framework log excerpt. Text-based attachments are redacted before they are written to Allure. Screenshot, page source, browser log, and framework log attachments can be disabled with the `diagnostics.attach.*.on.failure` properties. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`; unsupported browsers/sessions add an explicit "network logs unavailable" attachment. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure. The provided Docker Compose file does not record videos by itself.
-
-Before screenshots are attached, password-like fields are masked in the browser DOM. This protects common login failures while preserving screenshot usefulness.
+Failure diagnostics include current URL, browser capabilities, screenshots, browser console logs, page source, and a framework log excerpt. Text-based attachments are redacted before they are written to Allure. Password-like fields are masked in the browser DOM before browser artifacts are captured. Screenshot, page source, browser log, and framework log attachments can be disabled with the `diagnostics.attach.*.on.failure` properties. Optional Chrome/Edge performance logs can be enabled with `-Ddiagnostics.network.logs.enabled=true`; unsupported browsers/sessions add explicit unavailable attachments. For Selenium Grid setups that publish videos, set `diagnostics.grid.video.base.url` to attach a session video link on failure. The provided Docker Compose file does not record videos by itself.
 
 To exercise optional network diagnostics locally:
 
@@ -102,6 +107,12 @@ To run the same non-UI quality checks used in CI:
 ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
 ```
 
+Run the fast framework checks without browser startup:
+
+```bash
+./mvnw test -Dgroups=framework
+```
+
 ## SBOM
 Generate a CycloneDX software bill of materials with:
 
@@ -112,6 +123,6 @@ Generate a CycloneDX software bill of materials with:
 ## Troubleshooting
 - **Driver not found**: Ensure you have the corresponding browser installed. Selenium Manager will handle binary downloads automatically.
 - **Edge Grid not available**: Start Docker Compose with `--profile edge` before running `-Dbrowser=EDGE` against Selenium Grid.
-- **Config Error**: Ensure `APP_PASSWORD` is provided as an environment variable or CI secret for login scenarios. Non-login smoke groups can run without it.
+- **Config Error**: Ensure `APP_PASSWORD` is provided as an environment variable or CI secret for full regression and login/persona/journey scenarios. Non-login smoke groups can run without it. Use `-Dallow.passwordless.skips=true` only when intentionally demonstrating public no-secret behavior.
 - **Wrong environment selected**: Confirm whether `-Denv`, `ENV`, or `env` is set. The framework uses that precedence order. If a non-default environment is selected without a matching profile or external config file, startup fails intentionally.
 - **CDP compatibility warning**: Local evergreen Chrome/Edge versions can be newer than Selenium's packaged DevTools artifact. Prefer Docker Grid for reproducible browser diagnostics, or update Selenium when a matching DevTools artifact becomes available.

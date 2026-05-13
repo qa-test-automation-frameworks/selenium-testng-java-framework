@@ -28,7 +28,9 @@
     <module name="ParameterNumber">
       <property name="max" value="6"/>
     </module>
-    <module name="MagicNumber">
+        <!-- Keep framework code strict. If test data literals become noisy, prefer a narrow
+             test-source suppression over weakening this rule globally. -->
+        <module name="MagicNumber">
       <property name="ignoreNumbers" value="-1,0,1,2"/>
       <property name="ignoreHashCodeMethod" value="true"/>
     </module>

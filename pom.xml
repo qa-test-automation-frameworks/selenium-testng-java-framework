@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.example.saucedemo</groupId>
+    <groupId>io.github.prayag.saucedemo</groupId>
     <artifactId>ta-java-selenium-testng</artifactId>
     <version>1.0.0</version>
 
@@ -19,7 +19,7 @@
         <aspectj.version>1.9.25.1</aspectj.version>
         <slf4j.version>2.0.17</slf4j.version>
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
-        <maven.dependency.plugin.version>3.8.1</maven.dependency.plugin.version>
+        <maven.dependency.plugin.version>3.10.0</maven.dependency.plugin.version>
         <spotbugs.maven.plugin.version>4.9.8.3</spotbugs.maven.plugin.version>
         <groups></groups>
         <thread.count>1</thread.count>
@@ -49,15 +49,6 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>${selenium.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <!--
-                CDP DevTools artifact version maps to the Chrome major version supported by Selenium.
-                When upgrading Selenium, verify whether this artifact name must move from v145 to vNNN.
-            -->
-            <artifactId>selenium-devtools-v145</artifactId>
             <version>${selenium.version}</version>
         </dependency>
         <!-- TestNG -->
@@ -377,7 +368,26 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
-                            <failOnWarning>false</failOnWarning>
+                            <failOnWarning>true</failOnWarning>
+                            <ignoredUsedUndeclaredDependencies>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-api</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-chrome-driver</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-chromium-driver</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-edge-driver</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-firefox-driver</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-remote-driver</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-safari-driver</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-support</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>io.qameta.allure:allure-java-commons</ignoredUsedUndeclaredDependency>
+                            </ignoredUsedUndeclaredDependencies>
+                            <ignoredUnusedDeclaredDependencies>
+                                <ignoredUnusedDeclaredDependency>org.seleniumhq.selenium:selenium-java</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>io.qameta.allure:allure-testng</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-api</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-core</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-slf4j2-impl</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.aspectj:aspectjweaver</ignoredUnusedDeclaredDependency>
+                            </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
                 </executions>

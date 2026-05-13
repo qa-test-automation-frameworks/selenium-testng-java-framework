@@ -3,34 +3,41 @@
 <!-- thread-count is overridden at runtime by SuiteConfigurationListener from config property thread.count -->
 <suite name="Sauce Demo UI Regression" parallel="methods" thread-count="1">
     <listeners>
-        <listener class-name="com.example.saucedemo.framework.listener.SuiteConfigurationListener"/>
+        <listener class-name="io.github.prayag.saucedemo.framework.listener.SuiteConfigurationListener"/>
         <!-- Suite-level registration keeps retry annotation transformation active before test execution. -->
-        <listener class-name="com.example.saucedemo.framework.listener.AnnotationTransformer"/>
+        <listener class-name="io.github.prayag.saucedemo.framework.listener.AnnotationTransformer"/>
+        <listener class-name="io.github.prayag.saucedemo.framework.listener.FrameworkListener"/>
     </listeners>
     <test name="Inventory Scenarios">
         <classes>
-            <class name="com.example.saucedemo.tests.InventoryTests"/>
+            <class name="io.github.prayag.saucedemo.tests.InventoryTests"/>
+        </classes>
+    </test>
+    <test name="Framework Fast Checks">
+        <classes>
+            <class name="io.github.prayag.saucedemo.framework.config.ConfigLoaderTest"/>
+            <class name="io.github.prayag.saucedemo.framework.util.DiagnosticRedactorTest"/>
+            <class name="io.github.prayag.saucedemo.framework.listener.RetryRegistryTest"/>
         </classes>
     </test>
     <test name="Cart Scenarios">
         <classes>
-            <class name="com.example.saucedemo.tests.CartTests"/>
+            <class name="io.github.prayag.saucedemo.tests.CartTests"/>
         </classes>
     </test>
     <test name="Checkout Scenarios">
         <classes>
-            <class name="com.example.saucedemo.tests.CheckoutTests"/>
+            <class name="io.github.prayag.saucedemo.tests.CheckoutTests"/>
         </classes>
     </test>
     <test name="Login Scenarios">
         <classes>
-            <class name="com.example.saucedemo.tests.LoginTests"/>
+            <class name="io.github.prayag.saucedemo.tests.LoginTests"/>
         </classes>
     </test>
     <test name="End-to-End Journey Scenarios">
         <classes>
-            <class name="com.example.saucedemo.tests.EndToEndJourneyTests"/>
+            <class name="io.github.prayag.saucedemo.tests.EndToEndJourneyTests"/>
         </classes>
     </test>
 </suite>
-

@@ -1,15 +1,15 @@
-# ADR 005: Do Not Add a Separate Framework Unit-Test Layer
+# ADR 005: Allow Narrow Fast Framework Checks
 
 ## Status
-Accepted
+Amended
 
 ## Context
 This repository is intentionally a UI test automation framework. In the SDLC, it acts as the test layer that validates user-facing application behavior through browser automation. The framework code exists to support those UI tests with configuration, driver lifecycle, waits, page objects, reporting, diagnostics, and CI execution.
 
-Adding a second test layer whose purpose is to test the test framework itself would increase maintenance cost without improving application confidence for this portfolio scope. It is not a recommended practice for this UI-only automation repository because it would reward testing helper implementation details instead of strengthening application-facing coverage. It would also dilute the repository's stated focus: showing mature, reliable UI automation design rather than building a general-purpose production library.
+Broad framework unit-test coverage would increase maintenance cost without improving application confidence for this portfolio scope. However, the framework now contains pure, side-effect-light logic where narrow fast checks prevent expensive browser-only feedback: configuration validation, redaction behavior, and retry aggregation.
 
 ## Decision
-Do not add JUnit, framework unit tests, or framework-internal test classes. Quality is enforced through meaningful browser-level scenarios, static analysis, formatting, dependency governance, runtime diagnostics, and CI execution.
+Browser UI tests remain the primary validation layer. Narrow TestNG fast checks are allowed for pure framework logic such as configuration parsing, diagnostic redaction, and retry registry behavior. These checks use the `framework` group and must not initialize WebDriver or duplicate browser scenario coverage.
 
 ## Consequences
-The repository keeps a pure UI automation scope and avoids testing tests for the sake of metrics. Changes to framework internals must be validated through relevant UI flows, quality gates, and code review. If this framework later becomes a reusable production library shared across multiple products, this ADR should be revisited.
+The repository keeps a UI automation focus while gaining cheap feedback for high-risk helper logic. Changes to page objects and user flows are still validated through browser scenarios, quality gates, and code review.

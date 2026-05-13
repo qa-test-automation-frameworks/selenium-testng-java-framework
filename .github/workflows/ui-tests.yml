@@ -43,8 +43,11 @@ jobs:
       - name: Ensure Maven wrapper is executable
         run: chmod +x mvnw
 
+      - name: Validate Maven wrapper distribution
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
+
       - name: Run formatting and static-analysis gates
-        run: ./mvnw -DskipTests verify
+        run: ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
 
   dependency-governance:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -63,11 +66,14 @@ jobs:
       - name: Ensure Maven wrapper is executable
         run: chmod +x mvnw
 
+      - name: Validate Maven wrapper distribution
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
+
       - name: Generate dependency update report
         run: |
           mkdir -p target/dependency-governance
-          ./mvnw versions:display-dependency-updates > target/dependency-governance/dependency-updates.txt
-          ./mvnw versions:display-plugin-updates > target/dependency-governance/plugin-updates.txt
+          ./mvnw versions:display-dependency-updates -Dmaven.version.rules=file://$PWD/config/versions/rules.xml > target/dependency-governance/dependency-updates.txt
+          ./mvnw versions:display-plugin-updates -Dmaven.version.rules=file://$PWD/config/versions/rules.xml > target/dependency-governance/plugin-updates.txt
 
       - name: Upload dependency update reports
         uses: actions/upload-artifact@v4
@@ -105,6 +111,9 @@ jobs:
 
       - name: Ensure Maven wrapper is executable
         run: chmod +x mvnw
+
+      - name: Validate Maven wrapper distribution
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Start Selenium Grid
         shell: bash
@@ -194,6 +203,7 @@ jobs:
 
   publish-allure-report:
     needs: test
+    # Publish even on failed tests so the latest failure diagnostics remain inspectable.
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -216,6 +226,9 @@ jobs:
 
       - name: Ensure Maven wrapper is executable
         run: chmod +x mvnw
+
+      - name: Validate Maven wrapper distribution
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.14/apache-maven-3.9.14-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Download Allure results
         uses: actions/download-artifact@v4

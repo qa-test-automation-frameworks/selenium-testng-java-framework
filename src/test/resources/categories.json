@@ -11,13 +11,18 @@
   },
   {
     "name": "Infrastructure Issues",
-    "traceRegex": ".*ConnectException.*|.*WebDriverException.*",
+    "traceRegex": ".*(ConnectException|SessionNotCreatedException|WebDriverException).*",
     "matchedStatuses": ["broken"]
   },
   {
     "name": "Synchronization Issues",
-    "messageRegex": ".*(ElementClickInterceptedException|StaleElementReferenceException).*",
+    "traceRegex": ".*(TimeoutException|NoSuchElementException|StaleElementReferenceException|ElementClickInterceptedException).*",
     "matchedStatuses": ["broken", "failed"]
+  },
+  {
+    "name": "Assertion Failures",
+    "traceRegex": ".*AssertionError.*",
+    "matchedStatuses": ["failed"]
   },
   {
     "name": "Ignored Tests",

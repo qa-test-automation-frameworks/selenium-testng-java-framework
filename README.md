@@ -154,7 +154,7 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 On `main`, GitHub Actions also starts Selenium Grid browser nodes per matrix entry, merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
 ## Configuration
-Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`.
+Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`. Environment variable overrides apply only to known configuration keys, so each new setting must be added to defaults or a profile file before an environment variable can override it.
 
 | Property | Description | Default |
 |----------|-------------|---------|
@@ -178,11 +178,12 @@ Configuration is loaded from built-in safe defaults, optional classpath resource
 | `script.timeout.seconds` | Script timeout | `30` |
 | `retry.enabled` | Enable TestNG retry analyzer | `false` |
 | `retry.count` | Retry count when retries are enabled | `2` |
+| `allow.passwordless.skips` | Allow password-backed tests to skip when `APP_PASSWORD` is missing | `false` |
 
 Tests annotated with `@Retryable` are eligible for retry when `retry.enabled=true`. The retry
 summary is attached to Allure at suite finish so retry behavior is visible in reports.
 
-Credentials are supplied through environment variables or Maven system properties. Prefer setting environment variables before running Maven and use GitHub Actions secrets in CI so passwords are not written into Maven command lines or committed files. `APP_PASSWORD` is required only for password-backed login scenarios; inventory/cart UI smoke coverage can run without it. Do not commit real credentials to repository files.
+Credentials are supplied through environment variables or Maven system properties. Prefer setting environment variables before running Maven and use GitHub Actions secrets in CI so passwords are not written into Maven command lines or committed files. Full regression and password-backed login/persona/journey scenarios fail fast when `APP_PASSWORD` is missing. Inventory/cart UI smoke coverage can run without it; use `allow.passwordless.skips=true` only for intentional public no-secret demonstrations. Do not commit real credentials to repository files.
 
 ## Fork Setup Notes
 

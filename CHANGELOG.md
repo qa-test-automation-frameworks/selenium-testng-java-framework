@@ -56,5 +56,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Historical Notes
 - **2026-05-02** - Bootstrapped the framework, then modernized the package layout, documentation, CI workflow, and page/component model.
 - **2026-05-11** - Refined configuration handling, added ADRs, introduced auth utilities, and split the test suite into focused classes.
-- **2026-05-12** - Migrated to the `com.example.saucedemo` namespace, added checkout flow pages, helper scripts, reporting assets, and portfolio polish.
+- **2026-05-12** - Migrated to the `io.github.prayag.saucedemo` namespace, added checkout flow pages, helper scripts, reporting assets, and portfolio polish.
 

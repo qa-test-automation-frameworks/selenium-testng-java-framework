@@ -58,10 +58,17 @@ services:
       - EXECUTION_TYPE=remote
       - ENV=${ENV:-qa}
       - APP_USERNAME=${APP_USERNAME:-standard_user}
-      - APP_PASSWORD=${APP_PASSWORD:?APP_PASSWORD is required}
+      - APP_PASSWORD=${APP_PASSWORD:-}
+      - GROUPS=${GROUPS:-}
+      - THREAD_COUNT=${THREAD_COUNT:-2}
+      - RETRY_ENABLED=${RETRY_ENABLED:-false}
+      - HEADLESS=${HEADLESS:-true}
+      - ALLOW_PASSWORDLESS_SKIPS=${ALLOW_PASSWORDLESS_SKIPS:-false}
     entrypoint: ["/bin/sh", "-c"]
     command:
       - >
         until curl -sf http://selenium-hub:4444/status | grep -q '"ready":true';
         do echo "Waiting for Selenium Grid to become ready..."; sleep 2; done;
-        ./mvnw verify -Dheadless=true -Dbrowser=$${BROWSER} -Dexecution.type=remote -Dremote.url=$${REMOTE_URL}
+        ./mvnw verify -Dheadless=$${HEADLESS} -Dbrowser=$${BROWSER} -Dexecution.type=remote -Dremote.url=$${REMOTE_URL}
+        -Dthread.count=$${THREAD_COUNT} -Dretry.enabled=$${RETRY_ENABLED} -Dallow.passwordless.skips=$${ALLOW_PASSWORDLESS_SKIPS}
+        $${GROUPS:+-Dgroups=$${GROUPS}}

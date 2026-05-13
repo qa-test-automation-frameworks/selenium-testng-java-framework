@@ -10,12 +10,22 @@ pipeline {
     parameters {
         choice(name: 'ENV', choices: ['qa', 'dev'], description: 'Environment for test execution')
         choice(name: 'BROWSER', choices: ['CHROME', 'FIREFOX', 'EDGE'], description: 'Browser for test execution')
+        string(name: 'GROUPS', defaultValue: '', description: 'Comma-separated TestNG groups; blank runs the full suite')
+        string(name: 'THREAD_COUNT', defaultValue: '2', description: 'TestNG method thread count')
+        booleanParam(name: 'HEADLESS', defaultValue: true, description: 'Run browsers headless')
+        booleanParam(name: 'RETRY_ENABLED', defaultValue: false, description: 'Enable retry analyzer for retryable tests')
+        booleanParam(name: 'ALLOW_PASSWORDLESS_SKIPS', defaultValue: false, description: 'Allow password-backed scenarios to skip when APP_PASSWORD is missing')
     }
 
     environment {
         // Pass parameters to Docker Compose
         BROWSER = "${params.BROWSER}"
         ENV = "${params.ENV}"
+        GROUPS = "${params.GROUPS}"
+        THREAD_COUNT = "${params.THREAD_COUNT}"
+        HEADLESS = "${params.HEADLESS}"
+        RETRY_ENABLED = "${params.RETRY_ENABLED}"
+        ALLOW_PASSWORDLESS_SKIPS = "${params.ALLOW_PASSWORDLESS_SKIPS}"
     }
 
     stages {
@@ -27,7 +37,7 @@ pipeline {
 
         stage('Quality Gates') {
             steps {
-                sh './mvnw -DskipTests verify'
+                sh './mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check'
             }
         }
 

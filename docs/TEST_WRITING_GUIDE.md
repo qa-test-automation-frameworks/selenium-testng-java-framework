@@ -15,7 +15,7 @@ This repository is intentionally UI-automation-only. Keep `src/test/java` focuse
 
 ## Adding a New Component
 If a UI element is shared across multiple pages (e.g., a Footer):
-1. Create a class in `com.example.saucedemo.framework.pageobject.component`.
+1. Create a class in `io.github.prayag.saucedemo.app.ui.component`.
 2. Extend `BaseComponent`.
 3. Instantiate it within the Page Objects that use it.
 
