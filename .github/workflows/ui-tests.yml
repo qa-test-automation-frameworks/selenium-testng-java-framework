@@ -214,7 +214,7 @@ jobs:
   publish-allure-report:
     needs: test
     # Publish even on failed tests so the latest failure diagnostics remain inspectable.
-    if: always() && github.ref == 'refs/heads/main'
+    if: always() && github.ref == 'refs/heads/main' && needs.test.result != 'skipped'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -247,6 +247,14 @@ jobs:
           pattern: allure-results-*
           path: target/allure-results
           merge-multiple: true
+
+      - name: Validate downloaded Allure results
+        shell: bash
+        run: |
+          if ! find target/allure-results -name '*-result.json' -print -quit | grep -q .; then
+            echo "No Allure result files were downloaded; skipping Pages publication."
+            exit 1
+          fi
 
       - name: Restore Allure history cache
         uses: actions/cache@v4

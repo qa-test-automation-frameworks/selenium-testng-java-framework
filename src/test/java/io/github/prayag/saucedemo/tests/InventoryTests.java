@@ -9,7 +9,7 @@ import io.github.prayag.saucedemo.app.ui.component.HeaderComponent;
 import io.github.prayag.saucedemo.app.ui.component.InventoryListComponent;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
 import io.github.prayag.saucedemo.app.ui.page.ProductDetailPage;
-import io.github.prayag.saucedemo.framework.listener.Retryable;
+import io.github.prayag.saucedemo.app.ui.page.ProductSortOption;
 import io.github.prayag.saucedemo.tests.data.ProductCatalog;
 import io.github.prayag.saucedemo.tests.data.TestGroups;
 import io.github.prayag.saucedemo.tests.data.TestTimeouts;
@@ -19,11 +19,11 @@ import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 @Slf4j
@@ -37,12 +37,43 @@ public class InventoryTests extends BaseTestCase {
     AuthService.injectLoginCookieAndNavigate(getDriver());
   }
 
+  @DataProvider(name = "sortOptions")
+  public Object[][] sortOptions() {
+    return new Object[][] {
+      {
+        ProductSortOption.NAME_A_TO_Z,
+        ProductCatalog.allProducts().stream().map(ProductCatalog::nameOf).sorted().toList()
+      },
+      {
+        ProductSortOption.NAME_Z_TO_A,
+        ProductCatalog.allProducts().stream()
+            .map(ProductCatalog::nameOf)
+            .sorted(Comparator.reverseOrder())
+            .toList()
+      },
+      {
+        ProductSortOption.PRICE_LOW_TO_HIGH,
+        ProductCatalog.allProducts().stream()
+            .sorted(Comparator.comparing(ProductCatalog::priceValue))
+            .map(ProductCatalog::nameOf)
+            .toList()
+      },
+      {
+        ProductSortOption.PRICE_HIGH_TO_LOW,
+        ProductCatalog.allProducts().stream()
+            .sorted(Comparator.comparing(ProductCatalog::priceValue).reversed())
+            .map(ProductCatalog::nameOf)
+            .toList()
+      }
+    };
+  }
+
   @Test(
       testName = "Verify navigation and header visibility",
       description =
           "Opens the inventory page through cookie authentication and verifies the main header and menu controls are visible.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.FAST_UI_TIMEOUT_MS)
   @Story("Inventory navigation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyInventoryDisplaysHeaderAndMenu() {
@@ -63,7 +94,7 @@ public class InventoryTests extends BaseTestCase {
       description =
           "Validates that the inventory page renders the complete fixed Sauce Demo catalog.",
       groups = {TestGroups.SMOKE, TestGroups.INVENTORY},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.FAST_UI_TIMEOUT_MS)
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyInventoryDisplaysAllProducts() {
@@ -81,7 +112,7 @@ public class InventoryTests extends BaseTestCase {
       description =
           "Checks that each displayed inventory item matches the centralized demo catalog data.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Product catalog")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductsMatchCatalogDetails() {
@@ -107,23 +138,22 @@ public class InventoryTests extends BaseTestCase {
   }
 
   @Test(
-      testName = "Verify products can be sorted by price low to high",
+      testName = "Verify products can be sorted by each supported option",
       description =
-          "Sorts the inventory by ascending price and verifies the rendered product prices follow that order.",
+          "Sorts the inventory by each supported option and verifies the rendered product order.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      dataProvider = "sortOptions",
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Product sorting")
   @Severity(SeverityLevel.NORMAL)
-  public void verifyProductsCanBeSortedByPriceLowToHigh() {
+  public void verifyProductsCanBeSorted(ProductSortOption option, List<String> expectedNames) {
     InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
-    List<BigDecimal> actualPrices =
-        inventoryPage.sortProductsByPriceLowToHigh().getDisplayedProductPrices();
-    List<BigDecimal> sortedPrices = new ArrayList<>(actualPrices);
-    sortedPrices.sort(BigDecimal::compareTo);
 
-    assertThat(actualPrices)
-        .as("Product prices should be displayed from lowest to highest after sorting")
-        .isEqualTo(sortedPrices);
+    List<String> actualNames = inventoryPage.sortProductsBy(option).getDisplayedProductNames();
+
+    assertThat(actualNames)
+        .as("Product names should be displayed in the expected order for %s", option)
+        .isEqualTo(expectedNames);
   }
 
   @Test(
@@ -131,9 +161,7 @@ public class InventoryTests extends BaseTestCase {
       description =
           "Adds a single product, removes it from the inventory page, and confirms the cart badge disappears.",
       groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
-  @Retryable(
-      reason = "Cart badge transitions can be affected by transient remote Grid click timing")
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyRemovingProductFromInventoryClearsCartBadge() {
@@ -155,7 +183,7 @@ public class InventoryTests extends BaseTestCase {
       description =
           "Opens a product from inventory, verifies its detail page content, adds it to cart, and returns to inventory.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Product detail")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProductDetailPageMatchesCatalog() {
@@ -183,7 +211,7 @@ public class InventoryTests extends BaseTestCase {
       testName = "Verify add-to-cart button changes to remove after adding product",
       description = "Adds a product and verifies the inventory button switches to Remove state.",
       groups = {TestGroups.INVENTORY, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.FAST_UI_TIMEOUT_MS)
   @Story("Inventory cart controls")
   @Severity(SeverityLevel.NORMAL)
   public void verifyAddToCartButtonTogglesAfterAddingProduct() {

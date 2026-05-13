@@ -1,5 +1,7 @@
 package io.github.prayag.saucedemo.app.ui.page;
 
+import io.github.prayag.saucedemo.app.data.AppRoute;
+import io.github.prayag.saucedemo.app.ui.ProductSelectors;
 import io.github.prayag.saucedemo.app.ui.component.InventoryListComponent;
 import io.github.prayag.saucedemo.framework.ui.BasePage;
 import io.github.prayag.saucedemo.framework.ui.PageLoadable;
@@ -18,7 +20,6 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
   // Sauce Demo does not expose a data-test attribute on the app logo.
   private static final By APP_LOGO = By.className("app_logo");
   private static final By PRODUCT_SORT = By.cssSelector("[data-test='product-sort-container']");
-  private static final By PRODUCT_PRICE = By.cssSelector("[data-test='inventory-item-price']");
   private static final By PRODUCT_IMAGE = By.cssSelector("[data-test='inventory-item'] img");
 
   private final InventoryListComponent inventoryList;
@@ -34,7 +35,7 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
 
   @Override
   public InventoryPage waitUntilLoaded() {
-    waitUntilUrlContains("inventory");
+    waitUntilPathEndsWith(AppRoute.INVENTORY.path());
     waitUtils.waitUntilVisible(APP_LOGO);
     waitUtils.waitUntilVisible(PRODUCT_SORT);
     return this;
@@ -65,18 +66,25 @@ public class InventoryPage extends BasePage implements PageLoadable<InventoryPag
     return this;
   }
 
-  @Step("Sort products by price low to high")
-  public InventoryPage sortProductsByPriceLowToHigh() {
-    new Select(waitUtils.waitUntilVisible(PRODUCT_SORT)).selectByValue("lohi");
+  @Step("Sort products by {0}")
+  public InventoryPage sortProductsBy(ProductSortOption option) {
+    new Select(waitUtils.waitUntilVisible(PRODUCT_SORT)).selectByValue(option.value());
     return this;
   }
 
   @Step("Get displayed product prices from inventory")
   public List<BigDecimal> getDisplayedProductPrices() {
-    return waitUtils.waitUntilAllVisible(PRODUCT_PRICE).stream()
+    return waitUtils.waitUntilAllVisible(ProductSelectors.PRICE).stream()
         .map(WebElement::getText)
         .map(price -> price.replace("$", ""))
         .map(BigDecimal::new)
+        .toList();
+  }
+
+  @Step("Get displayed product names from inventory")
+  public List<String> getDisplayedProductNames() {
+    return waitUtils.waitUntilAllVisible(ProductSelectors.NAME).stream()
+        .map(WebElement::getText)
         .toList();
   }
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -52,38 +51,10 @@ public final class ConfigLoader {
 
   private Properties defaultProperties(Properties systemProperties) {
     Properties properties = new Properties();
-    properties.setProperty("env", resolveEnvironment(systemProperties, Map.of()));
-    properties.setProperty("browser", "CHROME");
-    properties.setProperty("execution.type", "local");
-    properties.setProperty("remote.url", "");
-    properties.setProperty("headless", "false");
-    properties.setProperty("maximize.window", "true");
-    properties.setProperty("viewport.width", "1920");
-    properties.setProperty("viewport.height", "1080");
-    properties.setProperty("thread.count", systemProperties.getProperty("thread.count", "1"));
-    properties.setProperty("app.url", "https://www.saucedemo.com/");
-    properties.setProperty("APP_USERNAME", "standard_user");
-    properties.setProperty("APP_PASSWORD", "");
-    properties.setProperty(
-        "diagnostics.sensitive.dom.selectors",
-        "input[type='password'], input[name*='password'], input[id*='password'], "
-            + "input[autocomplete='current-password'], input[autocomplete='new-password'], "
-            + "input[type='email'], input[name*='email'], input[id*='email'], "
-            + "input[name*='token'], input[id*='token'], input[name*='secret'], "
-            + "input[id*='secret'], [data-sensitive='true']");
-    properties.setProperty("allow.passwordless.skips", "false");
-    properties.setProperty("retry.enabled", "false");
-    properties.setProperty("retry.count", "2");
-    properties.setProperty("explicit.wait.seconds", "10");
-    properties.setProperty("page.load.timeout.seconds", "30");
-    properties.setProperty("script.timeout.seconds", "30");
-    properties.setProperty("polling.interval.ms", "500");
-    properties.setProperty("diagnostics.network.logs.enabled", "false");
-    properties.setProperty("diagnostics.grid.video.base.url", "");
-    properties.setProperty("diagnostics.attach.screenshot.on.failure", "true");
-    properties.setProperty("diagnostics.attach.page.source.on.failure", "true");
-    properties.setProperty("diagnostics.attach.browser.logs.on.failure", "true");
-    properties.setProperty("diagnostics.attach.framework.logs.on.failure", "true");
+    for (ConfigKey configKey : ConfigKey.values()) {
+      properties.setProperty(configKey.key(), configKey.defaultValue());
+    }
+    properties.setProperty(ConfigKey.ENV.key(), resolveEnvironment(systemProperties, Map.of()));
     return properties;
   }
 
@@ -105,7 +76,7 @@ public final class ConfigLoader {
       ClassLoader classLoader,
       String environment,
       Properties systemProperties) {
-    String resourceName = environment.toLowerCase(Locale.ROOT) + ".properties";
+    String resourceName = environment.toLowerCase(java.util.Locale.ROOT) + ".properties";
     boolean loaded = loadFromClasspathIfPresent(properties, classLoader, resourceName);
     boolean externalConfigProvided =
         systemProperties.getProperty("config.file") != null
@@ -156,18 +127,15 @@ public final class ConfigLoader {
   private void applyEnvironmentOverrides(Properties properties, Map<String, String> environment) {
     // Only known keys are eligible for env overrides. Add a default or profile key for each new
     // setting so the supported configuration surface stays explicit.
-    properties
-        .stringPropertyNames()
-        .forEach(
-            key -> {
-              String exactValue = environment.get(key);
-              String normalizedValue = environment.get(toEnvironmentVariableName(key));
-              if (exactValue != null) {
-                properties.setProperty(key, exactValue);
-              } else if (normalizedValue != null) {
-                properties.setProperty(key, normalizedValue);
-              }
-            });
+    for (ConfigKey configKey : ConfigKey.values()) {
+      String exactValue = environment.get(configKey.key());
+      String normalizedValue = environment.get(configKey.environmentName());
+      if (exactValue != null) {
+        properties.setProperty(configKey.key(), exactValue);
+      } else if (normalizedValue != null) {
+        properties.setProperty(configKey.key(), normalizedValue);
+      }
+    }
   }
 
   private void applySystemPropertyOverrides(Properties properties, Properties systemProperties) {
@@ -182,13 +150,10 @@ public final class ConfigLoader {
             });
   }
 
-  private String toEnvironmentVariableName(String key) {
-    return key.replace('.', '_').replace('-', '_').toUpperCase(Locale.ROOT);
-  }
-
   private void validateConfig(FrameworkConfig config) {
     config.browserType();
     ExecutionType.from(config.executionType());
+    config.acceptInsecureCerts();
     config.headless();
     config.maximizeWindow();
     config.allowPasswordlessSkips();
@@ -286,6 +251,26 @@ public final class ConfigLoader {
     @Override
     public String remoteUrl() {
       return get("remote.url");
+    }
+
+    @Override
+    public String browserVersion() {
+      return get("browser.version");
+    }
+
+    @Override
+    public String platformName() {
+      return get("platform.name");
+    }
+
+    @Override
+    public boolean acceptInsecureCerts() {
+      return getBoolean("accept.insecure.certs");
+    }
+
+    @Override
+    public String remoteCapabilities() {
+      return get("remote.capabilities");
     }
 
     @Override
@@ -403,7 +388,7 @@ public final class ConfigLoader {
     }
 
     private boolean getBoolean(String key) {
-      String value = get(key).trim().toLowerCase(Locale.ROOT);
+      String value = get(key).trim().toLowerCase(java.util.Locale.ROOT);
       if ("true".equals(value) || "false".equals(value)) {
         return Boolean.parseBoolean(value);
       }

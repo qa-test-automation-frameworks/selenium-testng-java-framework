@@ -57,6 +57,7 @@ graph LR
 ### 3. Page Object Model (`io.github.prayag.saucedemo.app.ui.page`)
 - **Framework UI Primitives**: `io.github.prayag.saucedemo.framework.ui` contains reusable base page/component contracts and shared wait access.
 - **App Page Objects**: Sauce Demo-specific pages live under `io.github.prayag.saucedemo.app.ui.page`; reusable page fragments live under `io.github.prayag.saucedemo.app.ui.component`.
+- **Route Model**: Sauce Demo routes live in `AppRoute`, so protected-route tests and page readiness checks share the same route definitions.
 - **Stateless Design**: Page Objects represent the UI state and actions but do not contain assertions (delegated to the test layer).
 - **Explicit Readiness**: Page objects are constructed lazily; callers invoke `waitUntilLoaded()` explicitly when page readiness must be asserted. Readiness means URL plus the minimum interactive controls and content required by that page.
 - **Component Model**: Complex app UI elements, such as headers, product lists, and root-scoped product items, are extracted into app-specific components.
@@ -69,7 +70,7 @@ graph LR
 - **Fast Framework Checks**: Narrow TestNG checks under the `framework` group cover pure configuration, redaction, and retry aggregation logic without starting browsers.
 
 ### 5. Reporting Layer (`io.github.prayag.saucedemo.framework.listener`)
-- **Allure Reporting**: Integrated via a custom listener to capture redacted URL/environment details, browser capabilities, configurable screenshots after DOM masking, redacted page source, configurable console logs, explicit unavailable diagnostics, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, and suite-level retry summaries.
+- **Allure Reporting**: Integrated via a custom listener to capture redacted URL/environment details, browser capabilities, configurable screenshots after DOM masking, redacted page source, configurable console logs, explicit unavailable diagnostics, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, suite-level retry summaries, and Allure categories copied into generated results.
 - **Step Annotations**: `@Step` used in Page Objects for detailed action tracking in reports.
 
 ### 6. CI and Quality Gates

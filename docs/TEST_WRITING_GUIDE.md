@@ -2,7 +2,7 @@
 
 Follow these guidelines when adding new tests or modifying existing ones.
 
-This repository is intentionally UI-automation-only. Keep `src/test/java` focused on TestNG scenarios, data providers, and test data rather than adding a separate framework unit-test layer.
+This repository is intentionally UI-automation-first. Keep `src/test/java` focused on TestNG UI scenarios, data providers, and test data. ADR 005 allows narrow fast checks only for pure helper logic such as configuration validation, redaction behavior, and retry aggregation.
 
 ## Adding a New Page Object
 1. Create a new class in `src/main/java/io/github/prayag/saucedemo/app/ui/page`.
@@ -29,7 +29,7 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 7. Add meaningful TestNG groups such as `smoke`, `login`, `inventory`, `cart`, or `regression`.
 8. Keep shared navigation or header assertions in dedicated coverage tests so unrelated scenarios fail for one clear reason.
 9. Add tests because they prove meaningful user behavior, not to inflate counts. Prefer focused negative cases and full user journeys that exercise realistic business paths.
-10. Do not add framework unit tests; ADR 005 explains why this repository keeps the framework itself as the UI automation layer.
+10. Do not add broad framework unit-test suites. ADR 005 allows narrow fast checks for pure helper logic such as configuration validation, redaction, and retry aggregation.
 11. Use `@Retryable(reason = "...")` only for scenarios with a documented infrastructure timing risk. Do not use retries to hide product defects or weak waits.
 
 ### Example Test Annotation
@@ -38,7 +38,7 @@ If a UI element is shared across multiple pages (e.g., a Footer):
     testName = "Verify adding multiple products to cart",
     description = "Adds two products and verifies the cart badge count updates to match.",
     groups = {TestGroups.SMOKE, TestGroups.CART},
-    timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+    timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
 public void verifyUserCanAddProductsToCart() {
   InventoryPage inventoryPage = new InventoryPage(getDriver()).waitUntilLoaded();
   // Arrange, act, assert

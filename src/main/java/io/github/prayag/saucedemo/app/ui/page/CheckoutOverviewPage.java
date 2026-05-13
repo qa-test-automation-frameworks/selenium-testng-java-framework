@@ -1,5 +1,6 @@
 package io.github.prayag.saucedemo.app.ui.page;
 
+import io.github.prayag.saucedemo.app.data.AppRoute;
 import io.github.prayag.saucedemo.app.data.ProductDetails;
 import io.github.prayag.saucedemo.app.ui.component.InventoryListComponent;
 import io.github.prayag.saucedemo.framework.ui.BasePage;
@@ -27,7 +28,7 @@ public class CheckoutOverviewPage extends BasePage implements PageLoadable<Check
 
   @Override
   public CheckoutOverviewPage waitUntilLoaded() {
-    waitUntilUrlContains("checkout-step-two");
+    waitUntilPathEndsWith(AppRoute.CHECKOUT_STEP_TWO.path());
     waitUtils.waitUntilVisible(ITEM_TOTAL);
     waitUtils.waitUntilVisible(TAX);
     waitUtils.waitUntilVisible(TOTAL);

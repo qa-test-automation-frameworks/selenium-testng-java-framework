@@ -1,5 +1,6 @@
 package io.github.prayag.saucedemo.app.ui.page;
 
+import io.github.prayag.saucedemo.app.data.AppRoute;
 import io.github.prayag.saucedemo.framework.ui.BasePage;
 import io.github.prayag.saucedemo.framework.ui.PageLoadable;
 import io.qameta.allure.Step;
@@ -19,7 +20,7 @@ public class CheckoutCompletePage extends BasePage implements PageLoadable<Check
 
   @Override
   public CheckoutCompletePage waitUntilLoaded() {
-    waitUntilUrlContains("checkout-complete");
+    waitUntilPathEndsWith(AppRoute.CHECKOUT_COMPLETE.path());
     waitUtils.waitUntilVisible(CONFIRMATION_MESSAGE);
     waitUtils.waitUntilVisible(BACK_HOME_BUTTON);
     return this;

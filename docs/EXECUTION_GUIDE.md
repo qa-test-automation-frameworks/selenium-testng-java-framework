@@ -30,11 +30,12 @@ PowerShell examples must quote comma-separated groups and dotted Maven propertie
 ```
 
 ### Parameters
-- `-Denv`: Environment profile (`qa` default, `dev`). This takes precedence over environment variables `ENV` and `env`. The default `qa` environment can run from built-in safe defaults; non-default environments require a matching classpath profile or `-Dconfig.file`.
+- `-Denv`: Environment profile (`qa` default). This takes precedence over environment variables `ENV` and `env`. The default `qa` environment can run from built-in safe defaults; non-default environments require a matching classpath profile or `-Dconfig.file`.
 - `-Dbrowser`: Browser type (`CHROME` default, `FIREFOX`, `EDGE`).
 - `-Dheadless`: Run in headless mode (`true`, `false`).
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
 - `-Dconfig.file`: Optional external properties file for private local overrides.
+- `-Dbrowser.version`, `-Dplatform.name`, `-Daccept.insecure.certs`, `-Dremote.capabilities`: Optional Selenium capability overrides for remote Grids and cloud providers. `remote.capabilities` must be a flat JSON object.
 - `-Dretry.enabled`: Enable retry analyzer for tests explicitly marked with `@Retryable(reason = "...")` when investigating infrastructure flakes.
 - `-Dallow.passwordless.skips`: Allow password-backed tests to skip when `APP_PASSWORD` is missing. Keep this `false` for full regression; public smoke runs should use non-login groups instead.
 - `-Ddiagnostics.sensitive.dom.selectors`: CSS selectors masked before screenshots and page source are attached.

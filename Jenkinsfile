@@ -8,7 +8,7 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'ENV', choices: ['qa', 'dev'], description: 'Environment for test execution')
+        choice(name: 'ENV', choices: ['qa'], description: 'Environment for test execution')
         choice(name: 'BROWSER', choices: ['CHROME', 'FIREFOX', 'EDGE'], description: 'Browser for test execution')
         string(name: 'GROUPS', defaultValue: '', description: 'Comma-separated TestNG groups; blank runs the full suite')
         string(name: 'THREAD_COUNT', defaultValue: '2', description: 'TestNG method thread count')
@@ -46,7 +46,10 @@ pipeline {
                 // --build ensures the test-runner image is updated with current code
                 // --exit-code-from test-runner ensures Jenkins build status matches test results
                 withCredentials([string(credentialsId: 'sauce-demo-password', variable: 'APP_PASSWORD')]) {
-                    sh 'docker compose up --build --exit-code-from test-runner'
+                    script {
+                        def composeProfile = params.BROWSER == 'EDGE' ? '--profile edge ' : ''
+                        sh "docker compose ${composeProfile}up --build --exit-code-from test-runner"
+                    }
                 }
             }
         }

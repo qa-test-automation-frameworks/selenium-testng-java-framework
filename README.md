@@ -14,7 +14,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
 - **Why cookie auth shortcuts?** Non-login scenarios bypass the UI login form to keep the suite faster and less flaky while retaining dedicated login coverage.
 - **Why explicit waits only?** A single synchronization strategy keeps the framework deterministic and easier to debug.
-- **Why no framework unit-test layer?** This repository is the UI test automation layer in the SDLC. It validates application behavior through browser journeys instead of adding a second set of tests that only test the test framework. See [ADR 005](docs/adr/005-why-no-framework-unit-tests.md).
+- **Why limited framework checks?** Browser UI scenarios remain the primary validation layer, while narrow fast checks cover pure framework logic such as configuration, redaction, and retry aggregation. See [ADR 005](docs/adr/005-why-no-framework-unit-tests.md).
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
@@ -22,7 +22,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md) - How to use Allure artifacts, logs, screenshots, and CI outputs to diagnose failures.
 - [GitHub Setup Guide](docs/GITHUB_SETUP.md) - Required secrets, Pages, branch protection, and workflow checks.
-- [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project does not add a framework unit-test layer.
+- [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project keeps only narrow fast framework checks.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
 ## Live Report
@@ -46,7 +46,7 @@ graph TD;
 - Selenium Grid support through Docker Compose.
 - Custom typed configuration with classpath-based profile loading and system/environment overrides.
 - Page objects and reusable page components with explicit, caller-controlled page readiness checks.
-- Automation-only `src/test/java` scope for UI suites, test data, and TestNG orchestration.
+- `src/main/java` contains reusable automation framework and app page-object code; `src/test/java` contains executable TestNG scenarios and test data.
 - TestNG groups, parallel method execution, and opt-in retry support.
 - Allure reports with redacted screenshots, URL, page source, capabilities, console logs, network logs, and framework log excerpts on failure.
 - Spotless, Checkstyle, PMD, SpotBugs, and Maven Enforcer quality gates with stronger maintainability rules.
@@ -124,10 +124,10 @@ export APP_PASSWORD="<set-outside-repository>"
 ./mvnw clean verify -Dheadless=true -Dbrowser=FIREFOX
 ```
 
-Run a trusted full regression against a specific profile:
+Run a trusted full regression against a private external profile:
 ```bash
 export APP_PASSWORD="<set-outside-repository>"
-./mvnw clean verify -Denv=dev -Dheadless=true -Dbrowser=CHROME
+./mvnw clean verify -Denv=dev -Dconfig.file=/path/to/dev.properties -Dheadless=true -Dbrowser=CHROME
 ```
 
 ### Docker Grid Run
@@ -143,7 +143,7 @@ export APP_PASSWORD="<set-outside-repository>"
 docker compose --profile edge up --build --exit-code-from test-runner
 ```
 
-For video-enabled Selenium Grid setups, publish the recording endpoint and set `diagnostics.grid.video.base.url` so failed tests include session video links in Allure.
+For video-enabled Selenium Grid setups, publish the recording endpoint and set `diagnostics.grid.video.base.url` so failed tests include session video links in Allure. The bundled Grid is intentionally lightweight and does not record videos by itself.
 
 ### Allure Dashboard
 ```bash
@@ -169,6 +169,10 @@ The `.env.example` file is a convenience template for Docker Compose or for manu
 | `remote.url` | Selenium Grid URL | blank |
 | `headless` | Run browser headlessly | `false` |
 | `maximize.window` | Maximize headed local browser windows | `true` |
+| `browser.version` | Optional remote/browser version capability | blank |
+| `platform.name` | Optional remote platform capability | blank |
+| `accept.insecure.certs` | Set Selenium `acceptInsecureCerts` capability | `false` |
+| `remote.capabilities` | Optional flat JSON object of extra remote capabilities | blank |
 | `viewport.width` | Browser viewport width for deterministic runs | `1920` |
 | `viewport.height` | Browser viewport height for deterministic runs | `1080` |
 | `thread.count` | TestNG method thread count | `1` |
@@ -199,7 +203,7 @@ After forking, update the badge URLs, repository secrets, branch protection requ
 
 ## Current Limitations
 
-- Selenium Grid video support is link-based unless you connect the framework to a video-enabled Grid and set `diagnostics.grid.video.base.url`.
+- Selenium Grid video support is a link integration point unless you connect the framework to a video-enabled Grid and set `diagnostics.grid.video.base.url`.
 - Network log attachments depend on browser/session support; unsupported sessions add an explicit "unavailable" attachment when network logging is enabled. Local Chrome versions newer than Selenium's packaged DevTools support can still emit CDP compatibility warnings or fall back from BiDi to legacy logs, so Docker Grid is the preferred reproducible diagnostic path.
 - Accessibility and visual regression checks are intentionally left as optional extension points so the repository stays focused on UI functional automation.
 - Docker images are version-tag and digest pinned. Refresh image digests when Dependabot updates Docker tags.
@@ -229,6 +233,6 @@ Dependabot checks Maven, Docker, and GitHub Actions dependencies weekly. The sch
 - AssertJ
 - Allure
 - Log4j2 and SLF4J
-- Lombok
+- Lombok for concise logging annotations
 - Custom typed config loader
 - Docker Compose and Selenium Grid

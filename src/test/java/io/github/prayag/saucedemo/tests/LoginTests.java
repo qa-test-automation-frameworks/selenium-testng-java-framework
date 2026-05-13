@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.prayag.saucedemo.app.auth.AuthService;
 import io.github.prayag.saucedemo.app.data.AppConstants;
+import io.github.prayag.saucedemo.app.data.AppRoute;
 import io.github.prayag.saucedemo.app.data.LoginRequest;
 import io.github.prayag.saucedemo.app.ui.component.HeaderComponent;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
@@ -20,7 +21,6 @@ import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
-import java.net.URI;
 import java.util.HashSet;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.DataProvider;
@@ -66,12 +66,12 @@ public class LoginTests extends BaseTestCase {
   public Object[][] protectedRoutes() {
     return new Object[][] {
       {
-        "inventory.html",
+        AppRoute.INVENTORY,
         "Epic sadface: You can only access '/inventory.html' when you are logged in."
       },
-      {"cart.html", "Epic sadface: You can only access '/cart.html' when you are logged in."},
+      {AppRoute.CART, "Epic sadface: You can only access '/cart.html' when you are logged in."},
       {
-        "checkout-step-one.html",
+        AppRoute.CHECKOUT_STEP_ONE,
         "Epic sadface: You can only access '/checkout-step-one.html' when you are logged in."
       },
     };
@@ -83,7 +83,7 @@ public class LoginTests extends BaseTestCase {
           "Attempts invalid login scenarios and verifies the expected authentication error message for each credential set.",
       groups = {TestGroups.LOGIN},
       dataProvider = "invalidUsers",
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Invalid login handling")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyLoginShowsExpectedErrorMessage(InvalidLoginCase scenario) {
@@ -109,7 +109,7 @@ public class LoginTests extends BaseTestCase {
       description =
           "Logs in through the real UI form with configured standard-user credentials and verifies the inventory landing page.",
       groups = {TestGroups.LOGIN},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Valid login")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyStandardUserCanLogin() {
@@ -131,7 +131,7 @@ public class LoginTests extends BaseTestCase {
       description =
           "Logs in as Sauce Demo's problem user and verifies the intentionally broken repeated product-image behavior is detectable.",
       groups = {TestGroups.PERSONA, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Distinctive user personas")
   @Severity(SeverityLevel.NORMAL)
   public void verifyProblemUserVisualCatalogDefectIsDetectable() {
@@ -157,7 +157,7 @@ public class LoginTests extends BaseTestCase {
       description =
           "Logs in as Sauce Demo's performance glitch user and verifies the framework waits long enough for the delayed inventory page.",
       groups = {TestGroups.PERSONA, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.SLOW_PERSONA_TIMEOUT_MS)
   @Story("Distinctive user personas")
   @Severity(SeverityLevel.NORMAL)
   public void verifyPerformanceGlitchUserReachesInventory() {
@@ -184,18 +184,18 @@ public class LoginTests extends BaseTestCase {
           "Attempts to open protected application routes without a session and verifies Sauce Demo redirects to login with the correct access error.",
       groups = {TestGroups.LOGIN, TestGroups.REGRESSION},
       dataProvider = "protectedRoutes",
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Protected route access")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyProtectedRoutesRequireAuthentication(
-      String route, String expectedErrorMessage) {
-    String protectedUrl = URI.create(ConfigFactory.getConfig().appUrl()).resolve(route).toString();
+      AppRoute route, String expectedErrorMessage) {
+    String protectedUrl = route.absoluteUrl(ConfigFactory.getConfig().appUrl());
 
     getDriver().navigate().to(protectedUrl);
     LoginPage loginPage = pages().login().waitUntilLoaded();
 
     assertThat(loginPage.getErrorMessage())
-        .as("Anonymous users should be blocked from %s", route)
+        .as("Anonymous users should be blocked from %s", route.path())
         .isEqualTo(expectedErrorMessage);
   }
 
@@ -204,7 +204,7 @@ public class LoginTests extends BaseTestCase {
       description =
           "Authenticates with the cookie shortcut, performs logout, and verifies the browser returns to the login page.",
       groups = {TestGroups.SMOKE, TestGroups.LOGIN},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Authenticated user logout")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanLogout() {

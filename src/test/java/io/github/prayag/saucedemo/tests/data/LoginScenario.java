@@ -7,15 +7,15 @@ public final class LoginScenario {
   private LoginScenario() {}
 
   public static Credentials lockedOutUser() {
-    return new Credentials("locked_out_user", ConfigFactory.getConfig().appPassword());
+    return SauceDemoUser.LOCKED_OUT.credentials(ConfigFactory.getConfig().appPassword());
   }
 
   public static Credentials problemUser() {
-    return new Credentials("problem_user", ConfigFactory.getConfig().appPassword());
+    return SauceDemoUser.PROBLEM.credentials(ConfigFactory.getConfig().appPassword());
   }
 
   public static Credentials performanceGlitchUser() {
-    return new Credentials("performance_glitch_user", ConfigFactory.getConfig().appPassword());
+    return SauceDemoUser.PERFORMANCE_GLITCH.credentials(ConfigFactory.getConfig().appPassword());
   }
 
   public static Credentials invalidUser() {

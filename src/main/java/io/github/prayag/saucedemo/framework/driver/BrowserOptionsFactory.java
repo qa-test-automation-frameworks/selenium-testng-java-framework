@@ -1,6 +1,8 @@
 package io.github.prayag.saucedemo.framework.driver;
 
+import io.github.prayag.saucedemo.framework.config.BrowserType;
 import io.github.prayag.saucedemo.framework.config.FrameworkConfig;
+import io.github.prayag.saucedemo.framework.config.FrameworkConfigurationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -8,11 +10,23 @@ import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.json.Json;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 
 /** Builds browser-specific options without launching browser instances. */
 public final class BrowserOptionsFactory {
+
+  public MutableCapabilities optionsFor(BrowserType browserType, FrameworkConfig config) {
+    return switch (browserType) {
+      case CHROME -> chromeOptions(config);
+      case FIREFOX -> firefoxOptions(config);
+      case EDGE -> edgeOptions(config);
+      case SAFARI ->
+          throw new FrameworkConfigurationException(
+              "Safari requires local headed execution on macOS with remote automation enabled");
+    };
+  }
 
   public ChromeOptions chromeOptions(FrameworkConfig config) {
     ChromeOptions chromeOptions = new ChromeOptions();
@@ -31,6 +45,7 @@ public final class BrowserOptionsFactory {
       chromeOptions.addArguments(windowSizeArgument(config));
     }
 
+    applyCommonCapabilities(chromeOptions, config);
     return chromeOptions;
   }
 
@@ -41,6 +56,7 @@ public final class BrowserOptionsFactory {
       firefoxOptions.addArguments("--width=" + config.viewportWidth());
       firefoxOptions.addArguments("--height=" + config.viewportHeight());
     }
+    applyCommonCapabilities(firefoxOptions, config);
     return firefoxOptions;
   }
 
@@ -54,7 +70,41 @@ public final class BrowserOptionsFactory {
       edgeOptions.addArguments("--disable-dev-shm-usage");
       edgeOptions.addArguments(windowSizeArgument(config));
     }
+    applyCommonCapabilities(edgeOptions, config);
     return edgeOptions;
+  }
+
+  public void applyConfiguredRemoteCapabilities(
+      MutableCapabilities capabilities, FrameworkConfig config) {
+    String rawCapabilities = config.remoteCapabilities();
+    if (rawCapabilities == null || rawCapabilities.isBlank()) {
+      return;
+    }
+    try {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> parsed = new Json().toType(rawCapabilities, Map.class);
+      parsed.forEach(
+          (key, value) -> {
+            if (key == null || key.isBlank()) {
+              throw new FrameworkConfigurationException(
+                  "remote.capabilities contains a blank capability name");
+            }
+            capabilities.setCapability(key, value);
+          });
+    } catch (RuntimeException e) {
+      throw new FrameworkConfigurationException(
+          "remote.capabilities must be a flat JSON object of Selenium capabilities", e);
+    }
+  }
+
+  private void applyCommonCapabilities(MutableCapabilities capabilities, FrameworkConfig config) {
+    capabilities.setCapability("acceptInsecureCerts", config.acceptInsecureCerts());
+    if (!config.browserVersion().isBlank()) {
+      capabilities.setCapability("browserVersion", config.browserVersion());
+    }
+    if (!config.platformName().isBlank()) {
+      capabilities.setCapability("platformName", config.platformName());
+    }
   }
 
   private void applyNetworkLogging(MutableCapabilities capabilities, FrameworkConfig config) {

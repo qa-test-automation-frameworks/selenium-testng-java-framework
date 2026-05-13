@@ -1,0 +1,56 @@
+name: Docs
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+
+permissions:
+  contents: read
+
+jobs:
+  local-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate local Markdown links
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+          root = Path.cwd()
+          link_pattern = re.compile(r'(?<!!)\[[^\]]+\]\(([^)]+)\)')
+          failures = []
+          for markdown_file in root.rglob('*.md'):
+              if '.git' in markdown_file.parts or 'target' in markdown_file.parts:
+                  continue
+              text = markdown_file.read_text(encoding='utf-8')
+              for match in link_pattern.finditer(text):
+                  target = match.group(1).split('#', 1)[0].strip()
+                  if not target or re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*:', target):
+                      continue
+                  if target.startswith('#'):
+                      continue
+                  resolved = (markdown_file.parent / target).resolve()
+                  try:
+                      resolved.relative_to(root)
+                  except ValueError:
+                      failures.append(f'{markdown_file}: link escapes repo: {target}')
+                      continue
+                  if not resolved.exists():
+                      failures.append(f'{markdown_file}: missing local link target: {target}')
+          if failures:
+              print('\n'.join(failures))
+              sys.exit(1)
+          PY

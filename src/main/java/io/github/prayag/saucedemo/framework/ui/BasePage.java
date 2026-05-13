@@ -3,6 +3,7 @@ package io.github.prayag.saucedemo.framework.ui;
 import io.github.prayag.saucedemo.framework.driver.WebDriverFactory;
 import io.github.prayag.saucedemo.framework.util.WaitUtils;
 import io.qameta.allure.Step;
+import java.net.URI;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
@@ -34,12 +35,19 @@ public abstract class BasePage {
     log.debug("Page load completed for URL: {}", url);
   }
 
-  @Step("Wait until current URL contains '{0}'")
-  protected void waitUntilUrlContains(String expectedUrlFragment) {
+  @Step("Wait until current path ends with '{0}'")
+  protected void waitUntilPathEndsWith(String expectedPath) {
     waitUtils.waitUntil(
-        currentDriver ->
-            Objects.toString(currentDriver.getCurrentUrl(), "").contains(expectedUrlFragment),
+        currentDriver -> currentPath(currentDriver.getCurrentUrl()).endsWith(expectedPath),
         String.format(
-            "Current URL did not contain '%s' within the configured timeout", expectedUrlFragment));
+            "Current path did not end with '%s' within the configured timeout", expectedPath));
+  }
+
+  private String currentPath(String currentUrl) {
+    String url = Objects.toString(currentUrl, "");
+    if (url.isBlank()) {
+      return "";
+    }
+    return URI.create(url).getPath();
   }
 }

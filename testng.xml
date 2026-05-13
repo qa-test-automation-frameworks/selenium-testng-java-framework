@@ -16,6 +16,7 @@
     <test name="Framework Fast Checks">
         <classes>
             <class name="io.github.prayag.saucedemo.framework.config.ConfigLoaderTest"/>
+            <class name="io.github.prayag.saucedemo.framework.driver.BrowserOptionsFactoryTest"/>
             <class name="io.github.prayag.saucedemo.framework.util.DiagnosticRedactorTest"/>
             <class name="io.github.prayag.saucedemo.framework.listener.RetryRegistryTest"/>
         </classes>

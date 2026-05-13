@@ -1,6 +1,7 @@
 package io.github.prayag.saucedemo.tests.data;
 
 import io.github.prayag.saucedemo.app.data.ProductDetails;
+import java.math.BigDecimal;
 import java.util.List;
 
 public final class ProductCatalog {
@@ -45,6 +46,14 @@ public final class ProductCatalog {
 
   public static List<ProductDetails> allProducts() {
     return List.of(BACKPACK, BIKE_LIGHT, BOLT_TSHIRT, FLEECE_JACKET, ONESIE, RED_TSHIRT);
+  }
+
+  public static String nameOf(ProductDetails productDetails) {
+    return productDetails.name();
+  }
+
+  public static BigDecimal priceValue(ProductDetails productDetails) {
+    return new BigDecimal(productDetails.price().replace("$", ""));
   }
 
   private ProductCatalog() {}

@@ -13,6 +13,14 @@ public interface FrameworkConfig {
 
   String remoteUrl();
 
+  String browserVersion();
+
+  String platformName();
+
+  boolean acceptInsecureCerts();
+
+  String remoteCapabilities();
+
   boolean headless();
 
   boolean maximizeWindow();

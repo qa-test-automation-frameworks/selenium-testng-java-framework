@@ -114,15 +114,8 @@ public class WebDriverFactory {
       throws MalformedURLException, URISyntaxException {
     log.info("Creating remote WebDriver for type {} at {}", browserType, remoteUrl);
     final URI hubUrl = new URI(remoteUrl);
-    MutableCapabilities capabilities =
-        switch (browserType) {
-          case CHROME -> BROWSER_OPTIONS_FACTORY.chromeOptions(config);
-          case FIREFOX -> BROWSER_OPTIONS_FACTORY.firefoxOptions(config);
-          case EDGE -> BROWSER_OPTIONS_FACTORY.edgeOptions(config);
-          case SAFARI ->
-              throw new FrameworkConfigurationException(
-                  "Safari requires local headed execution on macOS with remote automation enabled");
-        };
+    MutableCapabilities capabilities = BROWSER_OPTIONS_FACTORY.optionsFor(browserType, config);
+    BROWSER_OPTIONS_FACTORY.applyConfiguredRemoteCapabilities(capabilities, config);
     return new RemoteWebDriver(hubUrl.toURL(), capabilities);
   }
 

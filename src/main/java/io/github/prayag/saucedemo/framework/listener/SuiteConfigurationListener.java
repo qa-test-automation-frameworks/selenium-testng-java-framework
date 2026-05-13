@@ -1,12 +1,11 @@
 package io.github.prayag.saucedemo.framework.listener;
 
 import io.github.prayag.saucedemo.framework.config.FrameworkConfig;
+import io.github.prayag.saucedemo.framework.config.FrameworkConfigurationException;
 import io.github.prayag.saucedemo.framework.config.TestRunContext;
 import io.github.prayag.saucedemo.framework.util.DiagnosticRedactor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
@@ -63,17 +62,16 @@ public class SuiteConfigurationListener implements IAlterSuiteListener {
 
     try {
       Files.createDirectories(runContext.artifactDirectory());
-      try (FileOutputStream fos =
-          new FileOutputStream(
-              Paths.get(runContext.artifactDirectory().toString(), "environment.properties")
-                  .toString())) {
-        props.store(fos, "Allure Environment Properties");
+      try (var outputStream =
+          Files.newOutputStream(runContext.artifactDirectory().resolve("environment.properties"))) {
+        props.store(outputStream, "Allure Environment Properties");
         log.info(
             "Allure environment.properties generated successfully in {}",
             runContext.artifactDirectory());
       }
     } catch (IOException e) {
-      log.error("Failed to generate Allure environment.properties", e);
+      throw new FrameworkConfigurationException(
+          "Failed to generate Allure environment.properties", e);
     }
   }
 }

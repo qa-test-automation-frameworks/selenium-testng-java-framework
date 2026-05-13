@@ -6,13 +6,17 @@ RUN apt-get update \
 	&& apt-get install -y --no-install-recommends curl \
 	&& rm -rf /var/lib/apt/lists/*
 
-COPY .mvn ./.mvn
-COPY mvnw .
-COPY pom.xml .
-RUN chmod +x ./mvnw && ./mvnw dependency:go-offline -B
+RUN useradd --create-home --uid 10001 testuser
 
-COPY config ./config
-COPY src ./src
-COPY testng.xml .
+COPY --chown=testuser:testuser .mvn ./.mvn
+COPY --chown=testuser:testuser mvnw .
+COPY --chown=testuser:testuser pom.xml .
+RUN chmod +x ./mvnw && chown -R testuser:testuser /app
+USER testuser
+RUN ./mvnw dependency:go-offline -B
+
+COPY --chown=testuser:testuser config ./config
+COPY --chown=testuser:testuser src ./src
+COPY --chown=testuser:testuser testng.xml .
 
 ENTRYPOINT ["./mvnw", "clean", "verify", "-Dheadless=true"]

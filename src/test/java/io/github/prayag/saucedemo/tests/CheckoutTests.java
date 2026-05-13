@@ -51,7 +51,7 @@ public class CheckoutTests extends BaseTestCase {
           "Attempts checkout with invalid required-field combinations and verifies the matching validation message for each scenario.",
       groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
       dataProvider = "invalidCheckoutScenarios",
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Checkout validation")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyCheckoutValidation(
@@ -74,7 +74,7 @@ public class CheckoutTests extends BaseTestCase {
       description =
           "Completes a happy-path checkout flow and verifies the order confirmation message is displayed.",
       groups = {TestGroups.SMOKE, TestGroups.CHECKOUT},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Checkout completion")
   @Severity(SeverityLevel.BLOCKER)
   public void verifyUserCanCompleteCheckout() {

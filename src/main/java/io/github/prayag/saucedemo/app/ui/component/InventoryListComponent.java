@@ -1,6 +1,7 @@
 package io.github.prayag.saucedemo.app.ui.component;
 
 import io.github.prayag.saucedemo.app.data.ProductDetails;
+import io.github.prayag.saucedemo.app.ui.ProductSelectors;
 import io.github.prayag.saucedemo.app.ui.page.ProductDetailPage;
 import io.github.prayag.saucedemo.framework.ui.BaseComponent;
 import io.qameta.allure.Step;
@@ -13,15 +14,6 @@ import org.openqa.selenium.WebElement;
 
 @Slf4j
 public class InventoryListComponent extends BaseComponent {
-
-  private static final By LIST_ITEMS =
-      By.cssSelector("[data-test='inventory-item'], [data-test='cart-item']");
-  private static final By PRODUCT_NAME_ELEMENT =
-      By.cssSelector("[data-test='inventory-item-name']");
-  private static final By PRODUCT_DESCRIPTION_ELEMENT =
-      By.cssSelector("[data-test='inventory-item-desc']");
-  private static final By PRODUCT_PRICE_ELEMENT =
-      By.cssSelector("[data-test='inventory-item-price']");
 
   private final By rootLocator;
 
@@ -71,18 +63,6 @@ public class InventoryListComponent extends BaseComponent {
     return count;
   }
 
-  /**
-   * Finds a product web element by its exact name.
-   *
-   * @param name Name of the product.
-   * @return The product WebElement.
-   * @throws AssertionError if the product is not found.
-   */
-  @Step("Find product '{0}' in inventory list")
-  public WebElement getProductByName(String name) {
-    return findProductElementByName(name);
-  }
-
   @Step("Get product item component for '{0}'")
   public ProductItemComponent getProductItemByName(String name) {
     return new ProductItemComponent(driver, () -> findProductElementByName(name));
@@ -92,7 +72,7 @@ public class InventoryListComponent extends BaseComponent {
     log.info("Searching for product by name: {}", name);
     List<WebElement> items = getItemList();
     return items.stream()
-        .filter(item -> item.findElement(PRODUCT_NAME_ELEMENT).getText().equals(name))
+        .filter(item -> item.findElement(ProductSelectors.NAME).getText().equals(name))
         .findFirst()
         .orElseThrow(() -> missingProduct(name, items));
   }
@@ -152,22 +132,6 @@ public class InventoryListComponent extends BaseComponent {
     return getProductItemByName(name).actionButtonText();
   }
 
-  @Step("Remove product at index {0} from cart")
-  public InventoryListComponent removeProductFromCartByIndex(int index) {
-    log.info("Removing product from cart at index: {}", index);
-    List<WebElement> items = getItemList();
-    if (index < 0 || index >= items.size()) {
-      throw new NoSuchElementException(
-          String.format("Product list has %d items; cannot remove index %d", items.size(), index));
-    }
-
-    ProductItemComponent item = new ProductItemComponent(driver, () -> items.get(index));
-    item.removeFromCart();
-    waitForItemCount(items.size() - 1);
-    log.debug("Successfully removed product at index: {}", index);
-    return this;
-  }
-
   @Step("Wait for inventory list item count to become {0}")
   public void waitForItemCount(int expectedCount) {
     waitUtils.waitUntil(
@@ -187,13 +151,15 @@ public class InventoryListComponent extends BaseComponent {
 
   private List<WebElement> visibleItems() {
     WebElement root = waitUtils.waitUntilVisible(rootLocator);
-    return root.findElements(LIST_ITEMS).stream().filter(WebElement::isDisplayed).toList();
+    return root.findElements(ProductSelectors.LIST_ITEM).stream()
+        .filter(WebElement::isDisplayed)
+        .toList();
   }
 
   private NoSuchElementException missingProduct(String name, List<WebElement> visibleItems) {
     List<String> visibleNames =
         visibleItems.stream()
-            .map(item -> item.findElement(PRODUCT_NAME_ELEMENT).getText())
+            .map(item -> item.findElement(ProductSelectors.NAME).getText())
             .toList();
     return new NoSuchElementException(
         String.format("Product '%s' was not found. Visible products: %s", name, visibleNames));

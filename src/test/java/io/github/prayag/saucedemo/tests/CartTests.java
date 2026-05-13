@@ -35,7 +35,7 @@ public class CartTests extends BaseTestCase {
       description =
           "Adds two products from the inventory page and verifies the cart badge reflects the combined count.",
       groups = {TestGroups.SMOKE, TestGroups.CART},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.FAST_UI_TIMEOUT_MS)
   @Story("Add products to cart")
   @Severity(SeverityLevel.CRITICAL)
   public void verifyUserCanAddProductsToCart() {
@@ -58,7 +58,7 @@ public class CartTests extends BaseTestCase {
       description =
           "Adds products from inventory, opens the cart, and verifies the selected item details and quantities.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyCartDisplaysSelectedProducts() {
@@ -93,7 +93,7 @@ public class CartTests extends BaseTestCase {
       description =
           "Removes products one by one from the cart page and verifies the item count decreases to zero.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
   @Story("Remove products from cart")
   @Severity(SeverityLevel.NORMAL)
   public void verifyUserCanRemoveProductsFromCart() {
@@ -129,7 +129,7 @@ public class CartTests extends BaseTestCase {
       description =
           "Opens the cart before adding any products and verifies that no cart items are displayed.",
       groups = {TestGroups.CART, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.FAST_UI_TIMEOUT_MS)
   @Story("Cart contents")
   @Severity(SeverityLevel.NORMAL)
   public void verifyEmptyCartDisplaysNoItems() {

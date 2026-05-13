@@ -1,5 +1,6 @@
 package io.github.prayag.saucedemo.app.ui.page;
 
+import io.github.prayag.saucedemo.app.data.AppRoute;
 import io.github.prayag.saucedemo.framework.ui.BasePage;
 import io.github.prayag.saucedemo.framework.ui.PageLoadable;
 import io.qameta.allure.Step;
@@ -22,7 +23,7 @@ public class CheckoutPage extends BasePage implements PageLoadable<CheckoutPage>
 
   @Override
   public CheckoutPage waitUntilLoaded() {
-    waitUntilUrlContains("checkout-step-one");
+    waitUntilPathEndsWith(AppRoute.CHECKOUT_STEP_ONE.path());
     waitUtils.waitUntilVisible(CONTINUE_BUTTON);
     return this;
   }

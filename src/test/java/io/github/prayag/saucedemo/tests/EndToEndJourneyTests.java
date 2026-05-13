@@ -10,6 +10,7 @@ import io.github.prayag.saucedemo.app.ui.page.CheckoutCompletePage;
 import io.github.prayag.saucedemo.app.ui.page.CheckoutOverviewPage;
 import io.github.prayag.saucedemo.app.ui.page.CheckoutPage;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
+import io.github.prayag.saucedemo.app.ui.page.ProductSortOption;
 import io.github.prayag.saucedemo.framework.config.ConfigFactory;
 import io.github.prayag.saucedemo.tests.data.CheckoutPricing;
 import io.github.prayag.saucedemo.tests.data.CheckoutScenario;
@@ -40,7 +41,7 @@ public class EndToEndJourneyTests extends BaseTestCase {
       description =
           "Logs in through the UI, sorts inventory, adds a product, verifies the cart and checkout overview, completes the order, and logs out.",
       groups = {TestGroups.JOURNEY, TestGroups.REGRESSION},
-      timeOut = TestTimeouts.UI_TEST_TIMEOUT_MS)
+      timeOut = TestTimeouts.JOURNEY_TIMEOUT_MS)
   @Story("Full purchase journey")
   @Severity(SeverityLevel.BLOCKER)
   public void verifyStandardUserCanCompleteShoppingJourney() {
@@ -58,7 +59,9 @@ public class EndToEndJourneyTests extends BaseTestCase {
         .isEqualTo(AppConstants.HEADER_TITLE);
 
     List<BigDecimal> actualPrices =
-        inventoryPage.sortProductsByPriceLowToHigh().getDisplayedProductPrices();
+        inventoryPage
+            .sortProductsBy(ProductSortOption.PRICE_LOW_TO_HIGH)
+            .getDisplayedProductPrices();
     List<BigDecimal> sortedPrices = new ArrayList<>(actualPrices);
     sortedPrices.sort(BigDecimal::compareTo);
     assertThat(actualPrices)

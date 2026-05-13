@@ -46,10 +46,50 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Selenium WebDriver -->
+        <!-- Selenium WebDriver modules used directly by the framework -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
+            <artifactId>selenium-api</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-remote-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-support</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-json</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chromium-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-firefox-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-edge-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-safari-driver</artifactId>
             <version>${selenium.version}</version>
         </dependency>
         <!-- TestNG -->
@@ -168,6 +208,27 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-allure-categories</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/allure-results</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/test/resources</directory>
+                                    <includes>
+                                        <include>categories.json</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <propertiesEncoding>${project.build.sourceEncoding}</propertiesEncoding>
@@ -397,18 +458,9 @@
                         <configuration>
                             <failOnWarning>true</failOnWarning>
                             <ignoredUsedUndeclaredDependencies>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-api</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-chrome-driver</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-chromium-driver</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-edge-driver</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-firefox-driver</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-remote-driver</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-safari-driver</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.seleniumhq.selenium:selenium-support</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>io.qameta.allure:allure-java-commons</ignoredUsedUndeclaredDependency>
                             </ignoredUsedUndeclaredDependencies>
                             <ignoredUnusedDeclaredDependencies>
-                                <ignoredUnusedDeclaredDependency>org.seleniumhq.selenium:selenium-java</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>io.qameta.allure:allure-testng</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-api</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-core</ignoredUnusedDeclaredDependency>

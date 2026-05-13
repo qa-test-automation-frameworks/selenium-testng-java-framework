@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Dedicated `CheckoutTests` coverage with a data-driven invalid-checkout `@DataProvider`.
 - Postal-code-required checkout validation coverage.
 - `CHANGELOG.md` and README links to the live Allure report and project history.
-- ADR 005 documenting why this UI automation repository does not add a framework unit-test layer.
+- ADR 005 documenting why this UI automation repository keeps only narrow fast checks for pure framework logic.
 - Valid UI login, protected-route negative coverage, and a full end-to-end shopping journey.
 - Checkout overview assertions for selected product, item total, tax, and final total.
 - Debugging guide with real failed Allure report screenshots and artifact triage guidance.
@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added missing Allure `@Step` annotations across shared page and component methods.
 - Logged a safe resolved configuration summary at suite startup.
 - Aligned `testng.xml` thread-count documentation with runtime configuration behavior.
-- Replaced Selenium umbrella dependency usage with explicit driver/support modules.
+- Replaced Selenium umbrella dependency usage with explicit Selenium driver/support modules.
 - Expanded PMD rules to cover additional low-noise maintainability and error-prone checks.
 - Updated the GitHub Actions browser matrix to include Edge.
 - Clarified `LoginPage.clickLoginButton()` to return `void` instead of a stale page reference.
@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Preserved scheduled dependency update reports as CI artifacts.
 
 ### Fixed
-- Cached diagnostic redaction patterns instead of rebuilding them on every call.
+- Expanded diagnostic redaction checks for HTML, cookies, tokens, and configured credentials.
 - Standardized unsupported-browser failures on `FrameworkConfigurationException`.
 - Failed fast for missing non-default environment profiles unless an external config file is supplied.
 - Removed static Docker Compose container names to avoid local and CI naming collisions.

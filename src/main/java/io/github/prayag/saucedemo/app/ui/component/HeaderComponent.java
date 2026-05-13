@@ -4,10 +4,11 @@ import io.github.prayag.saucedemo.app.ui.page.CartPage;
 import io.github.prayag.saucedemo.app.ui.page.LoginPage;
 import io.github.prayag.saucedemo.framework.ui.BaseComponent;
 import io.qameta.allure.Step;
-import java.time.Duration;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 @Slf4j
 public class HeaderComponent extends BaseComponent {
@@ -39,12 +40,14 @@ public class HeaderComponent extends BaseComponent {
 
   @Step("Get product count from cart badge")
   public int getProductAddedToCartCount() {
-    if (!waitUtils.isVisible(CART_ITEM_COUNT, Duration.ofSeconds(1))) {
+    List<WebElement> visibleBadges =
+        driver.findElements(CART_ITEM_COUNT).stream().filter(WebElement::isDisplayed).toList();
+    if (visibleBadges.isEmpty()) {
       log.info("Cart badge is not visible; treating cart count as 0");
       return 0;
     }
 
-    int count = Integer.parseInt(waitUtils.waitUntilVisible(CART_ITEM_COUNT).getText());
+    int count = Integer.parseInt(visibleBadges.get(0).getText());
     log.info("Current product count in cart badge: {}", count);
     return count;
   }
@@ -52,10 +55,18 @@ public class HeaderComponent extends BaseComponent {
   @Step("Wait for cart badge count to become {0}")
   public void waitForProductAddedToCartCount(int expectedCount) {
     if (expectedCount == 0) {
-      waitUtils.waitUntilInvisibleOrAbsent(CART_ITEM_COUNT, "Cart badge should be hidden");
+      waitUntilCartBadgeIsEmpty();
     } else {
       waitUtils.waitUntilTextPresent(CART_ITEM_COUNT, String.valueOf(expectedCount));
     }
+  }
+
+  @Step("Wait for cart badge to be empty")
+  public void waitUntilCartBadgeIsEmpty() {
+    waitUtils.waitUntil(
+        currentDriver ->
+            currentDriver.findElements(CART_ITEM_COUNT).stream().noneMatch(WebElement::isDisplayed),
+        "Cart badge should be hidden");
   }
 
   public boolean isMenuButtonVisible() {

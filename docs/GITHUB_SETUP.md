@@ -20,8 +20,12 @@ Recommended required checks for `main`:
 - `test (CHROME)`
 - `test (FIREFOX)`
 - `test (EDGE)`
+- `Docs / local-links`
+- `Secret Scan / scan`
 
 Also require pull request review, require branches to be up to date, and restrict direct pushes to maintainers.
+
+An optional settings-as-code example is available in [GitHub Ruleset Example](GITHUB_RULESET_EXAMPLE.md).
 
 ## Repository-Specific Values
 
