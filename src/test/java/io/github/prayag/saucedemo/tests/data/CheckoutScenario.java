@@ -26,11 +26,28 @@ public final class CheckoutScenario {
     return validInformationBuilder().build();
   }
 
+  public static CheckoutInformation variedInformation(String seed) {
+    String normalizedSeed = normalizeSeed(seed);
+    String suffix = normalizedSeed.length() > 12 ? normalizedSeed.substring(0, 12) : normalizedSeed;
+    int postalCodeSeed = Math.floorMod(normalizedSeed.hashCode(), 100_000);
+
+    return CheckoutInformation.builder()
+        .firstName("Pat" + suffix)
+        .lastName("Tester" + suffix)
+        .postalCode(String.format("%05d", postalCodeSeed))
+        .build();
+  }
+
   public static CheckoutInformation.Builder validInformationBuilder() {
     return CheckoutInformation.builder()
         .firstName(TestPerson.DEFAULT.firstName())
         .lastName(TestPerson.DEFAULT.lastName())
         .postalCode(TestAddress.DEFAULT.postalCode());
+  }
+
+  private static String normalizeSeed(String seed) {
+    String normalized = seed == null ? "seed" : seed.replaceAll("[^A-Za-z0-9]", "");
+    return normalized.isBlank() ? "seed" : normalized;
   }
 
   public record CheckoutInformation(String firstName, String lastName, String postalCode) {

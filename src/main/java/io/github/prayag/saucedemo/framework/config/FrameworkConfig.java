@@ -57,6 +57,10 @@ public interface FrameworkConfig {
 
   String gridVideoBaseUrl();
 
+  boolean visualAutoApprove();
+
+  String visualBaselineDir();
+
   boolean attachScreenshotsOnFailure();
 
   boolean attachPageSourceOnFailure();

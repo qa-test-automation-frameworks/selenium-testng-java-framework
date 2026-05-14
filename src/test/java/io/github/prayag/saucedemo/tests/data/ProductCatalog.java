@@ -48,6 +48,10 @@ public final class ProductCatalog {
     return List.of(BACKPACK, BIKE_LIGHT, BOLT_TSHIRT, FLEECE_JACKET, ONESIE, RED_TSHIRT);
   }
 
+  public static List<String> allProductNames() {
+    return allProducts().stream().map(ProductDetails::name).toList();
+  }
+
   public static String nameOf(ProductDetails productDetails) {
     return productDetails.name();
   }

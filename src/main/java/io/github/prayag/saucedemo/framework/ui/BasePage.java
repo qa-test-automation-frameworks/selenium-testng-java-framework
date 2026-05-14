@@ -43,6 +43,15 @@ public abstract class BasePage {
             "Current path did not end with '%s' within the configured timeout", expectedPath));
   }
 
+  @Step("Wait until current path contains '{0}'")
+  protected void waitUntilPathContains(String expectedPathFragment) {
+    waitUtils.waitUntil(
+        currentDriver -> currentPath(currentDriver.getCurrentUrl()).contains(expectedPathFragment),
+        String.format(
+            "Current path did not contain '%s' within the configured timeout",
+            expectedPathFragment));
+  }
+
   private String currentPath(String currentUrl) {
     String url = Objects.toString(currentUrl, "");
     if (url.isBlank()) {

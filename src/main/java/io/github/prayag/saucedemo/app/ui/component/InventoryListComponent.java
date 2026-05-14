@@ -15,19 +15,28 @@ import org.openqa.selenium.WebElement;
 @Slf4j
 public class InventoryListComponent extends BaseComponent {
 
-  private final By rootLocator;
+  private enum ListContext {
+    INVENTORY,
+    CART
+  }
 
-  private InventoryListComponent(WebDriver driver, By rootLocator) {
+  private final By rootLocator;
+  private final ListContext context;
+
+  private InventoryListComponent(WebDriver driver, By rootLocator, ListContext context) {
     super(driver);
     this.rootLocator = rootLocator;
+    this.context = context;
   }
 
   public static InventoryListComponent inventory(WebDriver driver) {
-    return new InventoryListComponent(driver, By.cssSelector("[data-test='inventory-list']"));
+    return new InventoryListComponent(
+        driver, By.cssSelector("[data-test='inventory-list']"), ListContext.INVENTORY);
   }
 
   public static InventoryListComponent cart(WebDriver driver) {
-    return new InventoryListComponent(driver, By.cssSelector("[data-test='cart-list']"));
+    return new InventoryListComponent(
+        driver, By.cssSelector("[data-test='cart-list']"), ListContext.CART);
   }
 
   /**
@@ -108,10 +117,9 @@ public class InventoryListComponent extends BaseComponent {
   @Step("Remove product '{0}' from cart")
   public InventoryListComponent removeProductFromCart(String name) {
     log.info("Removing product from cart: {}", name);
-    boolean cartList = rootLocator.toString().contains("cart-list");
     int startingCount = getListItemsCount();
     getProductItemByName(name).removeFromCart();
-    if (cartList) {
+    if (context == ListContext.CART) {
       waitForItemCount(startingCount - 1);
     } else {
       waitForActionButtonText(name, "Add to cart");

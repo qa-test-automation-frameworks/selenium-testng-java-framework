@@ -135,6 +135,14 @@ If the initial report is not enough, rerun with a tighter scope and additional d
 
 Use headed mode when you need to watch the UI. Use network logs only when they add value, because browser support varies and unsupported sessions will attach an explicit unavailable message.
 
+For the opt-in accessibility smoke suite, run the dedicated suite file so the report stays focused on accessibility findings:
+
+```powershell
+.\mvnw.cmd test '-Dtestng.suite.file=testng-accessibility.xml' '-Dgroups=accessibility' -Dheadless=true -Dbrowser=CHROME
+```
+
+The resulting Allure run includes an `Accessibility baseline findings` attachment for blocking issues and an `Accessibility structural advisories` attachment for non-blocking observations that still deserve review.
+
 ## 9. Debug CI failures
 
 In GitHub Actions:

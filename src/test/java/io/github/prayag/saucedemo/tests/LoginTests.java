@@ -10,6 +10,7 @@ import io.github.prayag.saucedemo.app.ui.component.HeaderComponent;
 import io.github.prayag.saucedemo.app.ui.page.InventoryPage;
 import io.github.prayag.saucedemo.app.ui.page.LoginPage;
 import io.github.prayag.saucedemo.framework.config.ConfigFactory;
+import io.github.prayag.saucedemo.framework.listener.Retryable;
 import io.github.prayag.saucedemo.tests.data.LoginScenario;
 import io.github.prayag.saucedemo.tests.data.LoginScenario.InvalidLoginCase;
 import io.github.prayag.saucedemo.tests.data.ProductCatalog;
@@ -153,6 +154,32 @@ public class LoginTests extends BaseTestCase {
   }
 
   @Test(
+      testName = "Verify error user can still reach inventory",
+      description =
+          "Logs in as Sauce Demo's error user and verifies the framework can still establish the inventory landing page before deeper scenario coverage.",
+      groups = {TestGroups.PERSONA, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
+  @Story("Distinctive user personas")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyErrorUserCanReachInventory() {
+    var config = ConfigFactory.getConfig();
+    assumePasswordConfigured();
+
+    InventoryPage inventoryPage =
+        pages()
+            .login()
+            .login(
+                new LoginRequest(
+                    config.appUrl(),
+                    LoginScenario.errorUser().username(),
+                    LoginScenario.errorUser().password()));
+
+    assertThat(inventoryPage.getAppLogoText())
+        .as("Error user should still be able to reach the inventory page")
+        .isEqualTo(AppConstants.HEADER_TITLE);
+  }
+
+  @Test(
       testName = "Verify performance glitch user eventually reaches inventory",
       description =
           "Logs in as Sauce Demo's performance glitch user and verifies the framework waits long enough for the delayed inventory page.",
@@ -160,6 +187,8 @@ public class LoginTests extends BaseTestCase {
       timeOut = TestTimeouts.SLOW_PERSONA_TIMEOUT_MS)
   @Story("Distinctive user personas")
   @Severity(SeverityLevel.NORMAL)
+  @Retryable(
+      reason = "Demonstrates the portfolio retry flow for an intentionally slow persona login")
   public void verifyPerformanceGlitchUserReachesInventory() {
     var config = ConfigFactory.getConfig();
     assumePasswordConfigured();

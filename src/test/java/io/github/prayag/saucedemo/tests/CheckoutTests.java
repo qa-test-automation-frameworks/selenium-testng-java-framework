@@ -110,6 +110,33 @@ public class CheckoutTests extends BaseTestCase {
         .isEqualTo("Thank you for your order!");
   }
 
+  @Test(
+      testName = "Verify checkout accepts varied generated customer information",
+      description =
+          "Completes checkout with deterministic varied customer data so the suite is not limited to a single static identity fixture.",
+      groups = {TestGroups.CHECKOUT, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
+  @Story("Checkout completion")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyCheckoutAcceptsVariedGeneratedCustomerInformation() {
+    CheckoutPage checkoutPage = addBackpackToCartAndOpenCheckout();
+    CheckoutInformation variedInformation =
+        CheckoutScenario.variedInformation(
+            "verifyCheckoutAcceptsVariedGeneratedCustomerInformation");
+
+    CheckoutCompletePage completePage =
+        checkoutPage
+            .submitValidCheckoutInformation(
+                variedInformation.firstName(),
+                variedInformation.lastName(),
+                variedInformation.postalCode())
+            .finishCheckout();
+
+    assertThat(completePage.getConfirmationMessage())
+        .as("Checkout should succeed with deterministic varied customer information")
+        .isEqualTo("Thank you for your order!");
+  }
+
   private CheckoutPage addBackpackToCartAndOpenCheckout() {
     InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
     HeaderComponent header = pages().header();

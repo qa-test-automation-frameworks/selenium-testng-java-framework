@@ -1,0 +1,13 @@
+# BrowserStack remote execution example
+# Copy to a private external file (for example browserstack.properties) and run with:
+#   .\mvnw.cmd clean test '-Dconfig.file=C:\path\to\browserstack.properties' -Dgroups=inventory,cart
+app.url=https://www.saucedemo.com/
+execution.type=remote
+remote.url=https://hub-cloud.browserstack.com/wd/hub
+browser=CHROME
+browser.version=latest
+platform.name=Windows 11
+headless=true
+thread.count=1
+remote.capabilities={"browserstack:options":{"projectName":"ta-java-selenium-testng","buildName":"portfolio-run","sessionName":"Sauce Demo smoke","local":false}}
+

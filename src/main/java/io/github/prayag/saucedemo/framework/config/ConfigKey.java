@@ -18,8 +18,8 @@ enum ConfigKey {
   VIEWPORT_HEIGHT("viewport.height", "1080"),
   THREAD_COUNT("thread.count", "1"),
   APP_URL("app.url", "https://www.saucedemo.com/"),
-  APP_USERNAME("APP_USERNAME", "standard_user"),
-  APP_PASSWORD("APP_PASSWORD", ""),
+  APP_USERNAME("app.username", "standard_user"),
+  APP_PASSWORD("app.password", ""),
   SENSITIVE_DOM_SELECTORS(
       "diagnostics.sensitive.dom.selectors",
       "input[type='password'], input[name*='password'], input[id*='password'], "
@@ -36,6 +36,8 @@ enum ConfigKey {
   POLLING_INTERVAL_MS("polling.interval.ms", "500"),
   NETWORK_LOGS_ENABLED("diagnostics.network.logs.enabled", "false"),
   GRID_VIDEO_BASE_URL("diagnostics.grid.video.base.url", ""),
+  VISUAL_AUTO_APPROVE("visual.auto.approve", "false"),
+  VISUAL_BASELINE_DIR("visual.baseline.dir", "target/visual-baselines"),
   ATTACH_SCREENSHOT_ON_FAILURE("diagnostics.attach.screenshot.on.failure", "true"),
   ATTACH_PAGE_SOURCE_ON_FAILURE("diagnostics.attach.page.source.on.failure", "true"),
   ATTACH_BROWSER_LOGS_ON_FAILURE("diagnostics.attach.browser.logs.on.failure", "true"),

@@ -2,7 +2,7 @@
 
 This guide explains how to run tests in different environments and configurations.
 
-This repository is intentionally focused on UI automation execution. The `src/test/java` source set contains TestNG UI suites, test data, supporting orchestration, and narrow fast checks for pure framework logic.
+This repository is intentionally focused on UI automation execution. The `src/test/java` source set contains TestNG UI suites, test data, and supporting orchestration for browser-driven scenarios.
 
 ## Prerequisites
 - **JDK 21**
@@ -34,6 +34,7 @@ PowerShell examples must quote comma-separated groups and dotted Maven propertie
 - `-Dbrowser`: Browser type (`CHROME` default, `FIREFOX`, `EDGE`).
 - `-Dheadless`: Run in headless mode (`true`, `false`).
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
+- `-Dtestng.suite.file`: Select an alternative TestNG suite file, for example `testng-accessibility.xml` for the opt-in accessibility smoke path.
 - `-Dconfig.file`: Optional external properties file for private local overrides.
 - `-Dbrowser.version`, `-Dplatform.name`, `-Daccept.insecure.certs`, `-Dremote.capabilities`: Optional Selenium capability overrides for remote Grids and cloud providers. `remote.capabilities` must be a flat JSON object.
 - `-Dretry.enabled`: Enable retry analyzer for tests explicitly marked with `@Retryable(reason = "...")` when investigating infrastructure flakes.
@@ -46,6 +47,30 @@ PowerShell examples must quote comma-separated groups and dotted Maven propertie
 export APP_PASSWORD="<set-outside-repository>"
 ./mvnw clean verify -Dgroups=smoke
 ```
+
+### Opt-In Accessibility Smoke
+Run the dedicated accessibility suite without changing the default regression suite:
+
+```powershell
+.\mvnw.cmd test '-Dtestng.suite.file=testng-accessibility.xml' '-Dgroups=accessibility' -Dheadless=true -Dbrowser=CHROME
+```
+
+The accessibility suite is intentionally narrow and focuses on stable blocking baseline checks plus separate structural advisories, so it remains a reliable extension point instead of a noisy default gate.
+
+### Opt-In Visual Regression Scaffold
+Run the dedicated visual suite with baseline approval enabled on the first reviewed run:
+
+```powershell
+.\mvnw.cmd test '-Dtestng.suite.file=testng-visual.xml' '-Dgroups=visual' -Dheadless=true -Dbrowser=CHROME -Dvisual.auto.approve=true
+```
+
+Subsequent comparison runs can omit `-Dvisual.auto.approve=true` and optionally point to a different baseline directory:
+
+```powershell
+.\mvnw.cmd test '-Dtestng.suite.file=testng-visual.xml' '-Dgroups=visual' -Dheadless=true -Dbrowser=CHROME '-Dvisual.baseline.dir=target\visual-baselines'
+```
+
+The first version intentionally compares approved screenshot hashes rather than introducing a heavier pixel-diff dependency into the default runtime.
 
 ## Remote Execution (Docker & Selenium Grid)
 The framework includes a `docker-compose.yml` to spin up a Selenium Grid.
@@ -69,6 +94,15 @@ docker compose --profile edge up --build --exit-code-from test-runner
 ```
 
 The Docker `test-runner` waits for Selenium Grid readiness before invoking Maven.
+
+### Cloud Grid Example (BrowserStack)
+An example property file is available at `src/test/resources/browserstack.properties.example`. Copy it to a private external file, replace the placeholder/provider-specific values as needed, and run:
+
+```powershell
+.\mvnw.cmd clean test '-Dconfig.file=C:\path\to\browserstack.properties' '-Dgroups=inventory,cart'
+```
+
+The framework accepts nested capability objects in `remote.capabilities`, so provider-specific namespaces such as `browserstack:options` work without further code changes.
 
 Docker Compose also accepts `GROUPS`, `THREAD_COUNT`, `HEADLESS`, `RETRY_ENABLED`, and `ALLOW_PASSWORDLESS_SKIPS` environment variables:
 
@@ -114,11 +148,6 @@ To run the same non-UI quality checks used in CI:
 ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
 ```
 
-Run the fast framework checks without browser startup:
-
-```bash
-./mvnw test -Dgroups=framework
-```
 
 ## SBOM
 Generate a CycloneDX software bill of materials with:

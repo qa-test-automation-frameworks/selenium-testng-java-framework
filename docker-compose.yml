@@ -12,7 +12,10 @@ services:
   chrome:
     image: selenium/node-chrome:4.43.0@sha256:9e60c032f8f0950bb962868e73263fb503cb6fbf3f14fdd31e81c1f14b6f247b
     shm_size: 2gb
-    mem_limit: 2g
+    deploy:
+      resources:
+        limits:
+          memory: 2g
     depends_on:
       - selenium-hub
     environment:
@@ -23,7 +26,10 @@ services:
   firefox:
     image: selenium/node-firefox:4.43.0@sha256:16a61877cfa7da429504c443c5584645638e2050f2a575a88c14c477d1c4bdea
     shm_size: 2gb
-    mem_limit: 2g
+    deploy:
+      resources:
+        limits:
+          memory: 2g
     depends_on:
       - selenium-hub
     environment:
@@ -34,7 +40,10 @@ services:
   edge:
     image: selenium/node-edge:4.43.0@sha256:61a61df6ce223f5f9f09acb21c9fbdab289a73d21bdd7c42eedf9e97a4e2c8bf
     shm_size: 2gb
-    mem_limit: 2g
+    deploy:
+      resources:
+        limits:
+          memory: 2g
     depends_on:
       - selenium-hub
     environment:

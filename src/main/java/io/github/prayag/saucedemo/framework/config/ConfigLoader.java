@@ -22,8 +22,10 @@ public final class ConfigLoader {
     loadEnvironmentProfile(
         properties, sources.classLoader(), environment, sources.systemProperties());
     loadFromExternalPathIfPresent(properties, sources.systemProperties());
+    applyLegacyCredentialAliases(properties);
     applyEnvironmentOverrides(properties, sources.environment());
     applySystemPropertyOverrides(properties, sources.systemProperties());
+    applyLegacyCredentialAliases(properties);
 
     FrameworkConfig config = new DefaultFrameworkConfig(properties);
     validateConfig(config);
@@ -139,15 +141,33 @@ public final class ConfigLoader {
   }
 
   private void applySystemPropertyOverrides(Properties properties, Properties systemProperties) {
-    properties
-        .stringPropertyNames()
-        .forEach(
-            key -> {
-              String value = systemProperties.getProperty(key);
-              if (value != null) {
-                properties.setProperty(key, value);
-              }
-            });
+    for (ConfigKey configKey : ConfigKey.values()) {
+      String exactValue = systemProperties.getProperty(configKey.key());
+      String environmentAliasValue = systemProperties.getProperty(configKey.environmentName());
+      if (exactValue != null) {
+        properties.setProperty(configKey.key(), exactValue);
+      } else if (environmentAliasValue != null) {
+        properties.setProperty(configKey.key(), environmentAliasValue);
+      }
+    }
+  }
+
+  private void applyLegacyCredentialAliases(Properties properties) {
+    migrateLegacyCredentialAlias(properties, "APP_USERNAME", ConfigKey.APP_USERNAME.key());
+    migrateLegacyCredentialAlias(properties, "APP_PASSWORD", ConfigKey.APP_PASSWORD.key());
+  }
+
+  private void migrateLegacyCredentialAlias(
+      Properties properties, String legacyKey, String normalizedKey) {
+    String legacyValue = properties.getProperty(legacyKey);
+    if (legacyValue == null) {
+      return;
+    }
+
+    String currentValue = properties.getProperty(normalizedKey);
+    if (currentValue == null || currentValue.isBlank()) {
+      properties.setProperty(normalizedKey, legacyValue);
+    }
   }
 
   private void validateConfig(FrameworkConfig config) {
@@ -159,6 +179,7 @@ public final class ConfigLoader {
     config.allowPasswordlessSkips();
     config.retryEnabled();
     config.networkLogsEnabled();
+    config.visualAutoApprove();
     config.attachScreenshotsOnFailure();
     config.attachPageSourceOnFailure();
     config.attachBrowserLogsOnFailure();
@@ -178,6 +199,9 @@ public final class ConfigLoader {
     }
     if (config.appUsername() == null || config.appUsername().isBlank()) {
       throw new FrameworkConfigurationException("APP_USERNAME must be provided");
+    }
+    if (config.visualBaselineDir() == null || config.visualBaselineDir().isBlank()) {
+      throw new FrameworkConfigurationException("visual.baseline.dir must be provided");
     }
   }
 
@@ -305,12 +329,12 @@ public final class ConfigLoader {
 
     @Override
     public String appUsername() {
-      return get("APP_USERNAME");
+      return get(ConfigKey.APP_USERNAME.key());
     }
 
     @Override
     public String appPassword() {
-      return get("APP_PASSWORD");
+      return get(ConfigKey.APP_PASSWORD.key());
     }
 
     @Override
@@ -361,6 +385,16 @@ public final class ConfigLoader {
     @Override
     public String gridVideoBaseUrl() {
       return get("diagnostics.grid.video.base.url");
+    }
+
+    @Override
+    public boolean visualAutoApprove() {
+      return getBoolean("visual.auto.approve");
+    }
+
+    @Override
+    public String visualBaselineDir() {
+      return get("visual.baseline.dir");
     }
 
     @Override

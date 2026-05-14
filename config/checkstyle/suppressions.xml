@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+  <!-- Allow stable domain literals in test-data fixtures without weakening framework-code rules. -->
+  <suppress
+      checks="MagicNumber"
+      files="[\\/]src[\\/]test[\\/]java[\\/].*[\\/]tests[\\/]data[\\/].*\.java"/>
+</suppressions>
+

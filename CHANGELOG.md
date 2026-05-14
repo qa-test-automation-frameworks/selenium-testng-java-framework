@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Dedicated `CheckoutTests` coverage with a data-driven invalid-checkout `@DataProvider`.
 - Postal-code-required checkout validation coverage.
 - `CHANGELOG.md` and README links to the live Allure report and project history.
-- ADR 005 documenting why this UI automation repository keeps only narrow fast checks for pure framework logic.
+- ADR 005 documenting why this UI automation repository avoids framework unit tests and keeps validation browser-driven.
 - Valid UI login, protected-route negative coverage, and a full end-to-end shopping journey.
 - Checkout overview assertions for selected product, item total, tax, and final total.
 - Debugging guide with real failed Allure report screenshots and artifact triage guidance.

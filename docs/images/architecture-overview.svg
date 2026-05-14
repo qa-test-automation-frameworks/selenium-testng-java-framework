@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="320" viewBox="0 0 980 320" role="img" aria-labelledby="title desc">
+  <title id="title">UI automation framework architecture overview</title>
+  <desc id="desc">A high-level architecture diagram showing GitHub Actions and local Maven driving TestNG, configuration, page objects, ThreadLocal WebDriver, and Selenium Grid.</desc>
+  <style>
+    .title { font: 700 26px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+    .label { font: 600 16px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+    .small { font: 500 13px 'Segoe UI', Arial, sans-serif; fill: #334155; }
+    .box { fill: #f8fafc; stroke: #2563eb; stroke-width: 2; rx: 14; ry: 14; }
+    .boxAlt { fill: #eff6ff; stroke: #0284c7; stroke-width: 2; rx: 14; ry: 14; }
+    .arrow { stroke: #475569; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
+    </marker>
+  </defs>
+  <text x="40" y="42" class="title">UI Test Automation Framework Architecture</text>
+  <rect x="40" y="90" width="180" height="74" class="box" />
+  <text x="72" y="120" class="label">GitHub Actions /</text>
+  <text x="89" y="143" class="label">Local Maven</text>
+  <text x="69" y="162" class="small">CI entry point and local runner</text>
+  <rect x="280" y="90" width="160" height="74" class="boxAlt" />
+  <text x="337" y="126" class="label">TestNG</text>
+  <text x="309" y="145" class="small">Suite orchestration and groups</text>
+  <rect x="500" y="40" width="180" height="74" class="box" />
+  <text x="541" y="76" class="label">Typed Config</text>
+  <text x="523" y="95" class="small">Defaults ? profiles ? env ? -D</text>
+  <rect x="500" y="150" width="180" height="74" class="box" />
+  <text x="536" y="186" class="label">Page Objects</text>
+  <text x="515" y="205" class="small">Pages + components + explicit waits</text>
+  <rect x="740" y="40" width="190" height="74" class="boxAlt" />
+  <text x="771" y="76" class="label">ThreadLocal Driver</text>
+  <text x="773" y="95" class="small">Per-thread browser isolation</text>
+  <rect x="740" y="150" width="190" height="74" class="box" />
+  <text x="781" y="186" class="label">Selenium Grid</text>
+  <text x="781" y="205" class="small">Chrome / Firefox / Edge</text>
+  <rect x="500" y="250" width="430" height="42" class="boxAlt" />
+  <text x="545" y="276" class="label">Allure + diagnostics + redaction + optional accessibility smoke</text>
+  <path d="M220 127 H280" class="arrow" />
+  <path d="M440 127 H500" class="arrow" />
+  <path d="M440 127 C470 127, 470 187, 500 187" class="arrow" />
+  <path d="M680 77 H740" class="arrow" />
+  <path d="M680 187 H740" class="arrow" />
+  <path d="M835 114 V150" class="arrow" />
+  <path d="M590 224 V250" class="arrow" />
+  <path d="M835 224 V250" class="arrow" />
+</svg>

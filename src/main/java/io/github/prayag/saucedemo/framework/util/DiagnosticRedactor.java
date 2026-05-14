@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 /** Redacts common sensitive values from diagnostic payloads before they are attached to reports. */
 public final class DiagnosticRedactor {
 
+  // Default patterns catch broad secret/token shapes that can appear in logs, HTML, headers, or
+  // copied exception messages even before framework-specific values are considered.
   private static final List<Pattern> DEFAULT_PATTERNS =
       List.of(
           Pattern.compile("(?i)(password[\"'=:\\s>]+)([^\"'\\s<&,;]+)"),
@@ -45,6 +47,8 @@ public final class DiagnosticRedactor {
 
   static List<Pattern> buildPatterns(FrameworkConfig config) {
     List<Pattern> patterns = new ArrayList<>(DEFAULT_PATTERNS);
+    // Add concrete configured credentials last so exact runtime values are removed even when they
+    // appear outside the generic token/header formats above.
     if (config.appPassword() != null && !config.appPassword().isBlank()) {
       patterns.add(Pattern.compile(Pattern.quote(config.appPassword())));
     }

@@ -223,4 +223,27 @@ public class InventoryTests extends BaseTestCase {
         .as("Added product action button should switch to Remove")
         .isEqualTo("Remove");
   }
+
+  @Test(
+      testName = "Verify every catalog product can be added to cart",
+      description =
+          "Adds the entire fixed Sauce Demo catalog to the cart and verifies both the cart badge and cart list counts match the full catalog size.",
+      groups = {TestGroups.INVENTORY, TestGroups.CART, TestGroups.REGRESSION},
+      timeOut = TestTimeouts.STANDARD_UI_TIMEOUT_MS)
+  @Story("Inventory cart controls")
+  @Severity(SeverityLevel.NORMAL)
+  public void verifyEveryCatalogProductCanBeAddedToCart() {
+    InventoryPage inventoryPage = pages().inventory().waitUntilLoaded();
+    HeaderComponent header = pages().header();
+
+    ProductCatalog.allProductNames().forEach(inventoryPage::addProductToCart);
+    header.waitForProductAddedToCartCount(ProductCatalog.EXPECTED_PRODUCT_COUNT);
+
+    assertThat(header.getProductAddedToCartCount())
+        .as("Cart badge should match the full fixed catalog size")
+        .isEqualTo(ProductCatalog.EXPECTED_PRODUCT_COUNT);
+    assertThat(header.navigateToCart().getInventoryList().getListItemsCount())
+        .as("Cart page should contain every catalog product after bulk add")
+        .isEqualTo(ProductCatalog.EXPECTED_PRODUCT_COUNT);
+  }
 }

@@ -4,6 +4,9 @@ import io.github.prayag.saucedemo.framework.config.ConfigFactory;
 
 public final class LoginScenario {
 
+  private static final Credentials INVALID_CREDENTIALS =
+      new Credentials("invalid_user", "invalid_password");
+
   private LoginScenario() {}
 
   public static Credentials lockedOutUser() {
@@ -14,12 +17,16 @@ public final class LoginScenario {
     return SauceDemoUser.PROBLEM.credentials(ConfigFactory.getConfig().appPassword());
   }
 
+  public static Credentials errorUser() {
+    return SauceDemoUser.ERROR.credentials(ConfigFactory.getConfig().appPassword());
+  }
+
   public static Credentials performanceGlitchUser() {
     return SauceDemoUser.PERFORMANCE_GLITCH.credentials(ConfigFactory.getConfig().appPassword());
   }
 
   public static Credentials invalidUser() {
-    return new Credentials("invalid_user", "invalid_password");
+    return INVALID_CREDENTIALS;
   }
 
   public static Credentials emptyCredentials() {

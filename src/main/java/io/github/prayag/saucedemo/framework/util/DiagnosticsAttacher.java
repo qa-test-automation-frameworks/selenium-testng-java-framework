@@ -7,8 +7,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
@@ -33,6 +36,7 @@ public final class DiagnosticsAttacher {
 
     log.info("Attaching {} diagnostics to Allure report", label);
     FrameworkConfig config = ConfigFactory.getConfig();
+    safeAttach("Execution Environment", () -> attachExecutionEnvironment(driver, config));
     safeAttach("Sensitive DOM Masking", () -> maskSensitiveDom(driver, config));
     if (config.attachScreenshotsOnFailure()) {
       safeAttach("Screenshot", () -> attachScreenshot(driver));
@@ -169,17 +173,46 @@ public final class DiagnosticsAttacher {
       return;
     }
 
-    List<String> allLines = Files.readAllLines(FRAMEWORK_LOG_PATH);
     String threadMarker = "[" + Thread.currentThread().getName() + "]";
-    List<String> matchingThreadLines =
-        allLines.stream().filter(line -> line.contains(threadMarker)).toList();
-    List<String> excerptSource = matchingThreadLines.isEmpty() ? allLines : matchingThreadLines;
-    int fromIndex = Math.max(0, excerptSource.size() - MAX_LOG_LINES);
-    String excerpt =
-        String.join(System.lineSeparator(), excerptSource.subList(fromIndex, excerptSource.size()));
+    Deque<String> recentLines = new ArrayDeque<>(MAX_LOG_LINES);
+    Deque<String> recentThreadLines = new ArrayDeque<>(MAX_LOG_LINES);
+
+    try (Stream<String> lines = Files.lines(FRAMEWORK_LOG_PATH)) {
+      lines.forEach(
+          line -> {
+            appendBounded(recentLines, line);
+            if (line.contains(threadMarker)) {
+              appendBounded(recentThreadLines, line);
+            }
+          });
+    }
+
+    Deque<String> excerptSource = recentThreadLines.isEmpty() ? recentLines : recentThreadLines;
+    String excerpt = String.join(System.lineSeparator(), excerptSource);
     if (!excerpt.isBlank()) {
       Allure.addAttachment("Framework Log Excerpt", "text/plain", redact(excerpt), ".log");
     }
+  }
+
+  private void appendBounded(Deque<String> lines, String line) {
+    if (lines.size() == MAX_LOG_LINES) {
+      lines.removeFirst();
+    }
+    lines.addLast(line);
+  }
+
+  private void attachExecutionEnvironment(WebDriver driver, FrameworkConfig config) {
+    String environmentSummary =
+        String.join(
+            System.lineSeparator(),
+            "Environment: " + config.environment(),
+            "Browser: " + config.browser(),
+            "Execution type: " + config.executionType(),
+            "Headless: " + config.headless(),
+            "Thread: " + Thread.currentThread().getName(),
+            "Current URL: " + driver.getCurrentUrl(),
+            "Page title: " + driver.getTitle());
+    Allure.addAttachment("Execution Environment", safeAttachmentText(environmentSummary));
   }
 
   private String redact(String rawValue) {

@@ -22,7 +22,7 @@ public class ProductDetailPage extends BasePage implements PageLoadable<ProductD
 
   @Override
   public ProductDetailPage waitUntilLoaded() {
-    waitUntilPathEndsWith(AppRoute.PRODUCT_DETAIL.path());
+    waitUntilPathContains(AppRoute.PRODUCT_DETAIL.path());
     waitUtils.waitUntilVisible(ProductSelectors.DETAIL_ROOT);
     productDetailRoot().findElement(ProductSelectors.NAME);
     waitUtils.waitUntilVisible(BACK_BUTTON);

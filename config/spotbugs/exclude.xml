@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
-    <!-- Reserved for narrowly scoped TestNG false positives as the UI suite grows. -->
+    <!-- Intentionally empty: keep the bug-detection bar strict until a documented, narrowly scoped
+         false positive appears. Add only targeted exclusions with an inline rationale. -->
 </FindBugsFilter>

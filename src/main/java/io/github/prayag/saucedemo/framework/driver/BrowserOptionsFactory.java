@@ -93,7 +93,7 @@ public final class BrowserOptionsFactory {
           });
     } catch (RuntimeException e) {
       throw new FrameworkConfigurationException(
-          "remote.capabilities must be a flat JSON object of Selenium capabilities", e);
+          "remote.capabilities must be a JSON object of Selenium capabilities", e);
     }
   }
 

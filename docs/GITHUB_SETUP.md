@@ -25,7 +25,7 @@ Recommended required checks for `main`:
 
 Also require pull request review, require branches to be up to date, and restrict direct pushes to maintainers.
 
-An optional settings-as-code example is available in [GitHub Ruleset Example](GITHUB_RULESET_EXAMPLE.md).
+An optional settings-as-code example is available in [GitHub Ruleset Example](GITHUB_RULESET_EXAMPLE.md), and a repository-ready ruleset artifact is committed at `.github/rulesets/main-protection.json`.
 
 ## Repository-Specific Values
 
@@ -42,3 +42,6 @@ The bundled GitHub Actions workflow already passes the repository-specific Allur
 ## Dependency Governance
 
 Dependabot opens weekly PRs for Maven, Docker, and GitHub Actions updates. The scheduled `dependency-governance` job uploads Maven dependency/plugin update reports and a CycloneDX SBOM.
+
+The scheduled UI regression workflow also opens or updates a `scheduled-failure` GitHub issue automatically if the weekday scheduled run fails, so recurring CI health problems are visible without external chat integrations.
+

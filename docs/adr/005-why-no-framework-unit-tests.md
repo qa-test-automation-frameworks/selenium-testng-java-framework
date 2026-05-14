@@ -1,15 +1,15 @@
-# ADR 005: Allow Narrow Fast Framework Checks
+# ADR 005: Why No Framework Unit Tests
 
 ## Status
-Amended
+Accepted
 
 ## Context
 This repository is intentionally a UI test automation framework. In the SDLC, it acts as the test layer that validates user-facing application behavior through browser automation. The framework code exists to support those UI tests with configuration, driver lifecycle, waits, page objects, reporting, diagnostics, and CI execution.
 
-Broad framework unit-test coverage would increase maintenance cost without improving application confidence for this portfolio scope. However, the framework now contains pure, side-effect-light logic where narrow fast checks prevent expensive browser-only feedback: configuration validation, redaction behavior, and retry aggregation.
+Adding framework-only tests creates a second validation strategy that increases maintenance cost, encourages testing implementation details instead of user behavior, and dilutes the repository's purpose as a browser-driven automation portfolio.
 
 ## Decision
-Browser UI tests remain the primary validation layer. Narrow TestNG fast checks are allowed for pure framework logic such as configuration parsing, diagnostic redaction, and retry registry behavior. These checks use the `framework` group and must not initialize WebDriver or duplicate browser scenario coverage.
+Browser UI tests remain the only automated validation layer in this repository. Do not add framework unit tests or framework-only TestNG suites. Changes to framework code are validated through executable UI scenarios, static analysis, quality gates, and code review.
 
 ## Consequences
-The repository keeps a UI automation focus while gaining cheap feedback for high-risk helper logic. Changes to page objects and user flows are still validated through browser scenarios, quality gates, and code review.
+The repository stays focused on business-visible automation outcomes. Pure helper logic may take a little longer to validate, but the codebase avoids a growing side test harness that provides limited portfolio value. When framework code changes, prefer strengthening an existing UI scenario or adding a new user-observable browser scenario instead of adding isolated helper tests.

@@ -14,7 +14,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
 - **Why cookie auth shortcuts?** Non-login scenarios bypass the UI login form to keep the suite faster and less flaky while retaining dedicated login coverage.
 - **Why explicit waits only?** A single synchronization strategy keeps the framework deterministic and easier to debug.
-- **Why limited framework checks?** Browser UI scenarios remain the primary validation layer, while narrow fast checks cover pure framework logic such as configuration, redaction, and retry aggregation. See [ADR 005](docs/adr/005-why-no-framework-unit-tests.md).
+- **Why no framework tests?** This repository stays focused on browser-driven user flows. Framework code is validated through UI scenarios, quality gates, and review rather than isolated helper tests. See [ADR 005](docs/adr/005-why-no-framework-unit-tests.md).
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
@@ -22,7 +22,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md) - How to use Allure artifacts, logs, screenshots, and CI outputs to diagnose failures.
 - [GitHub Setup Guide](docs/GITHUB_SETUP.md) - Required secrets, Pages, branch protection, and workflow checks.
-- [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project keeps only narrow fast framework checks.
+- [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project does not add framework unit tests.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
 ## Live Report
@@ -41,6 +41,8 @@ graph TD;
     WebDriver --> Grid[Docker Selenium Grid];
 ```
 
+![Architecture overview](docs/images/architecture-overview.svg)
+
 ## Features
 - Java 21 and Maven wrapper for repeatable local and CI execution.
 - Selenium Grid support through Docker Compose.
@@ -48,7 +50,9 @@ graph TD;
 - Page objects and reusable page components with explicit, caller-controlled page readiness checks.
 - `src/main/java` contains reusable automation framework and app page-object code; `src/test/java` contains executable TestNG scenarios and test data.
 - TestNG groups, parallel method execution, and opt-in retry support.
-- Allure reports with redacted screenshots, URL, page source, capabilities, console logs, network logs, and framework log excerpts on failure.
+- Opt-in accessibility smoke coverage through a dedicated `accessibility` suite.
+- Opt-in visual regression scaffold through a dedicated `visual` suite and baseline-manager helper.
+- Allure reports with redacted screenshots, URL, execution environment summary, page source, capabilities, console logs, network logs, and bounded framework log excerpts on failure.
 - Spotless, Checkstyle, PMD, SpotBugs, and Maven Enforcer quality gates with stronger maintainability rules.
 - GitHub Actions browser matrix, artifact upload, and GitHub Pages publication for Allure reports.
 - Digest-pinned Docker and Selenium Grid images for reproducible container execution.
@@ -157,8 +161,26 @@ To generate an Allure report even when tests fail, use the helper scripts in `sc
 
 On `main`, GitHub Actions also starts Selenium Grid browser nodes per matrix entry, merges browser-matrix results, uploads the generated report as artifacts, and deploys the published report to GitHub Pages.
 
+Run the opt-in accessibility smoke suite locally:
+
+```powershell
+.\mvnw.cmd test '-Dtestng.suite.file=testng-accessibility.xml' '-Dgroups=accessibility' -Dheadless=true -Dbrowser=CHROME
+```
+
+The accessibility suite fails only on blocking baseline issues and records structural advisories as separate Allure attachments so known third-party app quirks remain visible without destabilizing the default regression path.
+
+Run the opt-in visual regression scaffold locally:
+
+```powershell
+.\mvnw.cmd test '-Dtestng.suite.file=testng-visual.xml' '-Dgroups=visual' -Dheadless=true -Dbrowser=CHROME -Dvisual.auto.approve=true
+```
+
+The first reviewed run can approve a baseline hash with `-Dvisual.auto.approve=true`. Later runs compare against the approved hash in `visual.baseline.dir`.
+
+For cloud-grid execution examples, see `src/test/resources/browserstack.properties.example` and the remote-execution section in the Execution Guide.
+
 ## Configuration
-Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`. Environment variable overrides apply only to known configuration keys, and `APP_PASSWORD` is a known blank-by-default key so secret injection works through environment variables and Maven system properties.
+Configuration is loaded from built-in safe defaults, optional classpath resources (`config.properties`, profile files such as `qa.properties` / `dev.properties`), an optional external file supplied via `-Dconfig.file`, environment variables, and system properties. Later sources override earlier ones, so Maven `-D` values have the highest priority. The active environment resolves in this order: `-Denv`, environment variable `ENV`, environment variable `env`, then `qa`. The default `qa` environment can run from built-in safe defaults. Non-default environments must have a matching classpath profile or an external `-Dconfig.file`; otherwise startup fails loudly. Public-safe examples live in `src/test/resources/*.example`; keep private local overrides in an ignored external file and pass it with `-Dconfig.file`. Environment variable overrides apply only to known configuration keys, and normalized credential keys (`app.username`, `app.password`) still map automatically from `APP_USERNAME` and `APP_PASSWORD` for CI-friendly secret injection.
 
 The `.env.example` file is a convenience template for Docker Compose or for manually exporting shell variables. Local Maven runs do not auto-load `.env`.
 
@@ -199,7 +221,7 @@ The Allure issue-link pattern defaults to this repository and can be overridden 
 
 ## Fork Setup Notes
 
-After forking, update the badge URLs, repository secrets, branch protection required checks, GitHub Pages settings, and the `allure.issue.pattern` Maven property to match the fork owner and repository name. See [GitHub Setup Guide](docs/GITHUB_SETUP.md).
+After forking, update the badge URLs, repository secrets, branch protection required checks, GitHub Pages settings, and the `allure.issue.pattern` Maven property to match the fork owner and repository name. A ready-to-apply branch ruleset lives at `.github/rulesets/main-protection.json`. See [GitHub Setup Guide](docs/GITHUB_SETUP.md).
 
 ## Current Limitations
 

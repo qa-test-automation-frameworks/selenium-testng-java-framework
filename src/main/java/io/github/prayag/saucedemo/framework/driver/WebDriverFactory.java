@@ -67,7 +67,7 @@ public class WebDriverFactory {
   /**
    * Creates a local WebDriver instance.
    *
-   * @param driverType The type of browser to create.
+   * @param browserType The type of browser to create.
    * @return A local WebDriver instance.
    */
   private static WebDriver createLocalDriver(BrowserType browserType, FrameworkConfig config) {
@@ -105,7 +105,7 @@ public class WebDriverFactory {
   /**
    * Creates a remote WebDriver instance for execution on Selenium Grid.
    *
-   * @param driverType The type of browser.
+   * @param browserType The type of browser.
    * @param remoteUrl The Selenium Hub URL.
    * @return A RemoteWebDriver instance.
    */
@@ -186,6 +186,10 @@ public class WebDriverFactory {
     if (waitUtils != null && Objects.equals(WEB_DRIVER.get(), driver)) {
       return waitUtils;
     }
+    log.warn(
+        "Falling back to a new WaitUtils instance for thread {} because the provided driver"
+            + " did not match the thread-local driver",
+        Thread.currentThread().getName());
     return new WaitUtils(driver, ConfigFactory.getConfig());
   }
 }

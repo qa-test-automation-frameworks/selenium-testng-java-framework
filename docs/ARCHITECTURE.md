@@ -2,6 +2,8 @@
 
 This document describes the architectural design of the UI Test Automation Framework.
 
+![Architecture overview image](images/architecture-overview.svg)
+
 ## Overview
 The framework is built using **Java 21**, **Selenium WebDriver**, and **TestNG**. It follows a multi-layered approach to ensure scalability, maintainability, and parallel execution safety.
 
@@ -66,8 +68,8 @@ graph LR
 ### 4. Test Layer (`tests`)
 - **BaseTestCase**: Handles setup (`BeforeMethod`) and teardown (`AfterMethod`) of the driver.
 - **UITests**: Implementation of business scenarios, including focused negative checks and end-to-end user journeys that increase coverage quality without inflating metrics.
+- **Accessibility Smoke**: An opt-in `testng-accessibility.xml` suite runs a narrow baseline accessibility probe without polluting the default functional regression path.
 - **AssertJ**: Used for fluent, descriptive assertions with business-level error messages.
-- **Fast Framework Checks**: Narrow TestNG checks under the `framework` group cover pure configuration, redaction, and retry aggregation logic without starting browsers.
 
 ### 5. Reporting Layer (`io.github.prayag.saucedemo.framework.listener`)
 - **Allure Reporting**: Integrated via a custom listener to capture redacted URL/environment details, browser capabilities, configurable screenshots after DOM masking, redacted page source, configurable console logs, explicit unavailable diagnostics, optional network logs, optional Selenium Grid video links, configurable framework log excerpts, suite-level retry summaries, and Allure categories copied into generated results.
@@ -80,7 +82,7 @@ graph LR
 ## Design Principles
 - **Fail-Fast**: Configuration and environment checks happen at startup.
 - **Deterministic Waits**: Only explicit waits are used (no `Thread.sleep` or implicit waits).
-- **Automation-Focused Scope**: The repository emphasizes reusable UI automation architecture and end-to-end execution. ADR 005 allows only narrow fast checks for pure framework logic.
+- **Automation-Focused Scope**: The repository emphasizes reusable UI automation architecture and end-to-end execution. ADR 005 keeps automated validation focused on browser-driven scenarios instead of framework-only tests.
 - **Method-Level Isolation**: Each test method starts with a clean browser session. This is intentionally more expensive than driver reuse, but it keeps UI state leakage out of parallel runs.
 - **Clean Code**: Code style and bug-pattern detection are enforced via Checkstyle (Google Checks), Spotless, PMD, SpotBugs, and Maven Enforcer during `verify`.
 

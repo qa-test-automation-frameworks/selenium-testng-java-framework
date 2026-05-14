@@ -2,7 +2,7 @@
 
 Follow these guidelines when adding new tests or modifying existing ones.
 
-This repository is intentionally UI-automation-first. Keep `src/test/java` focused on TestNG UI scenarios, data providers, and test data. ADR 005 allows narrow fast checks only for pure helper logic such as configuration validation, redaction behavior, and retry aggregation.
+This repository is intentionally UI-automation-first. Keep `src/test/java` focused on TestNG UI scenarios, data providers, and test data. ADR 005 explicitly avoids framework-only tests so the repository stays centered on browser-observable behavior.
 
 ## Adding a New Page Object
 1. Create a new class in `src/main/java/io/github/prayag/saucedemo/app/ui/page`.
@@ -29,8 +29,12 @@ If a UI element is shared across multiple pages (e.g., a Footer):
 7. Add meaningful TestNG groups such as `smoke`, `login`, `inventory`, `cart`, or `regression`.
 8. Keep shared navigation or header assertions in dedicated coverage tests so unrelated scenarios fail for one clear reason.
 9. Add tests because they prove meaningful user behavior, not to inflate counts. Prefer focused negative cases and full user journeys that exercise realistic business paths.
-10. Do not add broad framework unit-test suites. ADR 005 allows narrow fast checks for pure helper logic such as configuration validation, redaction, and retry aggregation.
+10. Do not add framework unit tests or framework-only TestNG suites. If a framework change needs extra confidence, strengthen an existing UI scenario or add a new user-observable browser scenario instead.
 11. Use `@Retryable(reason = "...")` only for scenarios with a documented infrastructure timing risk. Do not use retries to hide product defects or weak waits.
+12. Prefer deterministic-but-varied test data for user-entered fields such as checkout names and postal codes. Keep fixed catalog expectations static, but avoid proving the workflow with only one identity fixture forever.
+13. Keep visual regression checks opt-in under the `visual` group. Approve baselines deliberately and avoid adding screenshot comparisons to the default functional regression path.
+
+The current suite includes one deliberate retry showcase on the performance-glitch persona login. Treat it as the reference example for future retryable scenarios.
 
 ### Example Test Annotation
 ```java
