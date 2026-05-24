@@ -91,7 +91,7 @@ jobs:
           ./mvnw versions:display-plugin-updates -Dmaven.version.rules=file://$PWD/config/versions/rules.xml > target/dependency-governance/plugin-updates.txt
 
       - name: Upload dependency update reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dependency-update-reports
           path: target/dependency-governance/*.txt
@@ -100,7 +100,7 @@ jobs:
         run: ./mvnw -Psbom -DskipTests verify
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cyclonedx-sbom
           path: target/*bom*.*
@@ -183,28 +183,28 @@ jobs:
 
       - name: Upload Allure results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-results-${{ matrix.browser }}
           path: target/allure-results/
 
       - name: Upload generated Allure report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-report-${{ matrix.browser }}
           path: target/allure-report/
 
       - name: Upload Surefire reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports-${{ matrix.browser }}
           path: target/surefire-reports/
 
       - name: Upload execution logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: execution-logs-${{ matrix.browser }}
           path: target/logs/
@@ -271,28 +271,28 @@ jobs:
 
       - name: Upload Allure results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-results-accessibility
           path: target/allure-results/
 
       - name: Upload generated Allure report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: allure-report-accessibility
           path: target/allure-report/
 
       - name: Upload Surefire reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports-accessibility
           path: target/surefire-reports/
 
       - name: Upload execution logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: execution-logs-accessibility
           path: target/logs/
