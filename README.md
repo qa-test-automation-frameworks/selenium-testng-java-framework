@@ -23,7 +23,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md) - How to use Allure artifacts, logs, screenshots, and CI outputs to diagnose failures.
 - [GitHub Setup Guide](docs/GITHUB_SETUP.md) - Required secrets, Pages, branch protection, and workflow checks.
 - [Portfolio Review Guide](docs/PORTFOLIO_REVIEW_GUIDE.md) - Fast path for reviewers to evaluate the framework design, CI, diagnostics, and test coverage.
-- [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project does not add framework unit tests.
+- [Architecture Decision Records](docs/adr/README.md) - Accepted tradeoffs for configuration, waits, auth shortcuts, source layout, validation scope, and optional extensions.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
 ## Live Report

@@ -12,6 +12,17 @@ Forked pull requests do not receive this secret and intentionally run only no-se
 
 Enable GitHub Pages with GitHub Actions as the source. The `publish-allure-report` job deploys the merged Allure report from `main` and exposes the Pages URL in the job environment.
 
+## Releases
+
+When a changelog section is closed with a version and date, publish the same version as an annotated git tag and GitHub Release. Use the `v` prefix for repository tags, for example `v1.1.0` for Maven version `1.1.0`.
+
+Before sharing the repository with reviewers, confirm that:
+
+- The latest `UI Tests` workflow on `main` is green.
+- The Allure Pages URL returns the published report.
+- The GitHub Releases page has a release matching the latest changelog version.
+- The tag list includes the matching `v<version>` tag.
+
 ## Required Checks
 
 Recommended required checks for `main`:
