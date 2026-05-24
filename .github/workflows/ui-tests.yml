@@ -143,7 +143,15 @@ jobs:
             docker compose up -d selenium-hub "$browser_service"
           fi
 
-          timeout 120 bash -c 'until curl -sf http://localhost:4444/status | grep -q '"'"'"ready"'"'"':true'; do sleep 2; done'
+          deadline=$((SECONDS + 120))
+          until curl -sf http://localhost:4444/status | grep -q '"ready":true'; do
+            if (( SECONDS >= deadline )); then
+              docker compose ps
+              docker compose logs --no-color selenium-hub "$browser_service"
+              exit 1
+            fi
+            sleep 2
+          done
 
       - name: Validate required secrets for trusted full regression
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
@@ -242,7 +250,15 @@ jobs:
       - name: Start Selenium Grid
         run: |
           docker compose up -d selenium-hub chrome
-          timeout 120 bash -c 'until curl -sf http://localhost:4444/status | grep -q '"'"'"ready"'"'"':true'; do sleep 2; done'
+          deadline=$((SECONDS + 120))
+          until curl -sf http://localhost:4444/status | grep -q '"ready":true'; do
+            if (( SECONDS >= deadline )); then
+              docker compose ps
+              docker compose logs --no-color selenium-hub chrome
+              exit 1
+            fi
+            sleep 2
+          done
 
       - name: Run accessibility smoke suite
         run: |
@@ -440,4 +456,3 @@ jobs:
               labels: ['ci', 'scheduled-failure'],
             });
             core.notice(`Created scheduled failure issue #${issue.number}`);
-
