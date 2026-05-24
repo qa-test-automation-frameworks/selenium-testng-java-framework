@@ -327,7 +327,7 @@ jobs:
         run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
       - name: Download Allure results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: allure-results-*
           path: target/allure-results
