@@ -30,7 +30,7 @@ jobs:
           import re
           import sys
           root = Path.cwd()
-          link_pattern = re.compile(r'(?<!!)\[[^\]]+\]\(([^)]+)\)')
+          link_pattern = re.compile(r'!?\[[^\]]+\]\(([^)]+)\)')
           failures = []
           for markdown_file in root.rglob('*.md'):
               if '.git' in markdown_file.parts or 'target' in markdown_file.parts:

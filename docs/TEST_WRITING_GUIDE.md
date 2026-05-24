@@ -5,7 +5,7 @@ Follow these guidelines when adding new tests or modifying existing ones.
 This repository is intentionally UI-automation-first. Keep `src/test/java` focused on TestNG UI scenarios, data providers, and test data. ADR 005 explicitly avoids framework-only tests so the repository stays centered on browser-observable behavior.
 
 ## Adding a New Page Object
-1. Create a new class in `src/main/java/io/github/prayag/saucedemo/app/ui/page`.
+1. Create a new class in `src/main/java/io/github/selenium/saucedemo/app/ui/page`.
 2. Extend `BasePage`.
 3. Add a constructor that calls `super(driver)`.
 4. Define static locators using `private static final By` when the selector does not depend on runtime data.
@@ -15,12 +15,12 @@ This repository is intentionally UI-automation-first. Keep `src/test/java` focus
 
 ## Adding a New Component
 If a UI element is shared across multiple pages (e.g., a Footer):
-1. Create a class in `io.github.prayag.saucedemo.app.ui.component`.
+1. Create a class in `io.github.selenium.saucedemo.app.ui.component`.
 2. Extend `BaseComponent`.
 3. Instantiate it within the Page Objects that use it.
 
 ## Writing a New Test
-1. Create a test class in `src/test/java/io/github/prayag/saucedemo/tests`.
+1. Create a test class in `src/test/java/io/github/selenium/saucedemo/tests`.
 2. Extend `BaseTestCase`.
 3. Annotate test methods with `@Test`.
 4. Use the `testName` and `description` attributes in `@Test`; Allure reads the TestNG description automatically.

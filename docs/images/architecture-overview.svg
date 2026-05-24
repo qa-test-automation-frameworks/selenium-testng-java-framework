@@ -1,47 +1,246 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="320" viewBox="0 0 980 320" role="img" aria-labelledby="title desc">
-  <title id="title">UI automation framework architecture overview</title>
-  <desc id="desc">A high-level architecture diagram showing GitHub Actions and local Maven driving TestNG, configuration, page objects, ThreadLocal WebDriver, and Selenium Grid.</desc>
-  <style>
-    .title { font: 700 26px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
-    .label { font: 600 16px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
-    .small { font: 500 13px 'Segoe UI', Arial, sans-serif; fill: #334155; }
-    .box { fill: #f8fafc; stroke: #2563eb; stroke-width: 2; rx: 14; ry: 14; }
-    .boxAlt { fill: #eff6ff; stroke: #0284c7; stroke-width: 2; rx: 14; ry: 14; }
-    .arrow { stroke: #475569; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
-  </style>
+  <title id="title">Selenium TestNG Java Framework Architecture Overview</title>
+  <desc id="desc">A high-level architecture diagram showing GitHub Actions and local Maven driving TestNG, configuration, page objects, ThreadLocal WebDriver, and Selenium Grid with Allure reporting.</desc>
+
   <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
+    <!-- Background Canvas Gradient -->
+    <linearGradient id="canvas-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="100%" stop-color="#02040a" />
+    </linearGradient>
+
+    <!-- Card Border Gradients -->
+    <!-- Blue/Cyan (CI & Page Objects) -->
+    <linearGradient id="border-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0369a1" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Purple/Indigo (TestNG & Allure) -->
+    <linearGradient id="border-purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="100%" stop-color="#5b21b6" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Emerald/Green (Typed Config) -->
+    <linearGradient id="border-green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#065f46" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Amber/Orange (ThreadLocal Driver) -->
+    <linearGradient id="border-amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#92400e" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Pink/Rose (Selenium Grid) -->
+    <linearGradient id="border-pink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#9d174d" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Arrow Markers -->
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#475569" />
     </marker>
+
+    <!-- Card Glow Filter -->
+    <filter id="card-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.7" />
+    </filter>
   </defs>
-  <text x="40" y="42" class="title">UI Test Automation Framework Architecture</text>
-  <rect x="40" y="90" width="180" height="74" class="box" />
-  <text x="72" y="120" class="label">GitHub Actions /</text>
-  <text x="89" y="143" class="label">Local Maven</text>
-  <text x="69" y="162" class="small">CI entry point and local runner</text>
-  <rect x="280" y="90" width="160" height="74" class="boxAlt" />
-  <text x="337" y="126" class="label">TestNG</text>
-  <text x="309" y="145" class="small">Suite orchestration and groups</text>
-  <rect x="500" y="40" width="180" height="74" class="box" />
-  <text x="541" y="76" class="label">Typed Config</text>
-  <text x="523" y="95" class="small">Defaults ? profiles ? env ? -D</text>
-  <rect x="500" y="150" width="180" height="74" class="box" />
-  <text x="536" y="186" class="label">Page Objects</text>
-  <text x="515" y="205" class="small">Pages + components + explicit waits</text>
-  <rect x="740" y="40" width="190" height="74" class="boxAlt" />
-  <text x="771" y="76" class="label">ThreadLocal Driver</text>
-  <text x="773" y="95" class="small">Per-thread browser isolation</text>
-  <rect x="740" y="150" width="190" height="74" class="box" />
-  <text x="781" y="186" class="label">Selenium Grid</text>
-  <text x="781" y="205" class="small">Chrome / Firefox / Edge</text>
-  <rect x="500" y="250" width="430" height="42" class="boxAlt" />
-  <text x="545" y="276" class="label">Allure + diagnostics + redaction + optional accessibility smoke</text>
-  <path d="M220 127 H280" class="arrow" />
-  <path d="M440 127 H500" class="arrow" />
-  <path d="M440 127 C470 127, 470 187, 500 187" class="arrow" />
-  <path d="M680 77 H740" class="arrow" />
-  <path d="M680 187 H740" class="arrow" />
-  <path d="M835 114 V150" class="arrow" />
-  <path d="M590 224 V250" class="arrow" />
-  <path d="M835 224 V250" class="arrow" />
+
+  <style>
+    .title { font: 700 24px 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; fill: #ffffff; letter-spacing: -0.5px; }
+    .subtitle { font: 500 13px 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; fill: #64748b; }
+    .label { font: 600 14px 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; fill: #f8fafc; }
+    .small { font: 500 11px 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; fill: #94a3b8; }
+
+    /* Card Styles and Pulse animations */
+    @keyframes card-breathing {
+      0%, 100% { opacity: 0.95; }
+      50% { opacity: 1; }
+    }
+    .card-bg { fill: #0f172a; fill-opacity: 0.85; filter: url(#card-shadow); rx: 12px; ry: 12px; animation: card-breathing 4s ease-in-out infinite; }
+
+    /* Connectors flow and pulse animations */
+    @keyframes flow {
+      from { stroke-dashoffset: 36; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.45; }
+    }
+
+    .arrow { stroke: #475569; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    .arrow-glow {
+      stroke-width: 4.5;
+      fill: none;
+      stroke-dasharray: 6 12;
+      animation: flow 1.5s linear infinite, pulse 2.5s ease-in-out infinite;
+    }
+
+    /* Color-coded flows */
+    .flow-blue { stroke: #38bdf8; }
+    .flow-purple { stroke: #a78bfa; }
+    .flow-green { stroke: #34d399; }
+    .flow-amber { stroke: #fbbf24; }
+    .flow-pink { stroke: #f472b6; }
+
+    .accent-blue { fill: #38bdf8; }
+    .accent-purple { fill: #a78bfa; }
+    .accent-green { fill: #34d399; }
+    .accent-amber { fill: #fbbf24; }
+    .accent-pink { fill: #f472b6; }
+  </style>
+
+  <!-- Canvas Background -->
+  <rect width="980" height="320" rx="16" fill="url(#canvas-bg)" stroke="#1e293b" stroke-width="1" />
+
+  <!-- Header Title -->
+  <text x="40" y="48" class="title">Selenium TestNG Java Framework Architecture</text>
+  <text x="40" y="66" class="subtitle">Multi-layered architecture designed for scalable, parallel-safe execution and rich diagnostics</text>
+
+  <!-- ==================== CONNECTORS (Arrows drawn behind) ==================== -->
+  <!-- CI to TestNG -->
+  <path d="M 220 129 H 280" class="arrow-glow flow-blue" />
+  <path d="M 220 129 H 280" class="arrow" />
+
+  <!-- TestNG to Typed Config -->
+  <path d="M 440 129 C 470 129, 470 79, 500 79" class="arrow-glow flow-green" />
+  <path d="M 440 129 C 470 129, 470 79, 500 79" class="arrow" />
+
+  <!-- TestNG to Page Objects -->
+  <path d="M 440 129 C 470 129, 470 189, 500 189" class="arrow-glow flow-blue" />
+  <path d="M 440 129 C 470 129, 470 189, 500 189" class="arrow" />
+
+  <!-- Config to ThreadLocal Driver -->
+  <path d="M 680 79 H 740" class="arrow-glow flow-green" />
+  <path d="M 680 79 H 740" class="arrow" />
+
+  <!-- Page Objects to Selenium Grid -->
+  <path d="M 680 189 H 740" class="arrow-glow flow-blue" />
+  <path d="M 680 189 H 740" class="arrow" />
+
+  <!-- ThreadLocal Driver to Selenium Grid -->
+  <path d="M 840 118 V 150" class="arrow-glow flow-amber" />
+  <path d="M 840 118 V 150" class="arrow" />
+
+  <!-- Page Objects to Allure -->
+  <path d="M 590 228 V 248" class="arrow-glow flow-purple" />
+  <path d="M 590 228 V 248" class="arrow" />
+
+  <!-- Selenium Grid to Allure -->
+  <path d="M 840 228 V 248" class="arrow-glow flow-pink" />
+  <path d="M 840 228 V 248" class="arrow" />
+
+
+  <!-- ==================== COLUMN 1: CI/RUNNER ==================== -->
+  <g transform="translate(0, 0)">
+    <rect x="40" y="90" width="180" height="78" class="card-bg" stroke="url(#border-blue)" stroke-width="1.5" />
+    <!-- Console Terminal Icon -->
+    <g transform="translate(54, 114)" class="accent-blue">
+      <rect x="0" y="0" width="24" height="20" rx="3" fill="none" stroke="#38bdf8" stroke-width="2" />
+      <path d="M5 6 L9 10 L5 14" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <line x1="11" y1="14" x2="17" y2="14" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+    </g>
+    <text x="90" y="121" class="label">CI &amp; Local Runner</text>
+    <text x="90" y="139" class="small">GitHub Actions / Maven</text>
+    <text x="90" y="153" class="small" opacity="0.6">Execution entry point</text>
+  </g>
+
+
+  <!-- ==================== COLUMN 2: ORCHESTRATION ==================== -->
+  <g transform="translate(0, 0)">
+    <rect x="280" y="90" width="160" height="78" class="card-bg" stroke="url(#border-purple)" stroke-width="1.5" />
+    <!-- Orchestration Play Layers Icon -->
+    <g transform="translate(294, 114)" class="accent-purple">
+      <path d="M2 7 L12 2 L22 7 L12 12 Z" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linejoin="round" />
+      <path d="M2 12 L12 17 L22 12" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linejoin="round" />
+      <path d="M2 17 L12 22 L22 17" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linejoin="round" />
+    </g>
+    <text x="330" y="121" class="label">TestNG Suite</text>
+    <text x="330" y="139" class="small">Orchestration</text>
+    <text x="330" y="153" class="small" opacity="0.6">Groups &amp; parallel runs</text>
+  </g>
+
+
+  <!-- ==================== COLUMN 3: LOGIC & OBJECTS ==================== -->
+  <!-- Row 1: Config -->
+  <g transform="translate(0, 0)">
+    <rect x="500" y="40" width="180" height="78" class="card-bg" stroke="url(#border-green)" stroke-width="1.5" />
+    <!-- Sliders Settings Icon -->
+    <g transform="translate(514, 64)" class="accent-green">
+      <path d="M2 5 H12 M18 5 H22 M2 12 H6 M12 12 H22 M2 19 H16 M20 19 H22" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
+      <circle cx="15" cy="5" r="3" fill="#0f172a" stroke="#34d399" stroke-width="2" />
+      <circle cx="9" cy="12" r="3" fill="#0f172a" stroke="#34d399" stroke-width="2" />
+      <circle cx="18" cy="19" r="3" fill="#0f172a" stroke="#34d399" stroke-width="2" />
+    </g>
+    <text x="552" y="71" class="label">Typed Config</text>
+    <text x="552" y="89" class="small">Flexible Properties</text>
+    <text x="552" y="103" class="small" opacity="0.6">Env-specific overrides</text>
+  </g>
+
+  <!-- Row 2: Page Objects -->
+  <g transform="translate(0, 0)">
+    <rect x="500" y="150" width="180" height="78" class="card-bg" stroke="url(#border-blue)" stroke-width="1.5" />
+    <!-- Web Browser Icon -->
+    <g transform="translate(514, 174)" class="accent-blue">
+      <rect x="1" y="2" width="22" height="18" rx="3" fill="none" stroke="#38bdf8" stroke-width="2" />
+      <line x1="1" y1="8" x2="23" y2="8" stroke="#38bdf8" stroke-width="1.5" />
+      <circle cx="5" cy="5" r="1.5" fill="#38bdf8" />
+      <circle cx="9" cy="5" r="1.5" fill="#38bdf8" />
+      <circle cx="13" cy="5" r="1.5" fill="#38bdf8" />
+    </g>
+    <text x="552" y="181" class="label">Page Objects</text>
+    <text x="552" y="199" class="small">App UI Components</text>
+    <text x="552" y="213" class="small" opacity="0.6">Explicit robust waits</text>
+  </g>
+
+
+  <!-- ==================== COLUMN 4: RUNTIME & GRID ==================== -->
+  <!-- Row 1: ThreadLocal Driver -->
+  <g transform="translate(0, 0)">
+    <rect x="740" y="40" width="200" height="78" class="card-bg" stroke="url(#border-amber)" stroke-width="1.5" />
+    <!-- ThreadLocal Driver Steering Wheel / Key Icon -->
+    <g transform="translate(754, 64)" class="accent-amber">
+      <circle cx="12" cy="10" r="8" fill="none" stroke="#fbbf24" stroke-width="2" />
+      <circle cx="12" cy="10" r="2" fill="#fbbf24" />
+      <path d="M12 18 V22 M8 22 H16 M12 2 Q12 10 12 10" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" />
+    </g>
+    <text x="792" y="71" class="label">ThreadLocal Driver</text>
+    <text x="792" y="89" class="small">Per-Thread Isolation</text>
+    <text x="792" y="103" class="small" opacity="0.6">Safe parallel sessions</text>
+  </g>
+
+  <!-- Row 2: Selenium Grid -->
+  <g transform="translate(0, 0)">
+    <rect x="740" y="150" width="200" height="78" class="card-bg" stroke="url(#border-pink)" stroke-width="1.5" />
+    <!-- Selenium Grid Servers Icon -->
+    <g transform="translate(754, 174)" class="accent-pink">
+      <rect x="1" y="2" width="22" height="7" rx="1.5" fill="none" stroke="#f472b6" stroke-width="2" />
+      <rect x="1" y="12" width="22" height="7" rx="1.5" fill="none" stroke="#f472b6" stroke-width="2" />
+      <circle cx="5" cy="5.5" r="1.5" fill="#f472b6" />
+      <circle cx="5" cy="15.5" r="1.5" fill="#f472b6" />
+      <line x1="16" y1="5.5" x2="19" y2="5.5" stroke="#f472b6" stroke-dasharray="2 1" stroke-width="2" />
+      <line x1="16" y1="15.5" x2="19" y2="15.5" stroke="#f472b6" stroke-dasharray="2 1" stroke-width="2" />
+    </g>
+    <text x="792" y="181" class="label">Selenium Grid</text>
+    <text x="792" y="199" class="small">Docker Grid Hub</text>
+    <text x="792" y="213" class="small" opacity="0.6">Chrome / Firefox / Edge</text>
+  </g>
+
+
+  <!-- ==================== ROW 3: ALLURE REPORTING ==================== -->
+  <g transform="translate(0, 0)">
+    <rect x="500" y="248" width="440" height="54" class="card-bg" stroke="url(#border-purple)" stroke-width="1.5" />
+    <!-- Diagnostics Graph Icon -->
+    <g transform="translate(514, 262)" class="accent-purple">
+      <path d="M3 20 V4 M3 20 H21 M7 16 L11 9 L15 13 L20 6" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <text x="552" y="271" class="label">Allure Diagnostics &amp; Reporting</text>
+    <text x="552" y="287" class="small">Rich failures: screenshots, DOM redaction, console/network logs, stacktraces</text>
+  </g>
 </svg>

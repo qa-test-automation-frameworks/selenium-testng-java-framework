@@ -2,6 +2,9 @@
 **/target/
 *.class
 
+# CodeGraph local index
+.codegraph/
+
 # Log files
 *.log
 
@@ -9,6 +12,12 @@
 allure-results/
 .allure/
 allure-report/
+
+# Local audit artifacts
+UI_Framework_Audit_Agent_Prompt.md
+UI_Test_Automation_Framework_Audit_Report.md
+docs/UI_Framework_Audit_Agent_Prompt.md
+docs/UI_Test_Automation_Framework_Audit_Report.md
 
 # IDE files
 .idea/

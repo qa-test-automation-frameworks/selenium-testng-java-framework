@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.github.prayag.saucedemo</groupId>
-    <artifactId>ta-java-selenium-testng</artifactId>
+    <groupId>io.github.selenium.saucedemo</groupId>
+    <artifactId>selenium-testng-java-framework</artifactId>
     <version>1.0.0</version>
+    <name>Selenium TestNG Java Framework</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,7 +22,7 @@
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
         <maven.dependency.plugin.version>3.10.0</maven.dependency.plugin.version>
         <spotbugs.maven.plugin.version>4.9.8.3</spotbugs.maven.plugin.version>
-        <allure.issue.pattern>https://github.com/prayag/ta-java-selenium-testng/issues/{}</allure.issue.pattern>
+        <allure.issue.pattern>https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/issues/{}</allure.issue.pattern>
         <testng.suite.file>testng.xml</testng.suite.file>
         <groups></groups>
         <thread.count>1</thread.count>

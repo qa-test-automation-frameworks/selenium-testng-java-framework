@@ -1,11 +1,11 @@
-# Selenium Java TestNG Automation Framework
+# Selenium TestNG Java Framework
 
-[![UI Tests](https://github.com/prayag/ta-java-selenium-testng/actions/workflows/ui-tests.yml/badge.svg?branch=main)](https://github.com/prayag/ta-java-selenium-testng/actions/workflows/ui-tests.yml)
-[![Allure Report](https://img.shields.io/badge/Allure-Report-orange.svg)](https://prayag.github.io/ta-java-selenium-testng/)
+[![UI Tests](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml/badge.svg?branch=main)](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml)
+[![Allure Report](https://img.shields.io/badge/Allure-Report-orange.svg)](https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/)
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Java 21 UI test automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, custom typed configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
+Java 21 Selenium TestNG automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, custom typed configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
 
 The `UI Tests` workflow publishes per-browser Allure artifacts on every run and deploys the merged report to GitHub Pages from `main`. After enabling GitHub Pages on a fork, the live report will be available at `https://<owner>.github.io/<repo>/`.
 
@@ -27,7 +27,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 
 ## Live Report
 
-- [Interactive Allure Report](https://prayag.github.io/ta-java-selenium-testng/)
+- [Interactive Allure Report](https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/)
 
 ## Architecture
 

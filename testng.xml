@@ -3,34 +3,34 @@
 <!-- thread-count is overridden at runtime by SuiteConfigurationListener from config property thread.count -->
 <suite name="Sauce Demo UI Regression" parallel="methods" thread-count="1">
     <listeners>
-        <listener class-name="io.github.prayag.saucedemo.framework.listener.SuiteConfigurationListener"/>
+        <listener class-name="io.github.selenium.saucedemo.framework.listener.SuiteConfigurationListener"/>
         <!-- Suite-level registration keeps retry annotation transformation active before test execution. -->
-        <listener class-name="io.github.prayag.saucedemo.framework.listener.AnnotationTransformer"/>
-        <listener class-name="io.github.prayag.saucedemo.framework.listener.FrameworkListener"/>
+        <listener class-name="io.github.selenium.saucedemo.framework.listener.AnnotationTransformer"/>
+        <listener class-name="io.github.selenium.saucedemo.framework.listener.FrameworkListener"/>
     </listeners>
     <test name="Inventory Scenarios">
         <classes>
-            <class name="io.github.prayag.saucedemo.tests.InventoryTests"/>
+            <class name="io.github.selenium.saucedemo.tests.InventoryTests"/>
         </classes>
     </test>
     <test name="Cart Scenarios">
         <classes>
-            <class name="io.github.prayag.saucedemo.tests.CartTests"/>
+            <class name="io.github.selenium.saucedemo.tests.CartTests"/>
         </classes>
     </test>
     <test name="Checkout Scenarios">
         <classes>
-            <class name="io.github.prayag.saucedemo.tests.CheckoutTests"/>
+            <class name="io.github.selenium.saucedemo.tests.CheckoutTests"/>
         </classes>
     </test>
     <test name="Login Scenarios">
         <classes>
-            <class name="io.github.prayag.saucedemo.tests.LoginTests"/>
+            <class name="io.github.selenium.saucedemo.tests.LoginTests"/>
         </classes>
     </test>
     <test name="End-to-End Journey Scenarios">
         <classes>
-            <class name="io.github.prayag.saucedemo.tests.EndToEndJourneyTests"/>
+            <class name="io.github.selenium.saucedemo.tests.EndToEndJourneyTests"/>
         </classes>
     </test>
 </suite>

@@ -1,9 +1,9 @@
 blank_issues_enabled: false
 contact_links:
   - name: Framework architecture
-    url: https://github.com/prayag/ta-java-selenium-testng/blob/main/docs/ARCHITECTURE.md
+    url: https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/blob/main/docs/ARCHITECTURE.md
     about: Review the framework design and configuration flow before opening an issue.
   - name: Execution guide
-    url: https://github.com/prayag/ta-java-selenium-testng/blob/main/docs/EXECUTION_GUIDE.md
+    url: https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/blob/main/docs/EXECUTION_GUIDE.md
     about: Check local, Docker Grid, and CI execution instructions and troubleshooting steps.
 
