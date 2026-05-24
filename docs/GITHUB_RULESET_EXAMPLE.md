@@ -10,4 +10,4 @@ This repository cannot enforce branch protection settings for forks, but the exa
 gh api repos/<owner>/<repo>/rulesets --method POST --input docs/examples/main-ruleset.json
 ```
 
-The ruleset requires pull requests and the main CI checks documented in `docs/GITHUB_SETUP.md`.
+The ruleset requires pull requests and the main CI checks documented in `docs/GITHUB_SETUP.md`. It intentionally does not require branches to be up to date before merging, which keeps this portfolio repository safer without forcing extra CI reruns on every base-branch update.

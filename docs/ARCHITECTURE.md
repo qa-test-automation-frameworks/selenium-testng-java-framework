@@ -133,7 +133,7 @@ flowchart LR
 
 ### 6. CI and Quality Gates
 - **GitHub Actions**: Runs formatting checks, Checkstyle, PMD, SpotBugs, browser-matrix UI execution against Selenium Grid, artifact upload, Allure history preservation, GitHub Pages deployment for Allure on `main`, and scheduled dependency governance/SBOM tasks.
-- **Dependabot**: Keeps Maven, Docker, and GitHub Actions dependencies on an automated weekly update cadence.
+- **Dependabot**: Keeps Maven, Docker, and GitHub Actions dependencies on an automated monthly grouped update cadence.
 
 ## Design Principles
 - **Fail-Fast**: Configuration and environment checks happen at startup.

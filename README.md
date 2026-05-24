@@ -22,6 +22,7 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md) - Page object and test authoring conventions.
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md) - How to use Allure artifacts, logs, screenshots, and CI outputs to diagnose failures.
 - [GitHub Setup Guide](docs/GITHUB_SETUP.md) - Required secrets, Pages, branch protection, and workflow checks.
+- [Portfolio Review Guide](docs/PORTFOLIO_REVIEW_GUIDE.md) - Fast path for reviewers to evaluate the framework design, CI, diagnostics, and test coverage.
 - [ADR 005](docs/adr/005-why-no-framework-unit-tests.md) - Why this UI automation project does not add framework unit tests.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
@@ -242,11 +243,11 @@ After forking, update the badge URLs, repository secrets, branch protection requ
 Recommended GitHub branch protection for `main` is detailed in [GitHub Setup Guide](docs/GITHUB_SETUP.md). At minimum:
 - Require pull request reviews before merge.
 - Require the `UI Tests` workflow jobs to pass, especially `quality-gates` and each browser matrix entry in `test`.
-- Require branches to be up to date before merging.
+- Optionally require branches to be up to date before merging when CI usage is not a concern.
 - Restrict direct pushes to maintainers.
 
 ## Dependency Governance
-Dependabot checks Maven, Docker, and GitHub Actions dependencies weekly. The scheduled `dependency-governance` workflow uploads Maven dependency/plugin update reports and a CycloneDX SBOM artifact for portfolio review.
+Dependabot checks Maven, Docker, and GitHub Actions dependencies monthly and groups related updates to reduce pull request and CI noise. The scheduled `dependency-governance` workflow runs quarterly with the UI regression schedule and uploads Maven dependency/plugin update reports plus a CycloneDX SBOM artifact for portfolio review.
 
 ## Tech Stack
 - Java 21

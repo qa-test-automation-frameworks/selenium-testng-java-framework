@@ -76,7 +76,7 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - >
-        until curl -sf http://selenium-hub:4444/status | grep -q '"ready":true';
+        until curl -sf http://selenium-hub:4444/status | grep -Eq '"ready"[[:space:]]*:[[:space:]]*true';
         do echo "Waiting for Selenium Grid to become ready..."; sleep 2; done;
         ./mvnw verify -Dheadless=$${HEADLESS} -Dbrowser=$${BROWSER} -Dexecution.type=remote -Dremote.url=$${REMOTE_URL}
         -Dthread.count=$${THREAD_COUNT} -Dretry.enabled=$${RETRY_ENABLED} -Dallow.passwordless.skips=$${ALLOW_PASSWORDLESS_SKIPS}
