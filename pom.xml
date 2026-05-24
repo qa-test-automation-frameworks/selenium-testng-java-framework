@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.github.selenium.saucedemo</groupId>
+    <groupId>io.github.qa-test-automation-frameworks</groupId>
     <artifactId>selenium-testng-java-framework</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>Selenium TestNG Java Framework</name>
 
     <properties>
@@ -108,7 +110,7 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- AssertJ-->
+        <!-- AssertJ stays test-scoped because only src/test/java scenarios import it. -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -502,6 +504,5 @@
         </profile>
     </profiles>
 </project>
-
 
 

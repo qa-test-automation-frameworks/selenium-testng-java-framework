@@ -6,10 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-05-24
+
 ### Added
 - Dedicated `CheckoutTests` coverage with a data-driven invalid-checkout `@DataProvider`.
 - Postal-code-required checkout validation coverage.
 - `CHANGELOG.md` and README links to the live Allure report and project history.
+- ADR index documenting the accepted design records in one reviewer-friendly place.
 - ADR 005 documenting why this UI automation repository avoids framework unit tests and keeps validation browser-driven.
 - Valid UI login, protected-route negative coverage, and a full end-to-end shopping journey.
 - Checkout overview assertions for selected product, item total, tax, and final total.
@@ -21,7 +24,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - Renamed the published repository identity to `selenium-testng-java-framework` under `qa-test-automation-frameworks`.
-- Renamed the Java/Maven namespace from `io.github.prayag.saucedemo` to `io.github.selenium.saucedemo`.
+- Renamed the Java namespace from `io.github.prayag.saucedemo` to `io.github.selenium.saucedemo`.
+- Aligned the Maven groupId with the GitHub organization as `io.github.qa-test-automation-frameworks`.
+- Bumped the Maven artifact version to `1.1.0`.
 - Split checkout scenarios out of `CartTests` to keep cart and checkout responsibilities separate.
 - Added missing Allure `@Step` annotations across shared page and component methods.
 - Logged a safe resolved configuration summary at suite startup.
@@ -41,6 +46,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Preserved scheduled dependency update reports as CI artifacts.
 
 ### Fixed
+- Added the Maven POM schema namespace and schema location for IDE/XML validation.
 - Fixed GitHub Actions Selenium Grid readiness shell quoting.
 - Made Selenium Grid readiness checks whitespace-tolerant in both GitHub Actions and Docker Compose.
 - Expanded diagnostic redaction checks for HTML, cookies, tokens, and configured credentials.
@@ -70,5 +76,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **2026-05-02** - Bootstrapped the framework, then modernized the package layout, documentation, CI workflow, and page/component model.
 - **2026-05-11** - Refined configuration handling, added ADRs, introduced auth utilities, and split the test suite into focused classes.
 - **2026-05-12** - Migrated to a GitHub-style Java namespace, added checkout flow pages, helper scripts, reporting assets, and portfolio polish.
-- **2026-05-24** - Published under `qa-test-automation-frameworks/selenium-testng-java-framework`, moved the Java namespace to `io.github.selenium.saucedemo`, updated Dependabot PRs, fixed CI Grid readiness checks, reduced scheduled automation cost, and added portfolio reviewer guidance.
 
