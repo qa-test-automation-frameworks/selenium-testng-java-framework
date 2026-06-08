@@ -13,7 +13,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <selenium.version>4.44.0</selenium.version>
         <testng.version>7.12.0</testng.version>
-        <allure.java.version>2.34.0</allure.java.version>
+        <allure.java.version>2.35.2</allure.java.version>
         <allure.report.version>2.39.0</allure.report.version>
         <allure.maven.version>3.0.1</allure.maven.version>
         <assertj.version>3.27.7</assertj.version>
@@ -22,7 +22,7 @@
         <aspectj.version>1.9.25.1</aspectj.version>
         <slf4j.version>2.0.18</slf4j.version>
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
-        <maven.dependency.plugin.version>3.10.0</maven.dependency.plugin.version>
+        <maven.dependency.plugin.version>3.11.0</maven.dependency.plugin.version>
         <spotbugs.maven.plugin.version>4.9.8.3</spotbugs.maven.plugin.version>
         <allure.issue.pattern>https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/issues/{}</allure.issue.pattern>
         <testng.suite.file>testng.xml</testng.suite.file>
@@ -185,7 +185,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.5</version>
+                    <version>3.5.6</version>
                 </plugin>
                 <plugin>
                     <groupId>io.qameta.allure</groupId>
@@ -406,7 +406,7 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <id>spotless-verify</id>
@@ -504,5 +504,4 @@
         </profile>
     </profiles>
 </project>
-
 
