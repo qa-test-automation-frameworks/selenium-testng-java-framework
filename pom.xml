@@ -312,6 +312,7 @@
                     <systemPropertyVariables>
                         <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
                         <thread.count>${thread.count}</thread.count>
+                        <portfolio.metrics.file>${project.build.directory}/portfolio-metrics-v1.json</portfolio.metrics.file>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -504,4 +505,3 @@
         </profile>
     </profiles>
 </project>
-

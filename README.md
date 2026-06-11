@@ -9,12 +9,29 @@ Java 21 Selenium TestNG automation framework for Sauce Demo, built with Selenium
 
 The `UI Tests` workflow publishes per-browser Allure artifacts on every run and deploys the merged report to GitHub Pages from `main`. After enabling GitHub Pages on a fork, the live report will be available at `https://<owner>.github.io/<repo>/`.
 
+## Reviewer Proof
+
+| Evidence | Link |
+| --- | --- |
+| Live report | [Interactive Allure report](https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/) |
+| Release | [v1.1.0](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/releases/tag/v1.1.0) |
+| CI | [UI Tests workflow](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml) |
+| Activity snapshot | 57 commits and 19 pull requests as of June 11, 2026 |
+| Docs and assets | [`docs/`](docs/) and [`docs/images/`](docs/images/) |
+| Best screenshot | [Failed test details](docs/images/allure-failed-test-details-preview.png) |
+
+![Allure failed test details with assertion and execution evidence](docs/images/allure-failed-test-details-preview.png)
+
+## Release Notes Summary
+
+Release `v1.1.0` adds checkout and journey coverage, stronger diagnostics and redaction, a Chrome/Firefox/Edge Grid matrix, accessibility and visual extension suites, dependency governance, architecture decisions, and reviewer documentation. The current branch adds compiled lifecycle quality gates, focused framework unit tests, runtime metrics, retry/quarantine policy, seeded-defect examples, and enterprise scaling guidance for the next release.
+
 ## Why This Framework?
 - **Why custom config?** Uses a small typed configuration layer to avoid a stale external dependency while preserving layered overrides.
 - **Why ThreadLocal WebDriver?** Ensures robust, thread-safe parallel execution by isolating driver instances per thread.
 - **Why cookie auth shortcuts?** Non-login scenarios bypass the UI login form to keep the suite faster and less flaky while retaining dedicated login coverage.
 - **Why explicit waits only?** A single synchronization strategy keeps the framework deterministic and easier to debug.
-- **Why no framework tests?** This repository stays focused on browser-driven user flows. Framework code is validated through UI scenarios, quality gates, and review rather than isolated helper tests. See [ADR 005](docs/adr/005-why-no-framework-unit-tests.md).
+- **Why limited framework tests?** Browser scenarios remain the acceptance layer, while a narrow unit suite covers deterministic redaction and configuration parsing. See [ADR 005](docs/adr/005-framework-unit-test-boundary.md).
 
 ## Documentation
 - [Architecture Overview](docs/ARCHITECTURE.md) - Layers, design decisions, and framework structure.
@@ -24,6 +41,9 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 - [GitHub Setup Guide](docs/GITHUB_SETUP.md) - Required secrets, Pages, branch protection, and workflow checks.
 - [Portfolio Review Guide](docs/PORTFOLIO_REVIEW_GUIDE.md) - Fast path for reviewers to evaluate the framework design, CI, diagnostics, and test coverage.
 - [Architecture Decision Records](docs/adr/README.md) - Accepted tradeoffs for configuration, waits, auth shortcuts, source layout, validation scope, and optional extensions.
+- [Enterprise Scalability](docs/ENTERPRISE_SCALABILITY.md) - Grid capacity, sharding, test-data isolation, observability, and demonstration limits.
+- [Reliability Policy](docs/RELIABILITY_POLICY.md) - Retry eligibility, quarantine metadata, and flake triage.
+- [Seeded Defect Examples](docs/seeded-defects.md) - Controlled mutations and their expected detectors.
 - [Changelog](CHANGELOG.md) - Framework evolution derived from repository history.
 
 ## Live Report
@@ -76,6 +96,19 @@ Representative report views are included below so reviewers can see the diagnost
 - Page Component Model for shared header, inventory list, and root-scoped product item behavior.
 - Opt-in retry analyzer with required retry reasons and Allure retry context.
 - CI-ready quality gates for formatting, style checks, dependency rules, tests, and reporting.
+
+## Runtime Metrics and CI Matrix
+
+TestNG writes `target/portfolio-metrics-v1.json` at suite completion with total, passed, failed, skipped, retried, and duration values. CI uploads one metrics artifact per browser matrix entry.
+
+The main workflow has:
+
+- A compiled Maven `verify` quality gate with focused framework unit tests, Spotless, Checkstyle, PMD, SpotBugs, dependency analysis, and Allure generation.
+- Three remote Selenium Grid entries: Chrome, Firefox, and Edge, each using two TestNG worker threads.
+- A scheduled or manual Chrome accessibility job.
+- A merged Allure Pages publication job and scheduled dependency/SBOM governance.
+
+See [Enterprise Scalability](docs/ENTERPRISE_SCALABILITY.md) for the distinction between CI matrix width, per-job parallelism, Grid slot capacity, and target-environment limits.
 
 ## Known Limitations
 - Forked pull requests run only no-secret UI smoke coverage (`inventory`, `cart`). Full login regression requires repository secrets.
