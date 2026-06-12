@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Runtime metrics contract emitted from TestNG suite results.
+- Focused framework unit suite for deterministic redaction and configuration parsing.
+- Reliability/quarantine policy, enterprise scalability guide, and seeded-defect examples.
+
+### Changed
+- Replaced individually invoked CI static-analysis goals with a compiled Maven `verify` lifecycle gate and explicit report/input checks.
+- Superseded ADR 005's prohibition on framework unit tests with a narrow deterministic-test boundary.
+
 ## [1.1.0] - 2026-05-24
 
 ### Added
@@ -76,4 +85,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **2026-05-02** - Bootstrapped the framework, then modernized the package layout, documentation, CI workflow, and page/component model.
 - **2026-05-11** - Refined configuration handling, added ADRs, introduced auth utilities, and split the test suite into focused classes.
 - **2026-05-12** - Migrated to a GitHub-style Java namespace, added checkout flow pages, helper scripts, reporting assets, and portfolio polish.
-

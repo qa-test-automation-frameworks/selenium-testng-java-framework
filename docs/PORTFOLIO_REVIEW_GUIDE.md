@@ -8,8 +8,9 @@ Use this guide when reviewing the repository as a QA Automation, SDET, or test-f
 2. Review the [Architecture Overview](ARCHITECTURE.md) to understand the framework layers, driver lifecycle, configuration override flow, and CI design.
 3. Open the [Execution Guide](EXECUTION_GUIDE.md) for local, Docker Grid, CI, and cloud-grid execution examples.
 4. Read the [Test Writing Guide](TEST_WRITING_GUIDE.md) to see page-object, component, assertion, group, retry, visual, and accessibility conventions.
-5. Check the ADRs under [docs/adr](adr) for explicit design tradeoffs.
+5. Check the [ADR index](adr/README.md) for explicit design tradeoffs.
 6. Inspect the GitHub Actions workflows under [`.github/workflows`](../.github/workflows) for quality gates, browser matrix execution, secret-safe pull request behavior, Allure publication, and scheduled governance.
+7. Review the [enterprise scalability](ENTERPRISE_SCALABILITY.md), [reliability](RELIABILITY_POLICY.md), and [failure-debugging](DEBUGGING_GUIDE.md) evidence.
 
 ## What This Repository Demonstrates
 
@@ -31,6 +32,7 @@ Use this guide when reviewing the repository as a QA Automation, SDET, or test-f
 - Review `ConfigFactory`, `ConfigLoader`, and `FrameworkConfig` for configuration behavior.
 - Review `DiagnosticsAttacher` and `DiagnosticRedactor` for failure-debugging and secret-safety behavior.
 - Review `.github/workflows/ui-tests.yml` for CI orchestration and fork-safe secret handling.
+- Run `.\mvnw.cmd -Dtestng.suite.file=testng-framework-unit.xml verify` to reproduce the compiled quality gate without launching a browser.
 
 ## Scope Boundaries
 

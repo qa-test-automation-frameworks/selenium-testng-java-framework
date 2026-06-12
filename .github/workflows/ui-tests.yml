@@ -60,8 +60,19 @@ jobs:
       - name: Validate Maven wrapper distribution
         run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
-      - name: Run formatting and static-analysis gates
-        run: ./mvnw -DskipTests validate spotless:check checkstyle:check pmd:check spotbugs:check
+      - name: Run compiled framework quality gate
+        run: ./mvnw -Dtestng.suite.file=testng-framework-unit.xml verify
+
+      - name: Verify quality-gate inputs and reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d target/classes
+          test -d target/test-classes
+          test -f target/checkstyle-result.xml
+          test -f target/pmd.xml
+          test -f target/spotbugsXml.xml
+          test -f target/portfolio-metrics-v1.json
 
   dependency-governance:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -208,6 +219,13 @@ jobs:
         with:
           name: execution-logs-${{ matrix.browser }}
           path: target/logs/
+
+      - name: Upload runtime metrics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: portfolio-metrics-${{ matrix.browser }}
+          path: target/portfolio-metrics-v1.json
 
       - name: Tear down Selenium Grid
         if: always()
