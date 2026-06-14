@@ -5,7 +5,9 @@
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Java 21 Selenium TestNG automation framework for Sauce Demo, built with Selenium 4, TestNG, AssertJ, custom typed configuration, Log4j2, Docker/Selenium Grid, and Allure reporting.
+Enterprise-oriented browser automation with Java 21, Selenium 4, TestNG,
+thread-safe drivers, typed configuration, Docker Grid, explicit synchronization,
+multi-browser CI, and report-grade failure diagnostics.
 
 The `UI Tests` workflow publishes per-browser Allure artifacts on every run and deploys the merged report to GitHub Pages from `main`. After enabling GitHub Pages on a fork, the live report will be available at `https://<owner>.github.io/<repo>/`.
 
@@ -14,17 +16,31 @@ The `UI Tests` workflow publishes per-browser Allure artifacts on every run and 
 | Evidence | Link |
 | --- | --- |
 | Live report | [Interactive Allure report](https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/) |
-| Release | [v1.1.0](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/releases/tag/v1.1.0) |
+| Release | [v1.0.0](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/releases/tag/v1.0.0) |
 | CI | [UI Tests workflow](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml) |
-| Activity snapshot | 57 commits and 19 pull requests as of June 11, 2026 |
+| Repository activity | [Default-branch commits](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/commits/main/) · [Pull requests](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/pulls?q=is%3Apr) |
 | Docs and assets | [`docs/`](docs/) and [`docs/images/`](docs/images/) |
 | Best screenshot | [Failed test details](docs/images/allure-failed-test-details-preview.png) |
 
 ![Allure failed test details with assertion and execution evidence](docs/images/allure-failed-test-details-preview.png)
 
+## What This Framework Proves
+
+| Engineering question | Implemented answer |
+| --- | --- |
+| How does browser execution scale safely? | Thread-local drivers, bounded TestNG workers, browser-matrix jobs, and explicit Grid capacity guidance. |
+| How is synchronization kept predictable? | Implicit waits are disabled and a single explicit-wait strategy is shared across pages and components. |
+| How are expensive UI flows reduced? | API and cookie setup shortcuts support non-login scenarios while dedicated authentication tests retain UI coverage. |
+| How are failures diagnosed remotely? | Redacted screenshots, page source, capabilities, logs, browser evidence, and Allure context are captured on failure. |
+| How are framework changes governed? | Maven quality gates, focused unit tests, ADRs, retry/quarantine rules, seeded defects, and dependency controls. |
+
 ## Release Notes Summary
 
-Release `v1.1.0` adds checkout and journey coverage, stronger diagnostics and redaction, a Chrome/Firefox/Edge Grid matrix, accessibility and visual extension suites, dependency governance, architecture decisions, and reviewer documentation. The current branch adds compiled lifecycle quality gates, focused framework unit tests, runtime metrics, retry/quarantine policy, seeded-defect examples, and enterprise scaling guidance for the next release.
+Release `v1.0.0` established the public framework baseline. Current `main` adds
+checkout and journey coverage, stronger diagnostics and redaction, a
+Chrome/Firefox/Edge Grid matrix, accessibility and visual extension suites,
+compiled lifecycle quality gates, runtime metrics, retry/quarantine policy,
+seeded-defect examples, architecture decisions, and enterprise scaling guidance.
 
 ## Why This Framework?
 - **Why custom config?** Uses a small typed configuration layer to avoid a stale external dependency while preserving layered overrides.
