@@ -151,6 +151,11 @@
             <artifactId>selenium</artifactId>
             <version>${axe.selenium.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.deque.html.axe-core</groupId>
+            <artifactId>dequeutilites</artifactId>
+            <version>${axe.selenium.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
