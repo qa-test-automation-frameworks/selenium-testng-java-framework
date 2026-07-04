@@ -4,6 +4,9 @@
 
 # CodeGraph local index
 .codegraph/
+.codebase-memory/
+codebase-memory/
+.agent/index-codebase-memory.sh
 
 # Log files
 *.log
