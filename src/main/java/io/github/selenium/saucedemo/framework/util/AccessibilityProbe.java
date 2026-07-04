@@ -1,5 +1,8 @@
 package io.github.selenium.saucedemo.framework.util;
 
+import com.deque.html.axecore.results.Results;
+import com.deque.html.axecore.results.Rule;
+import com.deque.html.axecore.selenium.AxeBuilder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,12 +19,14 @@ import org.openqa.selenium.WebDriver;
 public final class AccessibilityProbe {
 
   private final JavascriptExecutor javascriptExecutor;
+  private final WebDriver driver;
 
   public AccessibilityProbe(WebDriver driver) {
     if (!(driver instanceof JavascriptExecutor executor)) {
       throw new IllegalArgumentException(
           "Accessibility probing requires a JavaScript-capable driver");
     }
+    this.driver = driver;
     this.javascriptExecutor = executor;
   }
 
@@ -42,6 +47,22 @@ public final class AccessibilityProbe {
     List<String> advisories = new ArrayList<>(findDuplicateIdViolations());
     log.debug("Accessibility probe found {} structural advisories", advisories.size());
     return advisories;
+  }
+
+  /** Runs axe-core against the current page and returns violation summaries. */
+  public List<String> findAxeViolations() {
+    Results results = new AxeBuilder().analyze(driver);
+    return results.getViolations().stream().map(AccessibilityProbe::formatAxeViolation).toList();
+  }
+
+  private static String formatAxeViolation(Rule rule) {
+    return String.format(
+        "%s [%s]: %s (%d node%s)",
+        rule.getId(),
+        rule.getImpact(),
+        rule.getDescription(),
+        rule.getNodes().size(),
+        rule.getNodes().size() == 1 ? "" : "s");
   }
 
   private List<String> findDuplicateIdViolations() {

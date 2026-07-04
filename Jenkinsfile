@@ -1,6 +1,9 @@
 pipeline {
     agent any
 
+    // GitHub Actions is the primary quality gate. This Jenkinsfile is a reference
+    // pipeline for teams that need Jenkins-hosted execution.
+
     tools {
         // Ensure you have Maven and JDK configured in Jenkins Global Tool Configuration
         maven 'Maven 3.9'
