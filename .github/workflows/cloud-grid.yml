@@ -1,0 +1,61 @@
+name: Cloud Grid Smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  check-secrets:
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - name: Check cloud-grid secrets are configured
+        id: check
+        env:
+          HAS_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME != '' }}
+          HAS_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY != '' }}
+          HAS_APP_CREDENTIAL: ${{ secrets.APP_PASSWORD != '' }}
+        run: |
+          if [ "$HAS_USERNAME" = "true" ] && [ "$HAS_ACCESS_KEY" = "true" ] && [ "$HAS_APP_CREDENTIAL" = "true" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Cloud-grid secrets are not configured; skipping optional smoke run."
+          fi
+
+  browserstack-smoke:
+    needs: check-secrets
+    if: needs.check-secrets.outputs.configured == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      APP_CREDENTIAL: ${{ secrets.APP_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
+
+      - name: Run cloud-grid smoke
+        env:
+          APP_USERNAME: standard_user
+        run: |
+          ./mvnw test \
+            -Dgroups=inventory,cart \
+            -Dbrowser=CHROME \
+            -Dheadless=false \
+            -Dexecution.type=remote \
+            -Dremote.url=https://${BROWSERSTACK_USERNAME}:${BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub

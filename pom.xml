@@ -20,6 +20,7 @@
         <log4j.version>2.26.0</log4j.version>
         <lombok.version>1.18.46</lombok.version>
         <aspectj.version>1.9.25.1</aspectj.version>
+        <axe.selenium.version>4.10.2</axe.selenium.version>
         <slf4j.version>2.0.18</slf4j.version>
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
         <maven.dependency.plugin.version>3.11.0</maven.dependency.plugin.version>
@@ -144,6 +145,16 @@
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.deque.html.axe-core</groupId>
+            <artifactId>selenium</artifactId>
+            <version>${axe.selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.deque.html.axe-core</groupId>
+            <artifactId>dequeutilites</artifactId>
+            <version>${axe.selenium.version}</version>
         </dependency>
     </dependencies>
 

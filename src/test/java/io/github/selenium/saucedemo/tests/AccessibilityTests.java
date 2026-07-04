@@ -40,6 +40,7 @@ public class AccessibilityTests extends BaseTestCase {
     AccessibilityProbe accessibilityProbe = new AccessibilityProbe(getDriver());
     List<String> findings = accessibilityProbe.findBaselineViolations();
     List<String> advisories = accessibilityProbe.findStructuralAdvisories();
+    List<String> axeViolations = accessibilityProbe.findAxeViolations();
 
     Allure.addAttachment(
         "Accessibility baseline findings",
@@ -51,6 +52,11 @@ public class AccessibilityTests extends BaseTestCase {
         advisories.isEmpty()
             ? "No structural accessibility advisories detected."
             : String.join(System.lineSeparator(), advisories));
+    Allure.addAttachment(
+        "axe-core violations",
+        axeViolations.isEmpty()
+            ? "No axe-core violations detected."
+            : String.join(System.lineSeparator(), axeViolations));
 
     assertThat(inventoryPage.getDisplayedProductImageSources())
         .as("Inventory page should expose visible product images before accessibility checks run")
@@ -58,5 +64,6 @@ public class AccessibilityTests extends BaseTestCase {
     assertThat(findings)
         .as("Inventory page should not contain baseline accessibility violations")
         .isEmpty();
+    assertThat(axeViolations).as("Inventory page should pass axe-core checks").isEmpty();
   }
 }
