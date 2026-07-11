@@ -109,13 +109,15 @@ graph TD;
 ## Documentation
 
 - [Portfolio Review Guide](docs/PORTFOLIO_REVIEW_GUIDE.md)
+- [Current verification record](docs/evidence/latest-verification.md)
+- [Enterprise adaptation](docs/enterprise-adaptation.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Execution Guide](docs/EXECUTION_GUIDE.md)
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md)
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md)
 - [Enterprise Scalability](docs/ENTERPRISE_SCALABILITY.md)
+- [Accessibility/visual sample scope](docs/evidence/accessibility-visual-sample.md)
 - [Reliability Policy](docs/RELIABILITY_POLICY.md)
 - [Architecture Decision Records](docs/adr/README.md)
 - [Seeded Defect Examples](docs/seeded-defects.md)
 - [Changelog](CHANGELOG.md)
-
