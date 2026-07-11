@@ -54,3 +54,10 @@ jobs:
               print('\n'.join(failures))
               sys.exit(1)
           PY
+
+      - name: Reject workstation-only links and unsupported superlatives
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -RInE 'file:///' --include='*.md' .
+          ! grep -RInE 'production-grade|enterprise-grade|expert-level|staff-level|bulletproof' --include='*.md' .
