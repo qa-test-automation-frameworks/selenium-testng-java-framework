@@ -19,9 +19,9 @@ jobs:
         env:
           HAS_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME != '' }}
           HAS_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY != '' }}
-          HAS_APP_CREDENTIAL: ${{ secrets.APP_PASSWORD != '' }}
+          HAS_APP_PASSWORD: ${{ secrets.APP_PASSWORD != '' }}
         run: |
-          if [ "$HAS_USERNAME" = "true" ] && [ "$HAS_ACCESS_KEY" = "true" ] && [ "$HAS_APP_CREDENTIAL" = "true" ]; then
+          if [ "$HAS_USERNAME" = "true" ] && [ "$HAS_ACCESS_KEY" = "true" ] && [ "$HAS_APP_PASSWORD" = "true" ]; then
             echo "configured=true" >> "$GITHUB_OUTPUT"
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
@@ -36,7 +36,7 @@ jobs:
     env:
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      APP_CREDENTIAL: ${{ secrets.APP_PASSWORD }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
     steps:
       - uses: actions/checkout@v6
 
