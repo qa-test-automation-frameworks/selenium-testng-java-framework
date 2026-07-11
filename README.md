@@ -101,7 +101,7 @@ graph TD;
 ## Scope and Limits
 
 - The bundled Grid is a lightweight reference Grid, not a high-availability browser farm.
-- Accessibility coverage is an opt-in structural smoke suite; it is not a full axe-core audit yet.
+- Accessibility coverage is an opt-in axe-core structural smoke suite over the selected pages; it is not WCAG conformance evidence or a full product audit.
 - Visual checks use a baseline scaffold and whole-image hash comparisons; they are not pixel-diff tooling.
 - Safari remains local headed macOS-only and requires Safari remote automation.
 - The product catalog assertions intentionally use static Sauce Demo data.
@@ -109,13 +109,15 @@ graph TD;
 ## Documentation
 
 - [Portfolio Review Guide](docs/PORTFOLIO_REVIEW_GUIDE.md)
+- [Current verification record](docs/evidence/latest-verification.md)
+- [Enterprise adaptation](docs/enterprise-adaptation.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Execution Guide](docs/EXECUTION_GUIDE.md)
 - [Test Writing Guide](docs/TEST_WRITING_GUIDE.md)
 - [Debugging Guide](docs/DEBUGGING_GUIDE.md)
 - [Enterprise Scalability](docs/ENTERPRISE_SCALABILITY.md)
+- [Accessibility/visual sample scope](docs/evidence/accessibility-visual-sample.md)
 - [Reliability Policy](docs/RELIABILITY_POLICY.md)
 - [Architecture Decision Records](docs/adr/README.md)
 - [Seeded Defect Examples](docs/seeded-defects.md)
 - [Changelog](CHANGELOG.md)
-

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "repository": "selenium-testng-java-framework",
+  "evidenceState": "evidence-stale",
+  "evidenceClass": ["controlled"],
+  "verifiedRef": "main",
+  "verifiedSha": null,
+  "workflow": {"name": "ui-tests.yml", "runId": null, "runUrl": null, "branch": "main", "event": null, "conclusion": null, "completedAt": null},
+  "target": {"name": "Sauce Demo with repository-controlled Docker Grid", "environment": "controlled"},
+  "results": [],
+  "reportUrl": "https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/",
+  "artifactRetention": "CI artifacts plus published Allure history",
+  "limitationsUrl": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/blob/main/docs/known-issues.md",
+  "generatedAt": "2026-07-11T00:00:00Z"
+}
