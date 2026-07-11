@@ -1,15 +1,19 @@
 {
   "schemaVersion": 1,
   "repository": "selenium-testng-java-framework",
-  "evidenceState": "evidence-stale",
+  "evidenceState": "review-ready",
   "evidenceClass": ["controlled"],
   "verifiedRef": "main",
-  "verifiedSha": null,
-  "workflow": {"name": "ui-tests.yml", "runId": null, "runUrl": null, "branch": "main", "event": null, "conclusion": null, "completedAt": null},
+  "verifiedSha": "10f86c348edc63fe7060d1d8523e306635792c8d",
+  "workflow": {"name": "ui-tests.yml", "runId": 29137543488, "runUrl": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/29137543488", "branch": "main", "event": "push", "conclusion": "success", "completedAt": "2026-07-11T03:15:08Z"},
   "target": {"name": "Sauce Demo with repository-controlled Docker Grid", "environment": "controlled"},
-  "results": [],
+  "results": [
+    {"command": "TestNG suite - Sauce Demo UI Regression (CHROME)", "total": 34, "passed": 34, "failed": 0, "skipped": 0, "durationSeconds": 52.042},
+    {"command": "TestNG suite - Sauce Demo UI Regression (FIREFOX)", "total": 34, "passed": 34, "failed": 0, "skipped": 0, "durationSeconds": 195.488},
+    {"command": "TestNG suite - Sauce Demo UI Regression (EDGE)", "total": 34, "passed": 34, "failed": 0, "skipped": 0, "durationSeconds": 69.480}
+  ],
   "reportUrl": "https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/",
   "artifactRetention": "CI artifacts plus published Allure history",
   "limitationsUrl": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/blob/main/docs/known-issues.md",
-  "generatedAt": "2026-07-11T00:00:00Z"
+  "generatedAt": "2026-07-11T04:30:00Z"
 }

@@ -4,7 +4,7 @@ framework: Java 21, Selenium 4, TestNG
 defaultGate: .\mvnw.cmd clean verify
 metrics: target/portfolio-metrics-v1.json
 liveReport: https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/
-release: https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/releases/tag/v1.1.0
+release: https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/releases/tag/v1.0.0
 reliabilityPolicy: docs/RELIABILITY_POLICY.md
 quarantine: reliability/quarantine.yml
 scalabilityGuide: docs/ENTERPRISE_SCALABILITY.md
