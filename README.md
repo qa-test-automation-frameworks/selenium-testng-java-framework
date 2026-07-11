@@ -12,7 +12,9 @@ automation patterns.
 
 This repo intentionally targets one controlled demo app. It demonstrates
 framework ownership, Grid-safe execution, diagnostics, and governance rather
-than claiming cloud-grid scale or broad application coverage.
+than claiming cloud-grid scale or broad application coverage. See
+[enterprise adaptation](docs/enterprise-adaptation.md) for how these patterns
+carry over to a real, larger application under test.
 
 ## Reviewer Proof
 
