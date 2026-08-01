@@ -11,13 +11,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <selenium.version>4.44.0</selenium.version>
+        <selenium.version>4.46.0</selenium.version>
         <testng.version>7.12.0</testng.version>
-        <allure.java.version>2.35.2</allure.java.version>
+        <allure.java.version>2.35.4</allure.java.version>
         <allure.report.version>2.39.0</allure.report.version>
-        <allure.maven.version>3.0.1</allure.maven.version>
+        <allure.maven.version>3.0.3</allure.maven.version>
         <assertj.version>3.27.7</assertj.version>
-        <log4j.version>2.26.0</log4j.version>
+        <log4j.version>2.26.1</log4j.version>
         <lombok.version>1.18.46</lombok.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <axe.selenium.version>4.10.2</axe.selenium.version>
