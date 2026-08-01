@@ -20,7 +20,7 @@
         <log4j.version>2.26.0</log4j.version>
         <lombok.version>1.18.46</lombok.version>
         <aspectj.version>1.9.25.1</aspectj.version>
-        <axe.selenium.version>4.10.2</axe.selenium.version>
+        <axe.selenium.version>4.12.0</axe.selenium.version>
         <slf4j.version>2.0.18</slf4j.version>
         <maven.pmd.plugin.version>3.28.0</maven.pmd.plugin.version>
         <maven.dependency.plugin.version>3.11.0</maven.dependency.plugin.version>
