@@ -2,6 +2,12 @@ name: Cloud Grid Smoke
 
 on:
   workflow_dispatch:
+    inputs:
+      run_smoke:
+        description: 'Start the optional BrowserStack smoke (may consume cloud minutes)'
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: '0 5 * * 1'
 
@@ -13,24 +19,70 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       configured: ${{ steps.check.outputs.configured }}
+      run_smoke: ${{ steps.check.outputs.run_smoke }}
+      skip_reason: ${{ steps.check.outputs.skip_reason }}
     steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
       - name: Check cloud-grid secrets are configured
         id: check
         env:
           HAS_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME != '' }}
           HAS_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY != '' }}
           HAS_APP_PASSWORD: ${{ secrets.APP_PASSWORD != '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_RUN_REQUESTED: ${{ inputs.run_smoke }}
         run: |
           if [ "$HAS_USERNAME" = "true" ] && [ "$HAS_ACCESS_KEY" = "true" ] && [ "$HAS_APP_PASSWORD" = "true" ]; then
             echo "configured=true" >> "$GITHUB_OUTPUT"
+            if [ "$EVENT_NAME" != "workflow_dispatch" ] || [ "$MANUAL_RUN_REQUESTED" = "true" ]; then
+              echo "run_smoke=true" >> "$GITHUB_OUTPUT"
+              echo "skip_reason=" >> "$GITHUB_OUTPUT"
+            else
+              echo "run_smoke=false" >> "$GITHUB_OUTPUT"
+              echo "skip_reason=Manual BrowserStack execution was not requested." >> "$GITHUB_OUTPUT"
+              echo "BrowserStack credentials are present but this manual run did not request cloud execution."
+            fi
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "run_smoke=false" >> "$GITHUB_OUTPUT"
+            echo "skip_reason=Cloud-grid credentials are not configured; no browser session was attempted." >> "$GITHUB_OUTPUT"
             echo "Cloud-grid secrets are not configured; skipping optional smoke run."
           fi
 
+      - name: Emit explicit credential skip evidence
+        if: steps.check.outputs.run_smoke == 'false'
+        env:
+          TEST_OUTCOME: skipped
+          SKIP_REASON: ${{ steps.check.outputs.skip_reason }}
+          GITHUB_WORKFLOW: Cloud Grid Smoke
+          SCOPE_ID: cloud.browserstack.CHROME
+          EVIDENCE_CLASS: credentialed
+          TARGET_ID: saucedemo-public-demo
+          TARGET_ENVIRONMENT: browserstack-cloud
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          SCOPE_REQUIRED: 'false'
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TARGET_PROFILE: CHROME
+        run: |
+          python3 scripts/emit_evidence.py
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+
+      - name: Upload credential skip evidence
+        if: steps.check.outputs.run_smoke == 'false'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-cloud-grid-skipped
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
+
   browserstack-smoke:
     needs: check-secrets
-    if: needs.check-secrets.outputs.configured == 'true'
+    if: needs.check-secrets.outputs.run_smoke == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -39,6 +91,10 @@ jobs:
       APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
 
       - uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
@@ -50,12 +106,50 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run cloud-grid smoke
+        id: native-tests
         env:
           APP_USERNAME: standard_user
         run: |
+          rm -f target/surefire-reports/TEST-*.xml
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           ./mvnw test \
             -Dgroups=inventory,cart \
             -Dbrowser=CHROME \
             -Dheadless=false \
             -Dexecution.type=remote \
             -Dremote.url=https://${BROWSERSTACK_USERNAME}:${BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub
+
+      - name: Emit cloud-grid evidence
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.native-tests.outcome }}
+          GITHUB_WORKFLOW: Cloud Grid Smoke
+          SCOPE_ID: cloud.browserstack.CHROME
+          BROWSER: CHROME
+          EVIDENCE_CLASS: credentialed
+          TARGET_ID: saucedemo-public-demo
+          TARGET_ENVIRONMENT: browserstack-cloud
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          SCOPE_REQUIRED: 'false'
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TARGET_PROFILE: CHROME
+          JAVA_VERSION: '21'
+          MAVEN_VERSION: '3.9.15'
+          SELENIUM_VERSION: '4.39.0'
+          TESTNG_VERSION: '7.12.0'
+        run: |
+          set +e
+          export COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/emit_evidence.py
+          emit_status=$?
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+          validate_status=$?
+          if [ "$emit_status" -ne 0 ] || [ "$validate_status" -ne 0 ]; then exit 1; fi
+
+      - name: Upload cloud-grid evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-cloud-grid-CHROME
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
