@@ -46,7 +46,10 @@ Local verification used the real framework-quality Maven suite (3 passed, 0
 failed, 0 skipped), then generated and validated a current-format record. Five
 focused Python tests cover redaction, failed native outcome, missing/inconsistent
 reports, credential skip semantics, and a runner that never started. A local
-controlled TestNG failure also produced a reconciled failed record; its temporary
-failure test was removed immediately after the check. That injected local record
-is only a negative-path adapter check, not a current-source run record. Remote
-workflow evidence is required before treating E02 as complete for this repository.
+dedicated TestNG failure-control suite (`testng-evidence-failure-control.xml`)
+produced exactly one reconciled failed record locally. Its explicit suite keeps
+the intentional failure out of ordinary framework-quality runs. The workflow's
+`evidence-failure-control` job now runs that suite with continue-on-error only
+for the native test step, then requires a schema-valid, source-bound failed
+record matching its raw Surefire report. Remote verification of that committed
+control is still required before treating E02 as complete for this repository.

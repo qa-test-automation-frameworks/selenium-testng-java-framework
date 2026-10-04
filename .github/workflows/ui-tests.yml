@@ -159,6 +159,79 @@ jobs:
           name: cyclonedx-sbom
           path: target/*bom*.*
 
+  evidence-failure-control:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
+
+      - name: Validate Maven wrapper distribution
+        run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
+
+      - name: Start controlled failure run
+        run: |
+          rm -f target/surefire-reports/TEST-*.xml target/portfolio-metrics-v1.json
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Run intentional TestNG failure control
+        id: controlled-failure
+        continue-on-error: true
+        run: ./mvnw -Dtestng.suite.file=testng-evidence-failure-control.xml test
+
+      - name: Emit and validate negative evidence
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.controlled-failure.outcome }}
+          GITHUB_WORKFLOW: UI Tests
+          SCOPE_ID: evidence-negative-control
+          COUNT_UNIT: test_case
+          EVIDENCE_CLASS: hermetic
+          SCOPE_REQUIRED: 'true'
+          TARGET_ID: selenium-evidence-control
+          TARGET_REVISION: ${{ github.sha }}
+          TARGET_ENVIRONMENT: ci-hermetic
+          TARGET_PROFILE: controlled-failure
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JAVA_VERSION: '21'
+          MAVEN_VERSION: '3.9.15'
+          SELENIUM_VERSION: '4.39.0'
+          TESTNG_VERSION: '7.12.0'
+        run: |
+          set +e
+          export COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/emit_evidence.py
+          emit_status=$?
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+          schema_status=$?
+          python3 scripts/verify_negative_evidence.py target/portfolio-evidence/evidence-v3.json target/surefire-reports "$GITHUB_RUN_ID" "$GITHUB_SHA"
+          verify_status=$?
+          if [ "$emit_status" -ne 0 ] || [ "$schema_status" -ne 0 ] || [ "$verify_status" -ne 0 ]; then exit 1; fi
+
+      - name: Upload negative-control evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-negative-control
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
+
   test:
     needs: quality-gates
     runs-on: ubuntu-latest
@@ -452,7 +525,7 @@ jobs:
 
   required-ci:
     # One stable check fails closed if any required matrix leg or quality gate is skipped/missing.
-    needs: [quality-gates, test, accessibility]
+    needs: [quality-gates, evidence-failure-control, test, accessibility]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -460,6 +533,7 @@ jobs:
       QUALITY_RESULT: ${{ needs.quality-gates.result }}
       MATRIX_RESULT: ${{ needs.test.result }}
       ACCESSIBILITY_RESULT: ${{ needs.accessibility.result }}
+      FAILURE_CONTROL_RESULT: ${{ needs.evidence-failure-control.result }}
       EVENT_NAME: ${{ github.event_name }}
       ACCESSIBILITY_REQUESTED: ${{ inputs.run_accessibility }}
     steps:
@@ -468,6 +542,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$QUALITY_RESULT" = success
+          test "$FAILURE_CONTROL_RESULT" = success
           test "$MATRIX_RESULT" = success
           if [[ "$EVENT_NAME" == schedule || ( "$EVENT_NAME" == workflow_dispatch && "$ACCESSIBILITY_REQUESTED" == true ) ]]; then
             test "$ACCESSIBILITY_RESULT" = success
