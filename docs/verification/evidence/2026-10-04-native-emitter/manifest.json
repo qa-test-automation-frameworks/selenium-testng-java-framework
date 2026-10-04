@@ -1,67 +1,174 @@
 {
   "schemaVersion": 1,
   "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
-  "workflowRun": {
-    "runId": "37213951076",
-    "attempt": 1,
-    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213951076",
-    "branchHeadSha": "958fb81cbc83a88802ea3fd958c0240642092f89",
-    "testedMergeSha": "907f8e7b5f52dd6376897a745a564db114bad46d",
-    "artifactExpiresAt": "2027-01-02T15:41:29Z"
-  },
-  "scopeResults": {
-    "quality-gates": {"jobId": "111470557022", "result": "success"},
-    "evidence-failure-control": {"jobId": "111470697416", "result": "success"},
-    "test (CHROME)": {"jobId": "111470697451", "result": "success"},
-    "test (FIREFOX)": {"jobId": "111470697483", "result": "success"},
-    "test (EDGE)": {"jobId": "111470697465", "result": "success"},
-    "required-ci": {"jobId": "111471231010", "result": "success"},
-    "dependency-review": {"jobId": "111470557255", "result": "success"},
-    "accessibility": {"jobId": "111470698621", "result": "skipped_by_trigger"}
+  "workflowRuns": [
+    {
+      "workflow": "UI Tests",
+      "event": "pull_request",
+      "runId": "37214733913",
+      "attempt": 1,
+      "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37214733913",
+      "branchHeadSha": "7a2d420da252a294b017986034f96844005efa14",
+      "testedMergeSha": "0fc841270da21f08863cf9ec296d057393d453d3",
+      "conclusion": "success",
+      "requiredCiJobId": "111473644474",
+      "artifactsExpireAt": "2027-01-02T15:53:58Z"
+    },
+    {
+      "workflow": "Cloud Grid Smoke",
+      "event": "workflow_dispatch",
+      "runId": "37214755074",
+      "attempt": 1,
+      "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37214755074",
+      "branchSha": "7a2d420da252a294b017986034f96844005efa14",
+      "conclusion": "success",
+      "browserstackSmoke": "skipped; credentials absent; no session started",
+      "artifactsExpireAt": "2027-01-02T15:54:20Z"
+    }
+  ],
+  "jobResults": {
+    "quality-gates": "success",
+    "evidence-failure-control": "success",
+    "test (CHROME)": "success",
+    "test (FIREFOX)": "success",
+    "test (EDGE)": "success",
+    "required-ci": "success",
+    "dependency-review": "success",
+    "accessibility": "skipped_by_trigger",
+    "browserstack-smoke": "skipped_by_safe_manual_dispatch"
   },
   "records": [
     {
       "scope": "framework-quality",
       "file": "records/framework-quality.json",
-      "sha256": "2f43be605d67986e44dbb040a61e51b26c712d4a2b586b1f698b0482a702c3bd",
-      "nativeInputSha256": "20819af2a57ffb6b9c0ebfa9b6bea6ed0b3bfb7cdb607587170b11df19dc6551",
-      "artifact": {"name": "evidence-framework-quality", "sha256": "76f79d1407039f9f92019319977dfc1ac1a7c570b80f475ddd52eda18650fdc1", "sizeBytes": 1217}
+      "sha256": "a33ab0d89101aa2b8781981eb6de3a371701b6a238416d7b17254751afa38ca6",
+      "workflowRunId": "37214733913",
+      "attempt": 1,
+      "testedMergeSha": "0fc841270da21f08863cf9ec296d057393d453d3",
+      "nativeInputSha256": "669670025bfd3e5cfc2f2e56661cd1f41ca95cf69daecd3996ced2a10e4001bf",
+      "jobId": "111472831465",
+      "evidenceArtifact": {
+        "name": "evidence-framework-quality",
+        "sha256": "77865611ddbfa27e7a56d3e0e7fa7a2760457585d9e3942977c32f04a1df8372",
+        "sizeBytes": 1213,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      },
+      "nativeArtifact": {
+        "name": "surefire-reports-framework-quality",
+        "sha256": "9f164b403eb8dd4f4efd75ffc01c70901942537b0dba5082070df273502f286e",
+        "sizeBytes": 2947,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      }
     },
     {
       "scope": "evidence-negative-control",
       "file": "records/negative-control.json",
-      "sha256": "0c0b1165bbcdd501e7b9ba5fa4f6bda191c6ff3378428820c0e99c1e0e089dde",
-      "nativeInputSha256": "f8bfed721ede761d4935f29973fa84b2cf4be3d0c2c63ed06f7d0972080dd54f",
-      "artifact": {"name": "evidence-negative-control", "sha256": "d651e4e88e710385289032ee061c5cc881960baabffdb6300216ab86f81181dd", "sizeBytes": 1264}
+      "sha256": "75204c30017101e89d82d2da00d76c890e4e8eab05e4e9dc4fa5a1192e4985e3",
+      "workflowRunId": "37214733913",
+      "attempt": 1,
+      "testedMergeSha": "0fc841270da21f08863cf9ec296d057393d453d3",
+      "nativeInputSha256": "d3dba8ee81cec38ae197a91dd3a560489245fb44d22834f2fe7f2071b5020b28",
+      "jobId": "111472936085",
+      "evidenceArtifact": {
+        "name": "evidence-negative-control",
+        "sha256": "e05674f67d2598ead9bcb70577e50f691142dee5dd0d6e005d7eb92e542e8667",
+        "sizeBytes": 1262,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      },
+      "nativeArtifact": {
+        "name": "surefire-reports-negative-control",
+        "sha256": "c1032f205e0c2f860abcd1759897b08c635d64d1cedf52f788bdbf77b638e20e",
+        "sizeBytes": 3448,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      }
     },
     {
       "scope": "ui.CHROME",
       "file": "records/chrome.json",
-      "sha256": "c39e3b9e157c0e882ff9298c4c3b2a03f30f6c81573b0d8a187a6c8d22d7d246",
-      "nativeInputSha256": "af1c9e73d83ab855dc146b730a13ae65f318d2e30bb0928c3be9beeb59dd2f96",
-      "evidenceArtifact": {"name": "evidence-ui-CHROME", "sha256": "bbf53be95bce14c2345ad27503ae5af131067f30edd51b2ac1f73dd106d408f3", "sizeBytes": 1280},
-      "nativeArtifact": {"name": "surefire-reports-CHROME", "sha256": "99833709055821e61d91f9dd74968893e4366d01e12c4cfbc931851d53f4b259", "sizeBytes": 81610}
+      "sha256": "aba812589d07ab3e59af7a08f276307db0bf8fb910b7bc755eadf356c0e79626",
+      "workflowRunId": "37214733913",
+      "attempt": 1,
+      "testedMergeSha": "0fc841270da21f08863cf9ec296d057393d453d3",
+      "nativeInputSha256": "386ef0e03aeded8df7ce3f9fc16ed5d4a72896a9c7103f8158c8948d77ed0224",
+      "jobId": "111472936109",
+      "evidenceArtifact": {
+        "name": "evidence-ui-CHROME",
+        "sha256": "90375beb8547983de8e2584cebf25bb53702e41fd1d4ceb27790c225ebe39628",
+        "sizeBytes": 1277,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      },
+      "nativeArtifact": {
+        "name": "surefire-reports-CHROME",
+        "sha256": "454219fedb6caae2c8cb136a2a8aa3753c055b7f59bed97e19abd0a0346c160b",
+        "sizeBytes": 81880,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      }
     },
     {
       "scope": "ui.FIREFOX",
       "file": "records/firefox.json",
-      "sha256": "1fc30c1854e0373d0135c72af440b71b7ec1f195dfa564673f35611b43ff46d5",
-      "nativeInputSha256": "44cd48446c6a7cbb252a23a50b59297ba7734bc05d15bea89ca40abed5294a07",
-      "evidenceArtifact": {"name": "evidence-ui-FIREFOX", "sha256": "8771246d3461e64dff4f4b8831c183d5034915a09ac51cd68b6a870842af6138", "sizeBytes": 1281},
-      "nativeArtifact": {"name": "surefire-reports-FIREFOX", "sha256": "4fce29e0a65801c2e91ee7c4e37e86361bb5c50418a7d13af1da9c72aece9a85", "sizeBytes": 82114}
+      "sha256": "dc46f41f103c3a88d39d400ca67ea87db35c18878871e1483875ab8037efa814",
+      "workflowRunId": "37214733913",
+      "attempt": 1,
+      "testedMergeSha": "0fc841270da21f08863cf9ec296d057393d453d3",
+      "nativeInputSha256": "d4fa0b3cab4db63456c74143e75015f7376ece6e39c040e46b6d906e3af1f3aa",
+      "jobId": "111472936038",
+      "evidenceArtifact": {
+        "name": "evidence-ui-FIREFOX",
+        "sha256": "1e9ec07949f522b19d7478ca744e541b3db0af011724b975e561bb7b4a5134aa",
+        "sizeBytes": 1280,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      },
+      "nativeArtifact": {
+        "name": "surefire-reports-FIREFOX",
+        "sha256": "6e8ddd141b9ad83f748a71154688df42213cbc1f3be9cdfab01026cd73a7d1f6",
+        "sizeBytes": 82218,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      }
     },
     {
       "scope": "ui.EDGE",
       "file": "records/edge.json",
-      "sha256": "2d4555994cdd67f89d0d8a40c89eb37b42d1401b5570a55dc87f32c4261ab3ca",
-      "nativeInputSha256": "d0e6b2a8b7683578aeb81dd25b870488c5597d1b1b05aeb1923821c4ce453bbe",
-      "evidenceArtifact": {"name": "evidence-ui-EDGE", "sha256": "bb733ec829ce353abd05d6f73160d6f2abf1db8908424da0975dd4c6cd851cfa", "sizeBytes": 1275},
-      "nativeArtifact": {"name": "surefire-reports-EDGE", "sha256": "70e662bb45c6738b2a3854b43260f80f68fde01f31d27ffcd686132ab427fdb0", "sizeBytes": 82000}
+      "sha256": "8b7375f6f9849f774dc5bbaadd9fe3ab9026106bb904c97e898e2712cab174d9",
+      "workflowRunId": "37214733913",
+      "attempt": 1,
+      "testedMergeSha": "0fc841270da21f08863cf9ec296d057393d453d3",
+      "nativeInputSha256": "3ae59c263c94969ac470af92381fbde9c3c3b8d10a736da49a754e20029a01b6",
+      "jobId": "111472936138",
+      "evidenceArtifact": {
+        "name": "evidence-ui-EDGE",
+        "sha256": "dc0251af7218490e2b1eb5ac47cf29d53ea71a3908a3ba1afdb59aaab93d0c3f",
+        "sizeBytes": 1274,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      },
+      "nativeArtifact": {
+        "name": "surefire-reports-EDGE",
+        "sha256": "fb410acde7327f192e950a6639d62f4ed4a4e2059b76b108c901c991a5a1d45a",
+        "sizeBytes": 81646,
+        "expiresAt": "2027-01-02T15:53:58Z"
+      }
+    },
+    {
+      "scope": "cloud.browserstack.CHROME",
+      "file": "records/cloud-grid-skipped.json",
+      "sha256": "0c64a69f6a045dfaeeb85b328eca7a9723a54899f7cafb5ab7fcfcc717a60cb9",
+      "workflowRunId": "37214755074",
+      "attempt": 1,
+      "testedBranchSha": "7a2d420da252a294b017986034f96844005efa14",
+      "jobId": "111472896287",
+      "execution": "skipped",
+      "reason": "Cloud-grid credentials are not configured; no browser session was attempted.",
+      "evidenceArtifact": {
+        "name": "evidence-cloud-grid-skipped",
+        "sha256": "1875219cf82f0809f1fc4a0602b7609474651b1af2ac5f88df73c2c04d7986ec",
+        "sizeBytes": 1145,
+        "expiresAt": "2027-01-02T15:54:20Z"
+      }
     }
   ],
   "validation": {
     "schemaSha256": "40502a47e825755d216e35ea19716ad7de69e47accd6aed1cfb3607160e4d1b9",
     "freshnessPolicySha256": "1313329c1c06bd3a056dd1ed7d25c631036cae58480fdc4e767f22a0a01a568e",
-    "status": "all five records schema/semantic valid; browser report counts and input hashes reconciled; quality and negative-control Surefire hashes verified in their emitting jobs"
+    "status": "six records schema/semantic valid; five native Surefire reports and final outcomes reconciled to input hashes; BrowserStack skip has null counts/times and no browser session"
   }
 }

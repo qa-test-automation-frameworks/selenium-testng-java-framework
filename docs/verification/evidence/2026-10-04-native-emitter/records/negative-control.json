@@ -1,18 +1,18 @@
 {
   "schemaVersion": 3,
   "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
-  "sourceSha": "907f8e7b5f52dd6376897a745a564db114bad46d",
+  "sourceSha": "0fc841270da21f08863cf9ec296d057393d453d3",
   "limitations": [
     "Surefire XML contains aggregate outcomes only; testcase names, parameters, traces and environment values are intentionally omitted.",
-    "Native Surefire XML SHA-256: f8bfed721ede761d4935f29973fa84b2cf4be3d0c2c63ed06f7d0972080dd54f"
+    "Native Surefire XML SHA-256: d3dba8ee81cec38ae197a91dd3a560489245fb44d22834f2fe7f2071b5020b28"
   ],
   "kind": "execution",
   "workflow": {
     "id": "qa-test-automation-frameworks/selenium-testng-java-framework/.github/workflows/ui-tests.yml@refs/pull/41/merge",
     "name": "UI Tests",
-    "runId": "37213951076",
+    "runId": "37214733913",
     "attempt": 1,
-    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213951076",
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37214733913",
     "trigger": "pull_request",
     "branch": "41/merge"
   },
@@ -24,7 +24,7 @@
   },
   "target": {
     "identity": "selenium-evidence-control",
-    "revision": "907f8e7b5f52dd6376897a745a564db114bad46d",
+    "revision": "0fc841270da21f08863cf9ec296d057393d453d3",
     "fixtureVersion": null,
     "environment": "ci-hermetic",
     "profile": "controlled-failure",
@@ -38,8 +38,8 @@
   "execution": {
     "disposition": "failed",
     "reason": "The native runner failed, reported failing cases, or selected no substantive cases.",
-    "startedAt": "2026-10-04T15:42:23Z",
-    "completedAt": "2026-10-04T15:42:34Z",
+    "startedAt": "2026-10-04T15:54:47Z",
+    "completedAt": "2026-10-04T15:54:56Z",
     "integrity": "complete",
     "counts": {
       "unit": "test_case",

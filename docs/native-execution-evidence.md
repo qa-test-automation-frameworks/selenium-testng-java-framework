@@ -12,10 +12,9 @@ parameters, exception text, credentials, screenshots, and logs from the record.
 selected minus skipped, and passed/failed are final outcomes. `retried` counts
 unique testcase entries containing a Surefire `flakyFailure` or `flakyError`;
 retries never inflate selected or final outcomes. `native_retry_attempts` records
-the total number of those native attempt elements separately. If Surefire's
-output does not expose retries in those standard elements, both measures are
-zero; the native XML hash and attempt elements remain in the existing raw report
-artifact. A missing report emits unavailable evidence and fails collection; inconsistent output
+the total number of those native attempt elements separately. These counts reflect only retry elements present in Surefire XML; the current
+verified runs contained none. The native XML hash and retry elements remain
+in the raw report artifact for independent inspection. A missing report emits unavailable evidence and fails collection; inconsistent output
 emits partial failed evidence and fails collection. The earlier native test
 step retains its exit status, so valid failure evidence cannot turn a failed
 test green.
@@ -57,8 +56,9 @@ produced exactly one reconciled failed record locally. Its explicit suite keeps
 the intentional failure out of ordinary framework-quality runs. The workflow's
 `evidence-failure-control` job now runs that suite with continue-on-error only
 for the native test step, then requires a schema-valid, source-bound failed
-record matching its raw Surefire report. Remote verification of the committed
-failure control and all three browser legs passed in [run 37213951076](verification/2026-10-04-native-emitter.md).
-The optional BrowserStack credential-skip record has only local schema coverage;
-the modified cloud-grid path awaits a scheduled run, and accessibility was not
-part of that PR workflow. These optional scopes are not represented as executed.
+record matching its raw Surefire report. Remote verification of framework quality, the committed failure control, and all
+three browser legs passed in [run 37214733913](verification/2026-10-04-native-emitter.md).
+The modified Cloud Grid path also produced and validated a no-credentials skip
+record in run 37214755074; counts and timestamps are null and no BrowserStack
+session started. Accessibility was not triggered in the PR workflow, so it is
+not represented as executed.
