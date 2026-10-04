@@ -14,6 +14,12 @@ jobs:
     outputs:
       configured: ${{ steps.check.outputs.configured }}
     steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
       - name: Check cloud-grid secrets are configured
         id: check
         env:
@@ -28,6 +34,32 @@ jobs:
             echo "Cloud-grid secrets are not configured; skipping optional smoke run."
           fi
 
+      - name: Emit explicit credential skip evidence
+        if: steps.check.outputs.configured == 'false'
+        env:
+          TEST_OUTCOME: skipped
+          SKIP_REASON: Cloud-grid credentials are not configured; no browser session was attempted.
+          GITHUB_WORKFLOW: Cloud Grid Smoke
+          SCOPE_ID: cloud.browserstack.CHROME
+          EVIDENCE_CLASS: credentialed
+          TARGET_ID: saucedemo-public-demo
+          TARGET_ENVIRONMENT: browserstack-cloud
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          SCOPE_REQUIRED: 'false'
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TARGET_PROFILE: CHROME
+        run: |
+          python3 scripts/emit_evidence.py
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+
+      - name: Upload credential skip evidence
+        if: steps.check.outputs.configured == 'false'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-cloud-grid-skipped
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
+
   browserstack-smoke:
     needs: check-secrets
     if: needs.check-secrets.outputs.configured == 'true'
@@ -40,6 +72,10 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
       - uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
           java-version: '21'
@@ -50,12 +86,50 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run cloud-grid smoke
+        id: native-tests
         env:
           APP_USERNAME: standard_user
         run: |
+          rm -f target/surefire-reports/TEST-*.xml
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           ./mvnw test \
             -Dgroups=inventory,cart \
             -Dbrowser=CHROME \
             -Dheadless=false \
             -Dexecution.type=remote \
             -Dremote.url=https://${BROWSERSTACK_USERNAME}:${BROWSERSTACK_ACCESS_KEY}@hub-cloud.browserstack.com/wd/hub
+
+      - name: Emit cloud-grid evidence
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.native-tests.outcome }}
+          GITHUB_WORKFLOW: Cloud Grid Smoke
+          SCOPE_ID: cloud.browserstack.CHROME
+          BROWSER: CHROME
+          EVIDENCE_CLASS: credentialed
+          TARGET_ID: saucedemo-public-demo
+          TARGET_ENVIRONMENT: browserstack-cloud
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          SCOPE_REQUIRED: 'false'
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TARGET_PROFILE: CHROME
+          JAVA_VERSION: '21'
+          MAVEN_VERSION: '3.9.15'
+          SELENIUM_VERSION: '4.39.0'
+          TESTNG_VERSION: '7.12.0'
+        run: |
+          set +e
+          export COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/emit_evidence.py
+          emit_status=$?
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+          validate_status=$?
+          if [ "$emit_status" -ne 0 ] || [ "$validate_status" -ne 0 ]; then exit 1; fi
+
+      - name: Upload cloud-grid evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-cloud-grid-CHROME
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error

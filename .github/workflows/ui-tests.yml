@@ -44,6 +44,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
       - name: Set up JDK 21
         uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
@@ -57,8 +61,50 @@ jobs:
       - name: Validate Maven wrapper distribution
         run: grep -Fxq 'distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.15/apache-maven-3.9.15-bin.zip' .mvn/wrapper/maven-wrapper.properties
 
+      - name: Start native evidence window
+        run: |
+          rm -f target/surefire-reports/TEST-*.xml target/portfolio-metrics-v1.json
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
       - name: Run compiled framework quality gate
+        id: native-tests
         run: ./mvnw -Dtestng.suite.file=testng-framework-unit.xml verify
+
+      - name: Emit framework quality evidence
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.native-tests.outcome }}
+          GITHUB_WORKFLOW: UI Tests
+          SCOPE_ID: framework-quality
+          COUNT_UNIT: test_case
+          EVIDENCE_CLASS: hermetic
+          TARGET_ID: selenium-framework-unit
+          TARGET_REVISION: ${{ github.sha }}
+          TARGET_ENVIRONMENT: ci-hermetic
+          TARGET_PROFILE: framework-unit
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          SCOPE_REQUIRED: 'true'
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JAVA_VERSION: '21'
+          MAVEN_VERSION: '3.9.15'
+          SELENIUM_VERSION: '4.39.0'
+          TESTNG_VERSION: '7.12.0'
+        run: |
+          set +e
+          export COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/emit_evidence.py
+          emit_status=$?
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+          validate_status=$?
+          if [ "$emit_status" -ne 0 ] || [ "$validate_status" -ne 0 ]; then exit 1; fi
+
+      - name: Upload framework quality evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-framework-quality
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
 
       - name: Verify quality-gate inputs and reports
         shell: bash
@@ -126,6 +172,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
       - name: Set up JDK 21
         uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
@@ -168,26 +218,56 @@ jobs:
         env:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
 
-      - name: Run public smoke tests
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
-        env:
-          APP_USERNAME: standard_user
+      - name: Run UI tests
+        id: native-tests
         run: |
+          rm -f target/surefire-reports/TEST-*.xml target/portfolio-metrics-v1.json
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           TEST_STATUS=0
-          ./mvnw clean test -Dgroups=inventory,cart -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
-          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{}
-          exit $TEST_STATUS
-
-      - name: Run full UI regression
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          TEST_STATUS=0
-          ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
-          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{}
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]]; then
+            export APP_USERNAME=standard_user
+            ./mvnw clean test -Dgroups=inventory,cart -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
+          else
+            export APP_USERNAME=standard_user
+            ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=true -Dthread.count=2 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
+          fi
+          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || true
           exit $TEST_STATUS
         env:
-          APP_USERNAME: standard_user
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+
+      - name: Emit browser-matrix evidence
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.native-tests.outcome }}
+          GITHUB_WORKFLOW: UI Tests
+          SCOPE_ID: ui.${{ matrix.browser }}
+          BROWSER: ${{ matrix.browser }}
+          EVIDENCE_CLASS: controlled
+          TARGET_ID: saucedemo-public-demo
+          TARGET_ENVIRONMENT: public-demo
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JAVA_VERSION: '21'
+          MAVEN_VERSION: '3.9.15'
+          SELENIUM_VERSION: '4.39.0'
+          TESTNG_VERSION: '7.12.0'
+        run: |
+          set +e
+          export COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/emit_evidence.py
+          emit_status=$?
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+          validate_status=$?
+          if [ "$emit_status" -ne 0 ] || [ "$validate_status" -ne 0 ]; then exit 1; fi
+
+      - name: Upload browser-matrix evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-ui-${{ matrix.browser }}
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
 
       - name: Upload Allure results
         if: always()
@@ -250,6 +330,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
       - name: Set up JDK 21
         uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
@@ -278,11 +362,48 @@ jobs:
           done
 
       - name: Run accessibility smoke suite
+        id: native-tests
         run: |
+          rm -f target/surefire-reports/TEST-*.xml target/portfolio-metrics-v1.json
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           TEST_STATUS=0
           ./mvnw clean test -Dtestng.suite.file=testng-accessibility.xml -Dgroups=accessibility -Dbrowser=CHROME -Dheadless=true -Dthread.count=1 -Dexecution.type=remote -Dremote.url=http://localhost:4444/wd/hub -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || TEST_STATUS=$?
-          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{}
+          ./mvnw allure:report -DskipTests -Dallure.issue.pattern=https://github.com/${{ github.repository }}/issues/{} || true
           exit $TEST_STATUS
+
+      - name: Emit accessibility evidence
+        if: always()
+        env:
+          TEST_OUTCOME: ${{ steps.native-tests.outcome }}
+          GITHUB_WORKFLOW: UI Tests
+          SCOPE_ID: accessibility.CHROME
+          BROWSER: CHROME
+          EVIDENCE_CLASS: controlled
+          TARGET_ID: saucedemo-public-demo
+          TARGET_ENVIRONMENT: public-demo
+          FRESHNESS_POLICY: quarterly_experiment_v1
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JAVA_VERSION: '21'
+          MAVEN_VERSION: '3.9.15'
+          SELENIUM_VERSION: '4.39.0'
+          TESTNG_VERSION: '7.12.0'
+          TARGET_PROFILE: accessibility
+        run: |
+          set +e
+          export COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/emit_evidence.py
+          emit_status=$?
+          node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+          validate_status=$?
+          if [ "$emit_status" -ne 0 ] || [ "$validate_status" -ne 0 ]; then exit 1; fi
+
+      - name: Upload accessibility evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: evidence-accessibility-CHROME
+          path: target/portfolio-evidence/evidence-v3.json
+          if-no-files-found: error
 
       - name: Upload Allure results
         if: always()
@@ -329,8 +450,31 @@ jobs:
             echo "- Allure report artifact: allure-report-accessibility"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  required-ci:
+    # One stable check fails closed if any required matrix leg or quality gate is skipped/missing.
+    needs: [quality-gates, test, accessibility]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      QUALITY_RESULT: ${{ needs.quality-gates.result }}
+      MATRIX_RESULT: ${{ needs.test.result }}
+      ACCESSIBILITY_RESULT: ${{ needs.accessibility.result }}
+      EVENT_NAME: ${{ github.event_name }}
+      ACCESSIBILITY_REQUESTED: ${{ inputs.run_accessibility }}
+    steps:
+      - name: Enforce mandatory scopes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$QUALITY_RESULT" = success
+          test "$MATRIX_RESULT" = success
+          if [[ "$EVENT_NAME" == schedule || ( "$EVENT_NAME" == workflow_dispatch && "$ACCESSIBILITY_REQUESTED" == true ) ]]; then
+            test "$ACCESSIBILITY_RESULT" = success
+          fi
+
   publish-allure-report:
-    needs: [test, accessibility]
+    needs: [test, accessibility, required-ci]
     # Publish even on failed tests so the latest failure diagnostics remain inspectable.
     if: always() && github.ref == 'refs/heads/main' && (needs.test.result != 'skipped' || needs.accessibility.result != 'skipped')
     runs-on: ubuntu-latest
