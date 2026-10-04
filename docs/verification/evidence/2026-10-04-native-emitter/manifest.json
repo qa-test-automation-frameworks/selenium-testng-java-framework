@@ -2,52 +2,66 @@
   "schemaVersion": 1,
   "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
   "workflowRun": {
-    "runId": "37213038141",
+    "runId": "37213951076",
     "attempt": 1,
-    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213038141",
-    "branchHeadSha": "1cb54b88b2baeb6f210af6c147e977496d0a2639",
-    "testedMergeSha": "84a71b252cb76e49313f1a79235e24ef9b7c32b0",
-    "artifactExpiresAt": "2027-01-02T15:26:58Z"
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213951076",
+    "branchHeadSha": "958fb81cbc83a88802ea3fd958c0240642092f89",
+    "testedMergeSha": "907f8e7b5f52dd6376897a745a564db114bad46d",
+    "artifactExpiresAt": "2027-01-02T15:41:29Z"
   },
-  "scopes": [
+  "scopeResults": {
+    "quality-gates": {"jobId": "111470557022", "result": "success"},
+    "evidence-failure-control": {"jobId": "111470697416", "result": "success"},
+    "test (CHROME)": {"jobId": "111470697451", "result": "success"},
+    "test (FIREFOX)": {"jobId": "111470697483", "result": "success"},
+    "test (EDGE)": {"jobId": "111470697465", "result": "success"},
+    "required-ci": {"jobId": "111471231010", "result": "success"},
+    "dependency-review": {"jobId": "111470557255", "result": "success"},
+    "accessibility": {"jobId": "111470698621", "result": "skipped_by_trigger"}
+  },
+  "records": [
     {
-      "id": "framework-quality",
-      "jobId": "111467887397",
-      "record": "records/framework-quality.json",
-      "recordSha256": "4f712d62194097fc080b26ba998c8fb1500c92204339cf701ecee39516148d61",
-      "evidenceArtifact": {"name": "evidence-framework-quality", "sha256": "0e692b913d8fc622fe54ca55bac28d3f3dd9037c3702d12d964900fa897e6f31", "sizeBytes": 1213}
+      "scope": "framework-quality",
+      "file": "records/framework-quality.json",
+      "sha256": "2f43be605d67986e44dbb040a61e51b26c712d4a2b586b1f698b0482a702c3bd",
+      "nativeInputSha256": "20819af2a57ffb6b9c0ebfa9b6bea6ed0b3bfb7cdb607587170b11df19dc6551",
+      "artifact": {"name": "evidence-framework-quality", "sha256": "76f79d1407039f9f92019319977dfc1ac1a7c570b80f475ddd52eda18650fdc1", "sizeBytes": 1217}
     },
     {
-      "id": "ui.CHROME",
-      "jobId": "111468027115",
-      "record": "records/chrome.json",
-      "recordSha256": "8e7c4de5ce5cf9808a96e691e3d38bcb8735eb287cd82acc0d14650b654805e6",
-      "nativeInputSha256": "eab91aeea5dbc5aabf1ce1c692bdeb021ef939e8ccacd630270bbe64bc4e021d",
-      "evidenceArtifact": {"name": "evidence-ui-CHROME", "sha256": "c53d96a0927108f0aba5de9e6ca8e66c8654b176616e210f741f4b5cdda0579b", "sizeBytes": 1276},
-      "nativeArtifact": {"name": "surefire-reports-CHROME", "sha256": "4952dd2b17e4b3f5591af53dacaf495f4f09d5151d8ea2219592fb0627bcad27", "sizeBytes": 81914}
+      "scope": "evidence-negative-control",
+      "file": "records/negative-control.json",
+      "sha256": "0c0b1165bbcdd501e7b9ba5fa4f6bda191c6ff3378428820c0e99c1e0e089dde",
+      "nativeInputSha256": "f8bfed721ede761d4935f29973fa84b2cf4be3d0c2c63ed06f7d0972080dd54f",
+      "artifact": {"name": "evidence-negative-control", "sha256": "d651e4e88e710385289032ee061c5cc881960baabffdb6300216ab86f81181dd", "sizeBytes": 1264}
     },
     {
-      "id": "ui.FIREFOX",
-      "jobId": "111468027123",
-      "record": "records/firefox.json",
-      "recordSha256": "fd920e1a5f48bb55572b15e3df4fdffad8d5c242e72a409b0018c05fd256b202",
-      "nativeInputSha256": "f57e677e67dab1f884ee7564fd22f3691c547fcae1f79885f8324b54b244971d",
-      "evidenceArtifact": {"name": "evidence-ui-FIREFOX", "sha256": "c6b04ff4ec3e65e70c1894576e9d71b62f43e8a3b655834dd0fa4a77d2863303", "sizeBytes": 1281},
-      "nativeArtifact": {"name": "surefire-reports-FIREFOX", "sha256": "1b72367e4c1af6a5bd25078c08294742733ecbadeb9ed1a850305bd924be4e3b", "sizeBytes": 82291}
+      "scope": "ui.CHROME",
+      "file": "records/chrome.json",
+      "sha256": "c39e3b9e157c0e882ff9298c4c3b2a03f30f6c81573b0d8a187a6c8d22d7d246",
+      "nativeInputSha256": "af1c9e73d83ab855dc146b730a13ae65f318d2e30bb0928c3be9beeb59dd2f96",
+      "evidenceArtifact": {"name": "evidence-ui-CHROME", "sha256": "bbf53be95bce14c2345ad27503ae5af131067f30edd51b2ac1f73dd106d408f3", "sizeBytes": 1280},
+      "nativeArtifact": {"name": "surefire-reports-CHROME", "sha256": "99833709055821e61d91f9dd74968893e4366d01e12c4cfbc931851d53f4b259", "sizeBytes": 81610}
     },
     {
-      "id": "ui.EDGE",
-      "jobId": "111468027086",
-      "record": "records/edge.json",
-      "recordSha256": "ec12bfb49603fa4f9f32668114fa11019dd4cddda7ccd55ad3e19c4221c2fcca",
-      "nativeInputSha256": "5f089196c51c8d8c641d4259c14dbb57bb2c2c236c23444e2ca149bc60d53f16",
-      "evidenceArtifact": {"name": "evidence-ui-EDGE", "sha256": "43867d3b5be14449b1ab3f2a4442f2f449bc2e367ad16496b995c0b0d6d26286", "sizeBytes": 1275},
-      "nativeArtifact": {"name": "surefire-reports-EDGE", "sha256": "35b13441124f2bb3ed1e28e7830e11bdfba956d6c9076d97c113f877cc6fecc0", "sizeBytes": 81906}
+      "scope": "ui.FIREFOX",
+      "file": "records/firefox.json",
+      "sha256": "1fc30c1854e0373d0135c72af440b71b7ec1f195dfa564673f35611b43ff46d5",
+      "nativeInputSha256": "44cd48446c6a7cbb252a23a50b59297ba7734bc05d15bea89ca40abed5294a07",
+      "evidenceArtifact": {"name": "evidence-ui-FIREFOX", "sha256": "8771246d3461e64dff4f4b8831c183d5034915a09ac51cd68b6a870842af6138", "sizeBytes": 1281},
+      "nativeArtifact": {"name": "surefire-reports-FIREFOX", "sha256": "4fce29e0a65801c2e91ee7c4e37e86361bb5c50418a7d13af1da9c72aece9a85", "sizeBytes": 82114}
+    },
+    {
+      "scope": "ui.EDGE",
+      "file": "records/edge.json",
+      "sha256": "2d4555994cdd67f89d0d8a40c89eb37b42d1401b5570a55dc87f32c4261ab3ca",
+      "nativeInputSha256": "d0e6b2a8b7683578aeb81dd25b870488c5597d1b1b05aeb1923821c4ce453bbe",
+      "evidenceArtifact": {"name": "evidence-ui-EDGE", "sha256": "bb733ec829ce353abd05d6f73160d6f2abf1db8908424da0975dd4c6cd851cfa", "sizeBytes": 1275},
+      "nativeArtifact": {"name": "surefire-reports-EDGE", "sha256": "70e662bb45c6738b2a3854b43260f80f68fde01f31d27ffcd686132ab427fdb0", "sizeBytes": 82000}
     }
   ],
   "validation": {
     "schemaSha256": "40502a47e825755d216e35ea19716ad7de69e47accd6aed1cfb3607160e4d1b9",
     "freshnessPolicySha256": "1313329c1c06bd3a056dd1ed7d25c631036cae58480fdc4e767f22a0a01a568e",
-    "status": "all four records schema/semantic valid; browser aggregate counts and Surefire XML input hashes reconciled"
+    "status": "all five records schema/semantic valid; browser report counts and input hashes reconciled; quality and negative-control Surefire hashes verified in their emitting jobs"
   }
 }

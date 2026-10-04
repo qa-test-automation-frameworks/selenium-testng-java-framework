@@ -1,19 +1,19 @@
 {
   "schemaVersion": 3,
   "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
-  "sourceSha": "84a71b252cb76e49313f1a79235e24ef9b7c32b0",
+  "sourceSha": "907f8e7b5f52dd6376897a745a564db114bad46d",
   "limitations": [
     "Surefire XML contains aggregate outcomes only; testcase names, parameters, traces and environment values are intentionally omitted.",
     "SauceDemo is vendor-managed; this run did not discover an application release or fixture revision.",
-    "Native Surefire XML SHA-256: f57e677e67dab1f884ee7564fd22f3691c547fcae1f79885f8324b54b244971d"
+    "Native Surefire XML SHA-256: 44cd48446c6a7cbb252a23a50b59297ba7734bc05d15bea89ca40abed5294a07"
   ],
   "kind": "execution",
   "workflow": {
     "id": "qa-test-automation-frameworks/selenium-testng-java-framework/.github/workflows/ui-tests.yml@refs/pull/41/merge",
     "name": "UI Tests",
-    "runId": "37213038141",
+    "runId": "37213951076",
     "attempt": 1,
-    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213038141",
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213951076",
     "trigger": "pull_request",
     "branch": "41/merge"
   },
@@ -39,8 +39,8 @@
   "execution": {
     "disposition": "passed",
     "reason": null,
-    "startedAt": "2026-10-04T15:28:28Z",
-    "completedAt": "2026-10-04T15:31:33Z",
+    "startedAt": "2026-10-04T15:42:58Z",
+    "completedAt": "2026-10-04T15:45:02Z",
     "integrity": "complete",
     "counts": {
       "unit": "parameter_case",

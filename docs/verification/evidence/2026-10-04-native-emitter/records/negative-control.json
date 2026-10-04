@@ -4,8 +4,7 @@
   "sourceSha": "907f8e7b5f52dd6376897a745a564db114bad46d",
   "limitations": [
     "Surefire XML contains aggregate outcomes only; testcase names, parameters, traces and environment values are intentionally omitted.",
-    "SauceDemo is vendor-managed; this run did not discover an application release or fixture revision.",
-    "Native Surefire XML SHA-256: af1c9e73d83ab855dc146b730a13ae65f318d2e30bb0928c3be9beeb59dd2f96"
+    "Native Surefire XML SHA-256: f8bfed721ede761d4935f29973fa84b2cf4be3d0c2c63ed06f7d0972080dd54f"
   ],
   "kind": "execution",
   "workflow": {
@@ -18,17 +17,17 @@
     "branch": "41/merge"
   },
   "scope": {
-    "id": "ui.CHROME",
-    "evidenceClass": "controlled",
+    "id": "evidence-negative-control",
+    "evidenceClass": "hermetic",
     "required": true,
     "freshnessPolicy": "quarterly_experiment_v1"
   },
   "target": {
-    "identity": "saucedemo-public-demo",
-    "revision": null,
+    "identity": "selenium-evidence-control",
+    "revision": "907f8e7b5f52dd6376897a745a564db114bad46d",
     "fixtureVersion": null,
-    "environment": "public-demo",
-    "profile": "CHROME",
+    "environment": "ci-hermetic",
+    "profile": "controlled-failure",
     "tools": {
       "java": "21",
       "maven": "3.9.15",
@@ -37,17 +36,17 @@
     }
   },
   "execution": {
-    "disposition": "passed",
-    "reason": null,
-    "startedAt": "2026-10-04T15:43:02Z",
-    "completedAt": "2026-10-04T15:44:06Z",
+    "disposition": "failed",
+    "reason": "The native runner failed, reported failing cases, or selected no substantive cases.",
+    "startedAt": "2026-10-04T15:42:23Z",
+    "completedAt": "2026-10-04T15:42:34Z",
     "integrity": "complete",
     "counts": {
-      "unit": "parameter_case",
-      "selected": 34,
-      "executed": 34,
-      "passed": 34,
-      "failed": 0,
+      "unit": "test_case",
+      "selected": 1,
+      "executed": 1,
+      "passed": 0,
+      "failed": 1,
       "skipped": 0,
       "retried": 0,
       "semantics": "Final Surefire JUnit testcase invocations (each TestNG data-provider invocation is a testcase); selected includes skips; retried counts unique testcase entries with native flakyFailure/flakyError children."
@@ -63,10 +62,10 @@
     ],
     "shards": {
       "expected": [
-        "ui.CHROME"
+        "evidence-negative-control"
       ],
       "received": [
-        "ui.CHROME"
+        "evidence-negative-control"
       ]
     }
   },

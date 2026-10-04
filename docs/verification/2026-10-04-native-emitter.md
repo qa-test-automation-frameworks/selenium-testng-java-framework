@@ -2,24 +2,27 @@
 
 ## Exact run
 
-- Workflow run: [37213038141](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213038141)
-- PR branch head: `1cb54b88b2baeb6f210af6c147e977496d0a2639`
-- Exact PR merge checkout recorded in the manifests: `84a71b252cb76e49313f1a79235e24ef9b7c32b0` (matches the open PR's `merge_commit_sha` at verification time)
+- Workflow run: [37213951076](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37213951076)
+- Implementation branch head: `958fb81cbc83a88802ea3fd958c0240642092f89`
+- Exact PR merge checkout recorded in all five manifests: `907f8e7b5f52dd6376897a745a564db114bad46d` (matches the open PR's `merge_commit_sha`)
 - Attempt: `1`
-- Job results: `quality-gates` 111467887397, Chrome 111468027115, Edge 111468027086, Firefox 111468027123, and `required-ci` 111468779948 all succeeded. Dependency review 111467887559 succeeded. Accessibility, dependency governance, and Pages publication were skipped by their declared trigger conditions.
-- The separate BrowserStack workflow was not dispatched; these results do not claim a cloud-grid execution or no-key remote run.
+- `quality-gates`, `evidence-failure-control`, Chrome, Firefox, Edge, dependency review, and `required-ci` succeeded. Accessibility, dependency governance, and Pages publication were skipped by their declared trigger conditions.
+- The cloud-grid workflow was not dispatched. This run makes no BrowserStack execution or no-key remote-record claim.
 
 ## Reconciled native counts
 
-The four retained records under [`records`](evidence/2026-10-04-native-emitter/records) were downloaded from that exact Actions run. Every record has the same run ID, attempt, and exact merge checkout SHA, passes the vendored schema/semantic validator, and has `publication.disposition = pending`.
+The five retained records listed in the [evidence manifest](evidence/2026-10-04-native-emitter/manifest.json) were downloaded from that exact Actions run. Every record is bound to its run ID, attempt, and tested merge SHA; all five passed the vendored schema and semantic validator. The failed record is intentional and valid evidence, not a failed workflow.
 
-| Scope | Native Surefire selected | Passed | Failed | Skipped | Unique retried | Raw retry attempts |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Framework quality | 3 | 3 | 0 | 0 | 0 | 0 |
-| Chrome | 34 | 34 | 0 | 0 | 0 | 0 |
-| Firefox | 34 | 34 | 0 | 0 | 0 | 0 |
-| Edge | 34 | 34 | 0 | 0 | 0 | 0 |
+| Scope | Disposition | Selected | Passed | Failed | Skipped | Unique retried | Raw retry attempts |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Framework quality | passed | 3 | 3 | 0 | 0 | 0 | 0 |
+| Failure control | failed | 1 | 0 | 1 | 0 | 0 | 0 |
+| Chrome | passed | 34 | 34 | 0 | 0 | 0 | 0 |
+| Firefox | passed | 34 | 34 | 0 | 0 | 0 | 0 |
+| Edge | passed | 34 | 34 | 0 | 0 | 0 | 0 |
 
-For each browser, the retained record's native XML input digest was recomputed from the downloaded `TEST-TestSuite.xml` bytes and matched exactly. The record counts also match the raw XML's `tests`, `failures`, `errors`, `skipped`, and testcase outcomes. The record SHA-256 values and native input hashes are in [`manifest.json`](evidence/2026-10-04-native-emitter/manifest.json). Raw XML and detailed Surefire HTML were checked locally but are not committed because they contain case-level diagnostic information; their original Actions artifacts expire on **2027-01-02 15:26:58 UTC**.
+For each browser, the retained record's native XML input digest was recomputed from the downloaded `TEST-TestSuite.xml` and matched exactly; its counts also match the raw XML aggregate counters and testcase outcomes. The failure-control job checked its generated record against exactly one failed Surefire testcase, the raw XML digest, current Actions run ID, and current source SHA before passing. The quality gate also emitted a three-case record; its native input hash is retained in the record and was verified inside the job, but the quality job does not upload raw XML separately. Raw browser XML contains case-level details, so it is not committed; its original Actions artifacts expire on **2027-01-02 15:41:29 UTC**. Artifact archive hashes, record hashes, report hashes, and job IDs are listed in the [`evidence manifest`](evidence/2026-10-04-native-emitter/manifest.json).
 
-The organization schema validator accepted all four downloaded records. The run exercised actual Java 21 / Maven 3.9.15 / TestNG 7.12.0 UI execution on all three browsers. The SauceDemo target does not expose a release or fixture revision, so those values remain null with the limitation stated in each record. This is current E02 execution evidence only; short-lived Actions artifacts are not E03 durable publication, and the optional BrowserStack and accessibility scopes remain separate.
+The successful browser run exercised the actual Selenium/TestNG suite on Chrome, Firefox, and Edge. SauceDemo exposes no application release or fixture revision, so those values remain null with the limitation stated in each record. The dedicated control suite is included only by `testng-evidence-failure-control.xml` and is excluded from normal framework-quality and UI suites.
+
+This verifies E02's Selenium quality, browser, failure, and aggregate-gate paths. Credential-skip behavior is covered by local schema tests, and an earlier run [36415043699](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/36415043699) had a successful secret preflight with BrowserStack skipped before this emitter existed; the new cloud-grid skip record still awaits its next scheduled run. Accessibility was not run in this PR workflow. Artifacts remain short-lived, so this is not E03 durable publication.

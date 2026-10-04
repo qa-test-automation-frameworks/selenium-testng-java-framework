@@ -26,6 +26,12 @@ runner or claim a test result. The stable `required-ci` job fails unless the
 quality gate and all three browser matrix children pass; accessibility is
 required on its scheduled trigger and when requested manually.
 
+The Cloud Grid manual input `run_smoke` defaults to false because a real
+BrowserStack run may consume paid cloud minutes. A scheduled run proceeds when
+credentials exist; a manual run proceeds only after explicit opt-in. Every
+non-execution path produces a reasoned skip record without contacting the
+BrowserStack hub.
+
 The checked-in schema and dependency-free Node validator are portable snapshots
 of the organization E01 contract. Schema SHA-256:
 `40502a47e825755d216e35ea19716ad7de69e47accd6aed1cfb3607160e4d1b9`.
@@ -51,5 +57,8 @@ produced exactly one reconciled failed record locally. Its explicit suite keeps
 the intentional failure out of ordinary framework-quality runs. The workflow's
 `evidence-failure-control` job now runs that suite with continue-on-error only
 for the native test step, then requires a schema-valid, source-bound failed
-record matching its raw Surefire report. Remote verification of that committed
-control is still required before treating E02 as complete for this repository.
+record matching its raw Surefire report. Remote verification of the committed
+failure control and all three browser legs passed in [run 37213951076](verification/2026-10-04-native-emitter.md).
+The optional BrowserStack credential-skip record has only local schema coverage;
+the modified cloud-grid path awaits a scheduled run, and accessibility was not
+part of that PR workflow. These optional scopes are not represented as executed.

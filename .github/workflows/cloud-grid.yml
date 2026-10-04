@@ -2,6 +2,12 @@ name: Cloud Grid Smoke
 
 on:
   workflow_dispatch:
+    inputs:
+      run_smoke:
+        description: 'Start the optional BrowserStack smoke (may consume cloud minutes)'
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: '0 5 * * 1'
 
@@ -13,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       configured: ${{ steps.check.outputs.configured }}
+      run_smoke: ${{ steps.check.outputs.run_smoke }}
+      skip_reason: ${{ steps.check.outputs.skip_reason }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -26,19 +34,31 @@ jobs:
           HAS_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME != '' }}
           HAS_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY != '' }}
           HAS_APP_PASSWORD: ${{ secrets.APP_PASSWORD != '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_RUN_REQUESTED: ${{ inputs.run_smoke }}
         run: |
           if [ "$HAS_USERNAME" = "true" ] && [ "$HAS_ACCESS_KEY" = "true" ] && [ "$HAS_APP_PASSWORD" = "true" ]; then
             echo "configured=true" >> "$GITHUB_OUTPUT"
+            if [ "$EVENT_NAME" != "workflow_dispatch" ] || [ "$MANUAL_RUN_REQUESTED" = "true" ]; then
+              echo "run_smoke=true" >> "$GITHUB_OUTPUT"
+              echo "skip_reason=" >> "$GITHUB_OUTPUT"
+            else
+              echo "run_smoke=false" >> "$GITHUB_OUTPUT"
+              echo "skip_reason=Manual BrowserStack execution was not requested." >> "$GITHUB_OUTPUT"
+              echo "BrowserStack credentials are present but this manual run did not request cloud execution."
+            fi
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "run_smoke=false" >> "$GITHUB_OUTPUT"
+            echo "skip_reason=Cloud-grid credentials are not configured; no browser session was attempted." >> "$GITHUB_OUTPUT"
             echo "Cloud-grid secrets are not configured; skipping optional smoke run."
           fi
 
       - name: Emit explicit credential skip evidence
-        if: steps.check.outputs.configured == 'false'
+        if: steps.check.outputs.run_smoke == 'false'
         env:
           TEST_OUTCOME: skipped
-          SKIP_REASON: Cloud-grid credentials are not configured; no browser session was attempted.
+          SKIP_REASON: ${{ steps.check.outputs.skip_reason }}
           GITHUB_WORKFLOW: Cloud Grid Smoke
           SCOPE_ID: cloud.browserstack.CHROME
           EVIDENCE_CLASS: credentialed
@@ -53,7 +73,7 @@ jobs:
           node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
 
       - name: Upload credential skip evidence
-        if: steps.check.outputs.configured == 'false'
+        if: steps.check.outputs.run_smoke == 'false'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: evidence-cloud-grid-skipped
@@ -62,7 +82,7 @@ jobs:
 
   browserstack-smoke:
     needs: check-secrets
-    if: needs.check-secrets.outputs.configured == 'true'
+    if: needs.check-secrets.outputs.run_smoke == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
