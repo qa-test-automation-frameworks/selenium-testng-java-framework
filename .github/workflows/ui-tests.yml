@@ -115,6 +115,24 @@ jobs:
               print(f"::error title=Framework unit failure::{escaped}")
           PY
 
+      - name: Publish formatter patch after a Spotless failure
+        if: always() && steps.native-tests.outcome == 'failure'
+        run: |
+          if ! grep -q 'spotless-maven-plugin.*check' target/framework-quality.log; then exit 0; fi
+          set +e
+          ./mvnw spotless:apply > target/spotless-apply.log 2>&1
+          apply_status=$?
+          set -e
+          {
+            echo '## Spotless formatter patch (diagnostic only)'
+            echo
+            echo "Formatter exit status: $apply_status"
+            echo
+            echo '```diff'
+            git diff -- src/test/java
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Emit framework quality evidence
         if: always()
         env:

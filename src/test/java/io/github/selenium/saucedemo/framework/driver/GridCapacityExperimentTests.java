@@ -53,7 +53,8 @@ public class GridCapacityExperimentTests {
         .as("every bounded Grid session should start, serve the probe page, and quit")
         .isEmpty();
     assertThat(samples).hasSize(21);
-    assertThat(samples.stream().map(SessionSample::sessionIdSha256).distinct().count()).isEqualTo(21);
+    assertThat(samples.stream().map(SessionSample::sessionIdSha256).distinct().count())
+        .isEqualTo(21);
   }
 
   private static void sample(

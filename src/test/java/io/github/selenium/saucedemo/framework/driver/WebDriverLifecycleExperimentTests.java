@@ -9,8 +9,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,9 +19,7 @@ import org.openqa.selenium.WebDriverException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-/**
- * Deterministic controls for driver creation, disconnect cleanup, and worker isolation.
- */
+/** Deterministic controls for driver creation, disconnect cleanup, and worker isolation. */
 public class WebDriverLifecycleExperimentTests {
 
   @AfterMethod(alwaysRun = true)
