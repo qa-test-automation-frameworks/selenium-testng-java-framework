@@ -53,6 +53,75 @@ jobs:
           grep -F 'RequireJavaVersion' <<< "$output"
           grep -F 'not in the allowed range [21,)' <<< "$output"
 
+  fresh-clone-bootstrap:
+    # Prove the documented no-secret first-success command with no Maven dependency cache.
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up JDK 21 without Maven caching
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
+
+      - name: Run the documented unit first-success path in an empty Maven repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p target
+          cold_repo="$RUNNER_TEMP/m2-cold"
+          test ! -e "$cold_repo"
+          started=$(date +%s)
+          ./mvnw -B -ntp -C \
+            -Dmaven.repo.local="$cold_repo" \
+            -Dtestng.suite.file=testng-framework-unit.xml verify 2>&1 | tee target/fresh-clone-bootstrap.log
+          elapsed=$(($(date +%s) - started))
+          python3 - "$elapsed" <<'PY'
+          import glob
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          elapsed = int(sys.argv[1])
+          totals = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
+          for filename in glob.glob("target/surefire-reports/TEST-*.xml"):
+              root = ET.parse(filename).getroot()
+              suites = [root] if root.tag == "testsuite" else list(root.iter("testsuite"))
+              for suite in suites:
+                  for key in totals:
+                      totals[key] += int(suite.get(key, "0"))
+          if totals["tests"] == 0 or totals["failures"] or totals["errors"]:
+              raise SystemExit(f"Fresh-bootstrap reports did not prove a passing test run: {totals}")
+          summary = (
+              "## Fresh-clone Maven bootstrap\n\n"
+              f"- Command: `./mvnw -B -ntp -C -Dmaven.repo.local=$RUNNER_TEMP/m2-cold "
+              "-Dtestng.suite.file=testng-framework-unit.xml verify`\n"
+              f"- Elapsed: {elapsed} seconds with an empty isolated Maven repository\n"
+              f"- Native Surefire totals: {totals['tests']} tests, {totals['failures']} failures, "
+              f"{totals['errors']} errors, {totals['skipped']} skipped\n"
+          )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as stream:
+              stream.write(summary)
+          print(summary)
+          PY
+
+      - name: Preserve cold-bootstrap log and native Surefire reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: selenium-fresh-clone-bootstrap
+          path: |
+            target/fresh-clone-bootstrap.log
+            target/surefire-reports/TEST-*.xml
+          if-no-files-found: warn
+          retention-days: 30
+
   dependency-review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -702,12 +771,13 @@ jobs:
 
   required-ci:
     # One stable check fails closed if any required matrix leg or quality gate is skipped/missing.
-    needs: [unsupported-java-runtime, quality-gates, evidence-failure-control, test, accessibility, grid-capacity-experiment]
+    needs: [unsupported-java-runtime, fresh-clone-bootstrap, quality-gates, evidence-failure-control, test, accessibility, grid-capacity-experiment]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       JAVA_RUNTIME_RESULT: ${{ needs.unsupported-java-runtime.result }}
+      BOOTSTRAP_RESULT: ${{ needs.fresh-clone-bootstrap.result }}
       QUALITY_RESULT: ${{ needs.quality-gates.result }}
       MATRIX_RESULT: ${{ needs.test.result }}
       ACCESSIBILITY_RESULT: ${{ needs.accessibility.result }}
@@ -721,6 +791,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$JAVA_RUNTIME_RESULT" = success
+          test "$BOOTSTRAP_RESULT" = success
           test "$QUALITY_RESULT" = success
           test "$FAILURE_CONTROL_RESULT" = success
           test "$MATRIX_RESULT" = success
