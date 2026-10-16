@@ -22,9 +22,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.annotations.Test;
 
-/**
- * Bounded local Selenium Grid probe that records session creation latency and cycle time.
- */
+/** Bounded local Selenium Grid probe that records session creation latency and cycle time. */
 public class GridCapacityExperimentTests {
 
   private static final int SAMPLES_PER_WORKER_COUNT = 3;

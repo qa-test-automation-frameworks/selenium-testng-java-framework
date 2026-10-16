@@ -81,8 +81,7 @@ public class WebDriverLifecycleExperimentTests {
     try (var executor =
         Executors.newFixedThreadPool(
             2,
-            runnable ->
-                new Thread(runnable, "worker-session-" + nextWorkerId.getAndIncrement()))) {
+            runnable -> new Thread(runnable, "worker-session-" + nextWorkerId.getAndIncrement()))) {
       List<Future<String>> futures =
           List.of(
               executor.submit(() -> captureWorkerSession(initialized, release)),
@@ -130,24 +129,23 @@ public class WebDriverLifecycleExperimentTests {
   }
 
   private static FrameworkConfig config() {
-    return
-        (FrameworkConfig)
-            Proxy.newProxyInstance(
-                FrameworkConfig.class.getClassLoader(),
-                new Class<?>[] {FrameworkConfig.class},
-                (proxy, method, arguments) -> {
-                  return switch (method.getName()) {
-                    case "browserType" -> BrowserType.CHROME;
-                    case "executionType" -> "local";
-                    case "headless" -> true;
-                    case "pageLoadTimeoutSeconds", "scriptTimeoutSeconds" -> 5;
-                    case "explicitWaitSeconds" -> 1;
-                    case "pollingIntervalMs" -> 50L;
-                    case "networkLogsEnabled" -> false;
-                    case "toString" -> "synthetic lifecycle test configuration";
-                    default -> defaultValue(method.getReturnType());
-                  };
-                });
+    return (FrameworkConfig)
+        Proxy.newProxyInstance(
+            FrameworkConfig.class.getClassLoader(),
+            new Class<?>[] {FrameworkConfig.class},
+            (proxy, method, arguments) -> {
+              return switch (method.getName()) {
+                case "browserType" -> BrowserType.CHROME;
+                case "executionType" -> "local";
+                case "headless" -> true;
+                case "pageLoadTimeoutSeconds", "scriptTimeoutSeconds" -> 5;
+                case "explicitWaitSeconds" -> 1;
+                case "pollingIntervalMs" -> 50L;
+                case "networkLogsEnabled" -> false;
+                case "toString" -> "synthetic lifecycle test configuration";
+                default -> defaultValue(method.getReturnType());
+              };
+            });
   }
 
   private static Object defaultValue(Class<?> type) {
@@ -194,10 +192,9 @@ public class WebDriverLifecycleExperimentTests {
             default -> defaultValue(method.getReturnType());
           };
         };
-    return
-        (WebDriver)
-            Proxy.newProxyInstance(
-                WebDriver.class.getClassLoader(), new Class<?>[] {WebDriver.class}, handler);
+    return (WebDriver)
+        Proxy.newProxyInstance(
+            WebDriver.class.getClassLoader(), new Class<?>[] {WebDriver.class}, handler);
   }
 
   private static WebDriver.Options options() {
