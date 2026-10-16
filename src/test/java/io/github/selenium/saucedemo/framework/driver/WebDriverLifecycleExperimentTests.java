@@ -206,12 +206,11 @@ public class WebDriverLifecycleExperimentTests {
             default -> defaultValue(method.getReturnType());
           };
         };
-    return
-        (WebDriver.Options)
-            Proxy.newProxyInstance(
-                WebDriver.Options.class.getClassLoader(),
-                new Class<?>[] {WebDriver.Options.class},
-                handler);
+    return (WebDriver.Options)
+        Proxy.newProxyInstance(
+            WebDriver.Options.class.getClassLoader(),
+            new Class<?>[] {WebDriver.Options.class},
+            handler);
   }
 
   private static WebDriver.Timeouts timeouts() {
@@ -225,11 +224,10 @@ public class WebDriverLifecycleExperimentTests {
           if (method.getName().equals("toString")) return "synthetic WebDriver timeouts";
           return defaultValue(method.getReturnType());
         };
-    return
-        (WebDriver.Timeouts)
-            Proxy.newProxyInstance(
-                WebDriver.Timeouts.class.getClassLoader(),
-                new Class<?>[] {WebDriver.Timeouts.class},
-                handler);
+    return (WebDriver.Timeouts)
+        Proxy.newProxyInstance(
+            WebDriver.Timeouts.class.getClassLoader(),
+            new Class<?>[] {WebDriver.Timeouts.class},
+            handler);
   }
 }
