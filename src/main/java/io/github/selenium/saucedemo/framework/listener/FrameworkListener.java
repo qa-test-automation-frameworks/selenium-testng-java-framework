@@ -64,8 +64,12 @@ public class FrameworkListener implements ITestListener, IConfigurationListener,
   @Override
   public void onConfigurationFailure(ITestResult result) {
     log.error("Configuration failed: {}", result.getName());
-    DIAGNOSTICS_ATTACHER.attach(
-        "Configuration failure", WebDriverFactory.getThreadLocalWebDriver());
+    try {
+      DIAGNOSTICS_ATTACHER.attach(
+          "Configuration failure", WebDriverFactory.getThreadLocalWebDriver());
+    } finally {
+      WebDriverFactory.cleanUpDriver();
+    }
   }
 
   public static void attachTestFailureDiagnostics(WebDriver driver) {

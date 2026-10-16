@@ -30,38 +30,59 @@ import org.openqa.selenium.safari.SafariDriver;
 @Slf4j
 public class WebDriverFactory {
 
+  @FunctionalInterface
+  interface DriverProvider {
+    WebDriver create(FrameworkConfig config);
+  }
+
   private static final ThreadLocal<WebDriver> WEB_DRIVER = new ThreadLocal<>();
   private static final ThreadLocal<WaitUtils> WAIT_UTILS = new ThreadLocal<>();
   private static final BrowserOptionsFactory BROWSER_OPTIONS_FACTORY = new BrowserOptionsFactory();
+  private static final DriverProvider DEFAULT_DRIVER_PROVIDER = WebDriverFactory::createDriver;
+  private static volatile DriverProvider driverProvider = DEFAULT_DRIVER_PROVIDER;
 
   private WebDriverFactory() {
     /* Utility class */
   }
 
   /**
-   * Internal method to create a new WebDriver instance based on configuration.
+   * Creates a new WebDriver instance based on the configured execution type and browser.
    *
    * @return A configured WebDriver instance.
    */
-  private static WebDriver getDriver(FrameworkConfig config) {
+  private static WebDriver createDriver(FrameworkConfig config) {
     BrowserType browserType = config.browserType();
 
-    WebDriver driver =
-        switch (ExecutionType.from(config.executionType())) {
-          case REMOTE -> {
-            String remoteUrl = config.remoteUrl();
-            try {
-              yield getRemoteDriver(browserType, remoteUrl, config);
-            } catch (MalformedURLException | URISyntaxException e) {
-              throw new FrameworkConfigurationException("Invalid remote URL: " + remoteUrl, e);
-            }
-          }
-          case LOCAL -> createLocalDriver(browserType, config);
-        };
+    return switch (ExecutionType.from(config.executionType())) {
+      case REMOTE -> {
+        String remoteUrl = config.remoteUrl();
+        try {
+          yield getRemoteDriver(browserType, remoteUrl, config);
+        } catch (MalformedURLException | URISyntaxException e) {
+          throw new FrameworkConfigurationException("Invalid remote URL: " + remoteUrl, e);
+        }
+      }
+      case LOCAL -> createLocalDriver(browserType, config);
+    };
+  }
 
-    setTimeOut(driver, config);
-    applyWindowSize(driver, config);
-    return driver;
+  static void setDriverProviderForTesting(DriverProvider provider) {
+    driverProvider = Objects.requireNonNull(provider);
+  }
+
+  static void resetDriverProviderForTesting() {
+    driverProvider = DEFAULT_DRIVER_PROVIDER;
+  }
+
+  private static void closeAfterInitializationFailure(WebDriver driver) {
+    if (driver == null) {
+      return;
+    }
+    try {
+      driver.quit();
+    } catch (Exception cleanupFailure) {
+      log.error("Failed to close WebDriver after initialization failure", cleanupFailure);
+    }
   }
 
   /**
@@ -89,13 +110,17 @@ public class WebDriverFactory {
   /** Quits the current thread's WebDriver and removes it from ThreadLocal storage. */
   public static void cleanUpDriver() {
     try {
+      DiagnosticsCollector.stop();
+    } catch (Exception e) {
+      log.error("Error stopping browser diagnostics", e);
+    }
+    try {
       if (WEB_DRIVER.get() != null) {
         WEB_DRIVER.get().quit();
       }
     } catch (Exception e) {
       log.error("Error quitting driver", e);
     } finally {
-      DiagnosticsCollector.stop();
       WAIT_UTILS.remove();
       WEB_DRIVER.remove();
       log.debug("ThreadLocal WebDriver reference cleared.");
@@ -150,6 +175,7 @@ public class WebDriverFactory {
   }
 
   public static void initThreadLocalDriver(FrameworkConfig config) {
+    WebDriver driver = null;
     try {
       if (WEB_DRIVER.get() != null) {
         log.warn(
@@ -157,11 +183,17 @@ public class WebDriverFactory {
             Thread.currentThread().getName());
         cleanUpDriver();
       }
-      WebDriver driver = getDriver(config);
+      driver = driverProvider.create(config);
+      setTimeOut(driver, config);
+      applyWindowSize(driver, config);
       DiagnosticsCollector.start(driver, config);
       WEB_DRIVER.set(driver);
       WAIT_UTILS.set(new WaitUtils(driver, config));
     } catch (Exception e) {
+      DiagnosticsCollector.stop();
+      closeAfterInitializationFailure(driver);
+      WAIT_UTILS.remove();
+      WEB_DRIVER.remove();
       log.error("Error initializing driver", e);
       throw new IllegalStateException("Failed to initialize WebDriver", e);
     }

@@ -52,10 +52,13 @@ public abstract class BaseTestCase {
   @AfterMethod(alwaysRun = true, description = "Quit WebDriver")
   public void afterMethod(ITestResult result) {
     log.info("AfterMethod: Tearing down driver for test: {}", result.getMethod().getMethodName());
-    if (result.getStatus() == ITestResult.FAILURE) {
-      FrameworkListener.attachTestFailureDiagnostics(getDriver());
+    try {
+      if (result.getStatus() == ITestResult.FAILURE) {
+        FrameworkListener.attachTestFailureDiagnostics(getDriver());
+      }
+    } finally {
+      quitWebDriver();
     }
-    quitWebDriver();
   }
 
   protected record Pages(WebDriver driver) {
