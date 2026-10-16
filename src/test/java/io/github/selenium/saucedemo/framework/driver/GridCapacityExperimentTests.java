@@ -63,38 +63,32 @@ public class GridCapacityExperimentTests {
       List<SessionSample> samples,
       List<String> failures)
       throws Exception {
-    ExecutorService executor = Executors.newFixedThreadPool(workerCount);
     CountDownLatch ready = new CountDownLatch(workerCount);
     CountDownLatch start = new CountDownLatch(1);
     List<Future<SessionSample>> futures = new ArrayList<>();
-    try {
-      for (int worker = 1; worker <= workerCount; worker++) {
-        int workerId = worker;
-        futures.add(
-            executor.submit(
-                () -> openSession(workerCount, repetition, workerId, remoteUrl, ready, start)));
-      }
-      if (!ready.await(START_BARRIER_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
-        failures.add("worker barrier timed out at concurrency " + workerCount);
-        start.countDown();
-      } else {
-        start.countDown();
-      }
-      for (Future<SessionSample> future : futures) {
-        try {
-          samples.add(future.get(120, TimeUnit.SECONDS));
-        } catch (Exception failure) {
-          failures.add(
-              "concurrency " + workerCount + ", repetition " + repetition + ": " + failure);
-        }
-      }
-    } finally {
-      start.countDown();
-      executor.shutdownNow();
+    try (ExecutorService executor = Executors.newFixedThreadPool(workerCount)) {
       try {
-        executor.awaitTermination(10, TimeUnit.SECONDS);
+        for (int worker = 1; worker <= workerCount; worker++) {
+          int workerId = worker;
+          futures.add(
+              executor.submit(
+                  () -> openSession(workerCount, repetition, workerId, remoteUrl, ready, start)));
+        }
+        if (!ready.await(START_BARRIER_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+          failures.add("worker barrier timed out at concurrency " + workerCount);
+        }
+        start.countDown();
+        for (Future<SessionSample> future : futures) {
+          try {
+            samples.add(future.get(120, TimeUnit.SECONDS));
+          } catch (Exception failure) {
+            failures.add(
+                "concurrency " + workerCount + ", repetition " + repetition + ": " + failure);
+          }
+        }
       } finally {
-        executor.close();
+        start.countDown();
+        futures.forEach(future -> future.cancel(true));
       }
     }
   }

@@ -164,8 +164,6 @@ public class WebDriverLifecycleExperimentTests {
     return null;
   }
 
-  // Calling equals from this dynamic proxy's equals handler would recurse into the same handler.
-  @SuppressWarnings("PMD.CompareObjectsWithEquals")
   private static WebDriver driver(
       String sessionId, boolean failDuringSetup, AtomicInteger quitCalls) {
     return driver(sessionId, failDuringSetup, quitCalls, new AtomicBoolean());
@@ -181,7 +179,7 @@ public class WebDriverLifecycleExperimentTests {
           return switch (method.getName()) {
             case "toString" -> sessionId;
             case "hashCode" -> System.identityHashCode(proxy);
-            case "equals" -> proxy == arguments[0];
+            case "equals" -> proxy == arguments[0]; // NOPMD - preserve identity without recursion
             case "quit" -> {
               quitCalls.incrementAndGet();
               if (disconnected.get()) {
