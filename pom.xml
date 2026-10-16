@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <selenium.version>4.44.0</selenium.version>
+        <selenium.version>4.51.0</selenium.version>
         <jackson.version>2.22.3</jackson.version>
         <testng.version>7.12.0</testng.version>
         <allure.java.version>2.35.2</allure.java.version>
