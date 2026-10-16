@@ -71,7 +71,12 @@ jobs:
 
       - name: Run compiled framework quality gate
         id: native-tests
-        run: ./mvnw -Dtestng.suite.file=testng-framework-unit.xml verify
+        run: |
+          mkdir -p target
+          set +e
+          ./mvnw -Dtestng.suite.file=testng-framework-unit.xml verify 2>&1 | tee target/framework-quality.log
+          status=${PIPESTATUS[0]}
+          exit "$status"
 
       - name: Summarize framework unit failures
         if: always() && steps.native-tests.outcome == 'failure'
@@ -90,7 +95,17 @@ jobs:
                       message = (failure.get("message") or failure.text or "no failure message").strip()
                       detail = f"{case.get('classname')}#{case.get('name')}: {message}"
                       findings.append(detail.replace("\r", " ").replace("\n", " ")[:1000])
-          lines = findings or ["The Maven quality gate failed without a Surefire testcase failure record."]
+          if findings:
+              lines = findings
+          else:
+              lines = ["The Maven quality gate failed without a Surefire testcase failure record."]
+              try:
+                  with open("target/framework-quality.log", encoding="utf-8", errors="replace") as stream:
+                      tail = [line.rstrip() for line in stream.readlines()[-35:] if line.strip()]
+                  if tail:
+                      lines.append("Maven log tail: " + " | ".join(tail)[:1800])
+              except OSError:
+                  pass
           if summary:
               with open(summary, "a", encoding="utf-8") as stream:
                   stream.write("## Framework unit failure details\n\n")
@@ -141,7 +156,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: surefire-reports-framework-quality
-          path: target/surefire-reports/TEST-*.xml
+          path: |
+            target/surefire-reports/TEST-*.xml
+            target/framework-quality.log
           if-no-files-found: error
 
       - name: Verify quality-gate inputs and reports
