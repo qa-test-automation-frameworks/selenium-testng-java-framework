@@ -29,6 +29,30 @@ permissions:
   contents: read
 
 jobs:
+  unsupported-java-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up unsupported JDK 17 for the rejection control
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
+        with:
+          java-version: '17'
+          distribution: temurin
+
+      - name: Require Maven Enforcer to reject unsupported JDK 17
+        shell: bash
+        run: |
+          if output=$(./mvnw -B validate 2>&1); then
+            echo 'Maven unexpectedly accepted unsupported JDK 17.'
+            exit 1
+          fi
+          printf '%s\n' "$output"
+          grep -F 'RequireJavaVersion' <<< "$output"
+          grep -F 'not in the allowed range [21,)' <<< "$output"
+
   dependency-review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -678,11 +702,12 @@ jobs:
 
   required-ci:
     # One stable check fails closed if any required matrix leg or quality gate is skipped/missing.
-    needs: [quality-gates, evidence-failure-control, test, accessibility, grid-capacity-experiment]
+    needs: [unsupported-java-runtime, quality-gates, evidence-failure-control, test, accessibility, grid-capacity-experiment]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
+      JAVA_RUNTIME_RESULT: ${{ needs.unsupported-java-runtime.result }}
       QUALITY_RESULT: ${{ needs.quality-gates.result }}
       MATRIX_RESULT: ${{ needs.test.result }}
       ACCESSIBILITY_RESULT: ${{ needs.accessibility.result }}
@@ -695,6 +720,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test "$JAVA_RUNTIME_RESULT" = success
           test "$QUALITY_RESULT" = success
           test "$FAILURE_CONTROL_RESULT" = success
           test "$MATRIX_RESULT" = success
