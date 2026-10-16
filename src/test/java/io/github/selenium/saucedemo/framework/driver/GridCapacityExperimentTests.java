@@ -204,8 +204,9 @@ public class GridCapacityExperimentTests {
             orphanSessions,
             failures,
             "Small owned Grid sample; not a general throughput or production capacity claim.");
-    var path = java.nio.file.Path.of("target", "grid-capacity-sample.json");
-    java.nio.file.Files.createDirectories(path.getParent());
+    var directory = java.nio.file.Path.of("target");
+    java.nio.file.Files.createDirectories(directory);
+    var path = directory.resolve("grid-capacity-sample.json");
     new ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(path.toFile(), report);
   }
 
