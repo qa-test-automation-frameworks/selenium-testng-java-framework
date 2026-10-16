@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - Replaced individually invoked CI static-analysis goals with a compiled Maven `verify` lifecycle gate and explicit report/input checks.
+- Updated the Selenium Java client from `4.44.0` to `4.51.0` after reviewing the official release series; the pinned Selenium Grid `4.43.0` images remain an explicit older-server compatibility target for the lifecycle experiment.
 - Superseded ADR 005's prohibition on framework unit tests with a narrow deterministic-test boundary.
 
 ## [1.1.0] - 2026-05-24

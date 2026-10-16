@@ -24,6 +24,7 @@ carry over to a real, larger application under test.
 | Release | [v1.0.0](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/releases/tag/v1.0.0) |
 | CI | [UI Tests workflow](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml) |
 | Review guide | [Portfolio review path](docs/PORTFOLIO_REVIEW_GUIDE.md) |
+| Lifecycle and Grid experiment | [Session lifecycle controls and bounded capacity sample](docs/verification/2026-10-16-selenium-lifecycle-grid.md) |
 | Best screenshot | [Failed test details](docs/images/allure-failed-test-details-preview.png) |
 
 ![Allure failed test details with assertion and execution evidence](docs/images/allure-failed-test-details-preview.png)
@@ -32,7 +33,7 @@ carry over to a real, larger application under test.
 
 | Engineering question | Implemented answer |
 | --- | --- |
-| How does Java browser execution stay thread-safe? | Thread-local drivers and waits, bounded TestNG workers, and Grid capacity guidance. |
+| How does Java browser execution stay thread-safe? | Thread-local drivers and waits, bounded TestNG workers, lifecycle-failure controls, and a measured small Grid sample. |
 | How is synchronization controlled? | Implicit waits are disabled; page objects use explicit waits only. |
 | How are expensive UI flows reduced? | Cookie/API setup shortcuts support non-login scenarios while dedicated tests retain UI login coverage. |
 | How are remote failures diagnosed? | Redacted screenshots, page source, capabilities, console logs, network logs, and bounded framework logs attach to Allure. |

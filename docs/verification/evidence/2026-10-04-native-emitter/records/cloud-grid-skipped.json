@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 3,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "sourceSha": "7a2d420da252a294b017986034f96844005efa14",
+  "limitations": [
+    "Surefire XML contains aggregate outcomes only; testcase names, parameters, traces and environment values are intentionally omitted.",
+    "SauceDemo is vendor-managed; this run did not discover an application release or fixture revision."
+  ],
+  "kind": "execution",
+  "workflow": {
+    "id": "qa-test-automation-frameworks/selenium-testng-java-framework/.github/workflows/cloud-grid.yml@refs/heads/portfolio/roadmap-implementation",
+    "name": "Cloud Grid Smoke",
+    "runId": "37214755074",
+    "attempt": 1,
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/37214755074",
+    "trigger": "workflow_dispatch",
+    "branch": "portfolio/roadmap-implementation"
+  },
+  "scope": {
+    "id": "cloud.browserstack.CHROME",
+    "evidenceClass": "credentialed",
+    "required": false,
+    "freshnessPolicy": "quarterly_experiment_v1"
+  },
+  "target": {
+    "identity": "saucedemo-public-demo",
+    "revision": null,
+    "fixtureVersion": null,
+    "environment": "browserstack-cloud",
+    "profile": "CHROME",
+    "tools": {}
+  },
+  "execution": {
+    "disposition": "skipped",
+    "reason": "Cloud-grid credentials are not configured; no browser session was attempted.",
+    "startedAt": null,
+    "completedAt": null,
+    "integrity": "unavailable",
+    "counts": {
+      "unit": "parameter_case",
+      "selected": null,
+      "executed": null,
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "retried": null,
+      "semantics": "Final Surefire JUnit testcase invocations (each TestNG data-provider invocation is a testcase); selected includes skips; retried counts unique testcase entries with native flakyFailure/flakyError children."
+    },
+    "measurements": [],
+    "shards": {
+      "expected": [
+        "cloud.browserstack.CHROME"
+      ],
+      "received": []
+    }
+  },
+  "publication": {
+    "disposition": "pending",
+    "reason": null,
+    "publishedAt": null,
+    "reportUrl": null,
+    "artifacts": []
+  },
+  "generator": {
+    "name": "selenium-surefire-evidence",
+    "version": "1.0.0"
+  }
+}
