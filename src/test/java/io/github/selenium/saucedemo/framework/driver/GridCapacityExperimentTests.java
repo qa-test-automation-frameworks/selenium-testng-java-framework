@@ -91,7 +91,11 @@ public class GridCapacityExperimentTests {
     } finally {
       start.countDown();
       executor.shutdownNow();
-      executor.awaitTermination(10, TimeUnit.SECONDS);
+      try {
+        executor.awaitTermination(10, TimeUnit.SECONDS);
+      } finally {
+        executor.close();
+      }
     }
   }
 

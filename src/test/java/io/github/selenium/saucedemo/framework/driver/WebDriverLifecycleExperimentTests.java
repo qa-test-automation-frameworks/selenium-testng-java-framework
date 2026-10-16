@@ -164,6 +164,8 @@ public class WebDriverLifecycleExperimentTests {
     return null;
   }
 
+  // Calling equals from this dynamic proxy's equals handler would recurse into the same handler.
+  @SuppressWarnings("PMD.CompareObjectsWithEquals")
   private static WebDriver driver(
       String sessionId, boolean failDuringSetup, AtomicInteger quitCalls) {
     return driver(sessionId, failDuringSetup, quitCalls, new AtomicBoolean());
