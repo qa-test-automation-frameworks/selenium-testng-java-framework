@@ -7,8 +7,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -50,7 +53,7 @@ public class GridCapacityExperimentTests {
         .as("every bounded Grid session should start, serve the probe page, and quit")
         .isEmpty();
     assertThat(samples).hasSize(21);
-    assertThat(samples.stream().map(SessionSample::sessionId).distinct().count()).isEqualTo(21);
+    assertThat(samples.stream().map(SessionSample::sessionIdSha256).distinct().count()).isEqualTo(21);
   }
 
   private static void sample(
@@ -113,6 +116,7 @@ public class GridCapacityExperimentTests {
       assertThat(driver.getTitle()).isEqualTo("grid-capacity-probe");
       String browserVersion = driver.getCapabilities().getBrowserVersion();
       String sessionId = driver.getSessionId().toString();
+      String sessionIdSha256 = sessionIdDigest(sessionId);
       driver.quit();
       driver = null;
       long completedAt = System.nanoTime();
@@ -120,7 +124,7 @@ public class GridCapacityExperimentTests {
           workerCount,
           repetition,
           workerId,
-          sessionId,
+          sessionIdSha256,
           browserVersion,
           millis(sessionStartedAt - requestedAt),
           millis(completedAt - requestedAt));
@@ -139,6 +143,12 @@ public class GridCapacityExperimentTests {
 
   private static double millis(long nanos) {
     return nanos / 1_000_000.0;
+  }
+
+  private static String sessionIdDigest(String sessionId) throws Exception {
+    byte[] digest =
+        MessageDigest.getInstance("SHA-256").digest(sessionId.getBytes(StandardCharsets.UTF_8));
+    return HexFormat.of().formatHex(digest);
   }
 
   private static int waitForNoActiveSessions(String remoteUrl) throws Exception {
@@ -205,7 +215,7 @@ public class GridCapacityExperimentTests {
       int workers,
       int repetition,
       int worker,
-      String sessionId,
+      String sessionIdSha256,
       String browserVersion,
       double sessionRequestToCreatedMilliseconds,
       double fullCycleMilliseconds) {}

@@ -73,6 +73,33 @@ jobs:
         id: native-tests
         run: ./mvnw -Dtestng.suite.file=testng-framework-unit.xml verify
 
+      - name: Summarize framework unit failures
+        if: always() && steps.native-tests.outcome == 'failure'
+        run: |
+          python3 - <<'PY'
+          import glob
+          import os
+          import xml.etree.ElementTree as ET
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          findings = []
+          for filename in glob.glob("target/surefire-reports/TEST-*.xml"):
+              root = ET.parse(filename).getroot()
+              for case in root.iter("testcase"):
+                  for failure in list(case.findall("failure")) + list(case.findall("error")):
+                      message = (failure.get("message") or failure.text or "no failure message").strip()
+                      detail = f"{case.get('classname')}#{case.get('name')}: {message}"
+                      findings.append(detail.replace("\r", " ").replace("\n", " ")[:1000])
+          lines = findings or ["The Maven quality gate failed without a Surefire testcase failure record."]
+          if summary:
+              with open(summary, "a", encoding="utf-8") as stream:
+                  stream.write("## Framework unit failure details\n\n")
+                  stream.writelines(f"- {line}\n" for line in lines)
+          for line in lines:
+              escaped = line.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+              print(f"::error title=Framework unit failure::{escaped}")
+          PY
+
       - name: Emit framework quality evidence
         if: always()
         env:
@@ -589,6 +616,15 @@ jobs:
           name: selenium-grid-capacity-sample
           path: target/grid-capacity-sample.json
           if-no-files-found: error
+
+      - name: Publish Grid sample in workflow summary
+        if: always() && hashFiles('target/grid-capacity-sample.json') != ''
+        run: |
+          {
+            echo "## Bounded Selenium Grid sample"
+            echo
+            cat target/grid-capacity-sample.json
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Stop Grid
         if: always()
