@@ -376,7 +376,8 @@ jobs:
           SCOPE_ID: evidence-negative-control
           COUNT_UNIT: test_case
           EVIDENCE_CLASS: hermetic
-          SCOPE_REQUIRED: 'true'
+          # required-ci enforces this control; it is optional only in the evidence freshness aggregate.
+          SCOPE_REQUIRED: 'false'
           TARGET_ID: selenium-evidence-control
           TARGET_REVISION: ${{ github.sha }}
           TARGET_ENVIRONMENT: ci-hermetic

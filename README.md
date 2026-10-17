@@ -86,6 +86,12 @@ $env:APP_PASSWORD = "<set-outside-repository>"
 - Runtime metrics are written to `target/portfolio-metrics-v1.json` and uploaded per browser.
 - Scheduled dependency/SBOM governance and quarantine checks keep evidence current.
 
+The intentional `evidence-negative-control` remains enforced by the required
+`required-ci` workflow check and must report its native test failure. Its
+evidence scope is optional only in the dashboard's current-readiness aggregate;
+the failed control remains visible while product-scope evidence determines the
+repository card's readiness.
+
 ## Architecture
 
 ```mermaid
