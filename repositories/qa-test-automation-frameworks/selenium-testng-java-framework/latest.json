@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "scopes": {
+    "framework-quality": {
+      "runId": "39023393488",
+      "attempt": 1,
+      "completedAt": "2026-10-17T10:07:17.000Z",
+      "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/39023393488/1",
+      "manifestSha256": "d24a6ef4b101cb17d6a17b856e1689e9b7e17d1ccf22d7c001c754dc67e81e5a"
+    },
+    "evidence-negative-control": {
+      "runId": "39023393488",
+      "attempt": 1,
+      "completedAt": "2026-10-17T10:07:17.000Z",
+      "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+      "execution": "failed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/39023393488/1",
+      "manifestSha256": "d24a6ef4b101cb17d6a17b856e1689e9b7e17d1ccf22d7c001c754dc67e81e5a"
+    },
+    "ui.CHROME": {
+      "runId": "39023393488",
+      "attempt": 1,
+      "completedAt": "2026-10-17T10:07:17.000Z",
+      "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/39023393488/1",
+      "manifestSha256": "d24a6ef4b101cb17d6a17b856e1689e9b7e17d1ccf22d7c001c754dc67e81e5a"
+    },
+    "ui.EDGE": {
+      "runId": "39023393488",
+      "attempt": 1,
+      "completedAt": "2026-10-17T10:07:17.000Z",
+      "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/39023393488/1",
+      "manifestSha256": "d24a6ef4b101cb17d6a17b856e1689e9b7e17d1ccf22d7c001c754dc67e81e5a"
+    },
+    "ui.FIREFOX": {
+      "runId": "39023393488",
+      "attempt": 1,
+      "completedAt": "2026-10-17T10:07:17.000Z",
+      "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/39023393488/1",
+      "manifestSha256": "d24a6ef4b101cb17d6a17b856e1689e9b7e17d1ccf22d7c001c754dc67e81e5a"
+    }
+  }
+}
