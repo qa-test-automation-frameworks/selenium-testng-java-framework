@@ -112,7 +112,7 @@ graph TD;
 ## Documentation
 
 - [Portfolio Review Guide](docs/PORTFOLIO_REVIEW_GUIDE.md)
-- [Current verification record](docs/evidence/latest-verification.md)
+- [Latest run link and retained historical verification](docs/evidence/latest-verification.md)
 - [Enterprise adaptation](docs/enterprise-adaptation.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Execution Guide](docs/EXECUTION_GUIDE.md)
