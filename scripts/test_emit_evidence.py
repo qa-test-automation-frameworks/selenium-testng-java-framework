@@ -59,6 +59,16 @@ class EvidenceEmitterTest(unittest.TestCase):
         self.assertEqual(record["execution"]["disposition"], "unavailable")
         self.assertIn("did not start", record["execution"]["reason"])
 
+    def test_expected_negative_control_is_visible_but_not_a_readiness_gate(self):
+        (self.report / "TEST-suite.xml").write_text(
+            '<testsuite tests="1" failures="1" errors="0" skipped="0">'
+            '<testcase><failure>intentional</failure></testcase></testsuite>')
+        env = dict(self.env, TEST_OUTCOME="failure", SCOPE_ID="evidence-negative-control", SCOPE_REQUIRED="false")
+        record = build_record(env, self.report, self.root / "negative-control.json")
+        self.assertEqual(record["execution"]["disposition"], "failed")
+        self.assertEqual(record["execution"]["counts"]["failed"], 1)
+        self.assertFalse(record["scope"]["required"])
+
 
 if __name__ == "__main__":
     unittest.main()
