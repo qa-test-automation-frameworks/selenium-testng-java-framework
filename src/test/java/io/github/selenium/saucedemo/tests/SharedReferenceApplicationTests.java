@@ -75,14 +75,16 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
   private void startSession(WebDriverWait wait, String identity) {
     new Select(getDriver().findElement(By.id("identity"))).selectByValue(identity);
     getDriver().findElement(By.cssSelector("#session-form button[type='submit']")).click();
-    wait.until(ExpectedConditions.textToBePresentInElementLocated(
-        By.id("notice"), "Data is scoped to this application run"));
+    wait.until(
+        ExpectedConditions.textToBePresentInElementLocated(
+            By.id("notice"), "Data is scoped to this application run"));
   }
 
   private WebElement rowForClaim(String claimId) {
     return getDriver().findElements(By.cssSelector("#claims-body tr")).stream()
         .filter(row -> row.findElement(By.cssSelector("td:first-child")).getText().equals(claimId))
-        .findFirst().orElse(null);
+        .findFirst()
+        .orElse(null);
   }
 
   private WebElement rowWithStatus(String claimId, String status) {
