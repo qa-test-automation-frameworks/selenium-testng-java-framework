@@ -29,14 +29,18 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
     getDriver().findElement(By.id("amount")).sendKeys("123.45");
     new Select(getDriver().findElement(By.id("category"))).selectByValue("auto");
     getDriver().findElement(By.cssSelector("#claim-form button[type='submit']")).click();
-    wait.until(ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "claim was submitted"));
+    wait.until(
+        ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "claim was submitted"));
 
-    WebElement claimRow = wait.until(driver -> {
-      var rows = driver.findElements(By.cssSelector("#claims-body tr"));
-      return rows.isEmpty() ? null : rows.get(0);
-    });
+    WebElement claimRow =
+        wait.until(
+            driver -> {
+              var rows = driver.findElements(By.cssSelector("#claims-body tr"));
+              return rows.isEmpty() ? null : rows.get(0);
+            });
     String claimId = claimRow.findElement(By.cssSelector("td:first-child")).getText();
-    Assert.assertTrue(claimId.matches("[0-9a-f-]{36}"), "the UI should expose the persisted claim UUID");
+    Assert.assertTrue(
+        claimId.matches("[0-9a-f-]{36}"), "the UI should expose the persisted claim UUID");
     memberAClaimId.set(claimId);
     claimSubmitted.countDown();
 
@@ -44,23 +48,28 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
     startSession(wait, "reviewer");
     WebElement reviewerRow = wait.until(driver -> rowWithStatus(claimId, "submitted"));
     reviewerRow.findElement(By.xpath(".//button[normalize-space()='Set under review']")).click();
-    wait.until(ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "moved to under review"));
+    wait.until(
+        ExpectedConditions.textToBePresentInElementLocated(
+            By.id("notice"), "moved to under review"));
     reviewerRow = wait.until(driver -> rowWithStatus(claimId, "under review"));
     reviewerRow.findElement(By.xpath(".//button[normalize-space()='Set approved']")).click();
-    wait.until(ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "moved to approved"));
+    wait.until(
+        ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "moved to approved"));
     Assert.assertNotNull(wait.until(driver -> rowWithStatus(claimId, "approved")));
   }
 
   @Test(description = "member B cannot see member A's claim in a separate Grid session")
   public void memberBDoesNotSeeMemberAClaim() throws InterruptedException {
-    Assert.assertTrue(claimSubmitted.await(120, TimeUnit.SECONDS), "member A must submit a claim first");
+    Assert.assertTrue(
+        claimSubmitted.await(120, TimeUnit.SECONDS), "member A must submit a claim first");
     var wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30));
     getDriver().get(referenceAppUrl());
     startSession(wait, "member-b");
     wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("claims-section")));
     Assert.assertEquals(getDriver().findElements(By.cssSelector("#claims-body tr")).size(), 0);
-    Assert.assertFalse(getDriver().findElement(By.id("claims-body")).getText()
-        .contains(memberAClaimId.get()), "cross-member data must remain hidden in the UI");
+    Assert.assertFalse(
+        getDriver().findElement(By.id("claims-body")).getText().contains(memberAClaimId.get()),
+        "cross-member data must remain hidden in the UI");
   }
 
   private void startSession(WebDriverWait wait, String identity) {
