@@ -1,0 +1,152 @@
+name: Shared reference app UI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/shared-reference-app-ui.yml'
+      - 'docker/shared-app.compose.yaml'
+      - 'src/test/java/io/github/selenium/saucedemo/tests/SharedReferenceApplicationTests.java'
+      - 'testng-shared-app.xml'
+      - 'scripts/emit_evidence.py'
+      - 'scripts/test_emit_evidence.py'
+      - 'pom.xml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shared-reference-app-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shared-app-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      COMPOSE_FILE: docker/shared-app.compose.yaml
+      SCOPE_ID: selenium.shared-app
+      TARGET_ID: quality-reference-application
+      TARGET_REVISION: e9f438e06a2b092dccfc6e9ab1820ff2562ddad7
+      FIXTURE_VERSION: v0.1.0
+      TARGET_ENVIRONMENT: isolated-compose
+      TARGET_PROFILE: chrome-grid-4.43.0
+      FRESHNESS_POLICY: quarterly_experiment_v1
+      EVIDENCE_CLASS: controlled
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up the repository-pinned Node runtime for evidence validation
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Record exact runtime versions for evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          java_version=$(java -version 2>&1 | sed -n 's/.*version "\([^"]*\)".*/\1/p' | head -n 1)
+          maven_version=$(./mvnw -v | sed -n 's/^Apache Maven \([^ ]*\).*/\1/p' | head -n 1)
+          printf 'JAVA_VERSION=%s\nMAVEN_VERSION=%s\nSELENIUM_VERSION=4.51.0\nTESTNG_VERSION=7.12.0\n' \
+            "$java_version" "$maven_version" >> "$GITHUB_ENV"
+
+      - name: Create isolated synthetic app credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          postgres_password=$(openssl rand -hex 32)
+          test_control_token=$(openssl rand -hex 32)
+          echo "::add-mask::$postgres_password"
+          echo "::add-mask::$test_control_token"
+          {
+            echo "APP_NAMESPACE=selenium-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            echo "POSTGRES_PASSWORD=$postgres_password"
+            echo "TEST_CONTROL_TOKEN=$test_control_token"
+          } >> "$GITHUB_ENV"
+
+      - name: Start pinned reference app and Selenium Grid
+        run: docker compose -f "$COMPOSE_FILE" up -d db reference-app selenium-hub chrome
+
+      - name: Verify pinned target identity and Grid readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:4300/health/ready > target-app-ready.json; then break; fi
+            sleep 2
+          done
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const ready = JSON.parse(fs.readFileSync('target-app-ready.json', 'utf8'));
+          if (ready.sourceRevision !== process.env.TARGET_REVISION || ready.seedVersion !== process.env.FIXTURE_VERSION) {
+            throw new Error(`Pinned target identity mismatch: ${JSON.stringify(ready)}`);
+          }
+          NODE
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:4444/status | grep -q '"ready": true'; then exit 0; fi
+            sleep 2
+          done
+          echo 'Selenium Grid did not become ready.' >&2
+          docker compose -f "$COMPOSE_FILE" ps
+          exit 1
+
+      - name: Run bounded parallel Chrome Grid journeys
+        id: native-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p target
+          echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          set +e
+          ./mvnw -B -ntp -C -Dtestng.suite.file=testng-shared-app.xml \
+            -Dexecution.type=remote -Dremote.url=http://127.0.0.1:4444/wd/hub \
+            -Dbrowser=CHROME -Dheadless=true -Dthread.count=2 \
+            -Dapp.url=http://reference-app:4300/ test 2>&1 | tee target/shared-app-ui.log
+          status=${PIPESTATUS[0]}
+          set -e
+          echo "COMPLETED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          echo "TEST_OUTCOME=$([[ $status -eq 0 ]] && echo success || echo failure)" >> "$GITHUB_ENV"
+          exit "$status"
+
+      - name: Emit schema-v3 evidence
+        if: always()
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+          GITHUB_WORKFLOW_REF: ${{ github.workflow_ref }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 scripts/emit_evidence.py target/surefire-reports target/portfolio-evidence/evidence-v3.json
+
+      - name: Validate schema-v3 evidence
+        if: always() && hashFiles('target/portfolio-evidence/evidence-v3.json') != ''
+        run: node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
+
+      - name: Preserve logs, native reports, and evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: selenium-shared-app-evidence-${{ github.run_attempt }}
+          path: |
+            target/shared-app-ui.log
+            target/portfolio-evidence/evidence-v3.json
+            target/surefire-reports/TEST-*.xml
+            target-app-ready.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Tear down isolated app data and Grid
+        if: always()
+        run: docker compose -f "$COMPOSE_FILE" down --volumes --remove-orphans

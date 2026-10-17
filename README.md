@@ -1,5 +1,7 @@
 # Selenium TestNG Java Framework
 
+The portfolio's bounded shared-application/Grid journey is documented in [Shared reference app profile](docs/shared-reference-app.md). It complements the existing Sauce Demo suite with a small, isolated JVM/Grid lifecycle and ownership check.
+
 [![UI Tests](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml/badge.svg?branch=main)](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/workflows/ui-tests.yml)
 [![Allure Report](https://img.shields.io/badge/Allure-Report-orange.svg)](https://qa-test-automation-frameworks.github.io/selenium-testng-java-framework/)
 ![Java Version](https://img.shields.io/badge/Java-21-blue.svg)

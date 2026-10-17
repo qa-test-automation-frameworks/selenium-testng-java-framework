@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:18.6-alpine3.23@sha256:885cf05d376c7cf27afef02073e6bdac3841252537f16e244fd1c1e6a7c99fb1
+    environment:
+      POSTGRES_DB: reference_app
+      POSTGRES_USER: reference_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a synthetic password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reference_app -d reference_app"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - reference-data:/var/lib/postgresql
+
+  reference-app:
+    image: ghcr.io/qa-test-automation-frameworks/quality-reference-application@sha256:284ae3fa4f2a31a4322b74a6f37e38f0d101879389c656bf1d553df7ec616469
+    environment:
+      NODE_ENV: production
+      PORT: 4300
+      DATABASE_URL: postgres://reference_app:${POSTGRES_PASSWORD:?Set a synthetic password}@db:5432/reference_app
+      APP_NAMESPACE: ${APP_NAMESPACE:?Set a unique run namespace}
+      APP_SOURCE_SHA: e9f438e06a2b092dccfc6e9ab1820ff2562ddad7
+      SEED_VERSION: v0.1.0
+      TEST_MODE: "true"
+      TEST_CONTROL_TOKEN: ${TEST_CONTROL_TOKEN:?Set a random test control token}
+      SESSION_TTL_SECONDS: 3600
+    ports:
+      - "127.0.0.1:${APP_PORT:-4300}:4300"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4300/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+
+  selenium-hub:
+    image: selenium/hub:4.43.0@sha256:c572aee0db3fd9bcc23f129c764ca07e652dd9c252c41e116307c732d42e5210
+    ports:
+      - "127.0.0.1:4444:4444"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  chrome:
+    image: selenium/node-chrome:4.43.0@sha256:9e60c032f8f0950bb962868e73263fb503cb6fbf3f14fdd31e81c1f14b6f247b
+    shm_size: 1gb
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 2
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+
+volumes:
+  reference-data:

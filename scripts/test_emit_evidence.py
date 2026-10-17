@@ -32,6 +32,14 @@ class EvidenceEmitterTest(unittest.TestCase):
         self.assertNotIn("secret-user", payload)
         self.assertNotIn("sensitive", payload)
 
+    def test_fixture_version_is_bound_to_target_when_supplied(self):
+        (self.report / "TEST-suite.xml").write_text(
+            '<testsuite tests="1" failures="0" errors="0" skipped="0"><testcase/></testsuite>')
+        env = dict(self.env, FIXTURE_VERSION="v0.1.0", TARGET_ID="quality-reference-application")
+        record = build_record(env, self.report, self.root / "fixture.json")
+        self.assertEqual(record["target"]["fixtureVersion"], "v0.1.0")
+        self.assertEqual(record["target"]["identity"], "quality-reference-application")
+
     def test_missing_and_inconsistent_reports_never_pass(self):
         self.assertEqual(build_record(self.env, self.report, self.root / "none.json")["execution"]["integrity"], "unavailable")
         (self.report / "TEST-suite.xml").write_text('<testsuite tests="2" failures="0" errors="0" skipped="0"><testcase/></testsuite>')
