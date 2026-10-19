@@ -6,7 +6,7 @@
   "verifiedRef": "main",
   "verifiedSha": "10f86c348edc63fe7060d1d8523e306635792c8d",
   "workflow": {"name": "ui-tests.yml", "runId": 29137543488, "runUrl": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/29137543488", "branch": "main", "event": "push", "conclusion": "success", "completedAt": "2026-07-11T03:15:08Z"},
-  "target": {"name": "Sauce Demo with repository-controlled Docker Grid", "environment": "controlled"},
+  "target": {"name": "Vendor-operated Sauce Demo through repository-controlled Docker Grid", "environment": "controlled browser grid; external vendor application"},
   "results": [
     {"command": "TestNG suite - Sauce Demo UI Regression (CHROME)", "total": 34, "passed": 34, "failed": 0, "skipped": 0, "durationSeconds": 52.042},
     {"command": "TestNG suite - Sauce Demo UI Regression (FIREFOX)", "total": 34, "passed": 34, "failed": 0, "skipped": 0, "durationSeconds": 195.488},
