@@ -9,7 +9,7 @@
 | Cloud-grid smoke | Secret-gated | `.github/workflows/cloud-grid.yml` |
 | Allure diagnostics | Enforced for UI runs | `target/allure-results/` |
 
-## Feature currency review — 2026-10-16
+## Feature currency review — 2026-10-19
 
 | Capability | Current implementation | Official support checked | Benefit and compatibility risk | Decision and proof |
 | --- | --- | --- | --- | --- |
@@ -18,6 +18,7 @@
 | Remote Grid lifecycle | `RemoteWebDriver` targets a configured Grid URL; lifecycle cleanup is enforced and a bounded capacity experiment records queue/session behavior. | [Grid architecture](https://www.selenium.dev/documentation/grid/architecture/) documents the router, queue, distributor, nodes and slots. | A bounded remote path gives useful lifecycle and queue evidence. Capacity varies with host, browser, image, slots and workload. | **Retain.** D03 run `38926217582` measured 21 sessions at 1/2/4 workers on one hosted runner; this is not a general capacity promise. |
 | WebDriver BiDi events | No BiDi event subscriptions are used; tests rely on WebDriver commands, screenshots and existing diagnostics. | [WebDriver BiDi](https://www.selenium.dev/documentation/webdriver/bidi/) documents the bidirectional event protocol; 4.51 adds Java BiDi code generation. | Console/network event capture could improve diagnosis, but it adds browser-specific behavior and does not currently close an observed gap. | **Defer.** Add only for a concrete event-driven test or diagnostic requirement, then verify the supported browser matrix and teardown. |
 | Accessibility engine | axe-selenium 4.10.2 remains pinned in the current framework. | The open [4.13.0 candidate](https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/pull/34) reports its scan and quality checks separately from browser execution. | A newer engine can add rules, but it may also change findings and require reviewed baseline or test updates. | **Retain 4.10.2 for now.** Candidate PR #34 fails Chrome, Firefox and Edge tests; do not treat its passing scan/quality gates as browser compatibility. |
+| Maintained library patch updates | Log4j 2.26.1, Lombok 1.18.48, and SLF4J 2.0.20. | [Log4j 2.26.1 release notes](https://logging.apache.org/log4j/2.x/release-notes.html), [Lombok changelog](https://projectlombok.org/changelog), and [SLF4J release notes](https://www.slf4j.org/news.html) document these patches and their changes. | Patch releases provide targeted fixes; Lombok can change generated code, so the Java 21 compiler, unit suite, and quality gates must pass. | **Adopt the three patch updates separately.** The grouped Dependabot PR #42 also includes an Allure BOM major and an Allure Maven plugin change; those are excluded here because they alter a report stack with current Allure 2 output and need a distinct compatibility review. Verify this isolated patch set in hosted CI before merge. |
 
 The browser matrix and Grid sample support the current pinned Selenium line.
 BiDi remains a deliberate omission, and the failed axe update stays visible as
