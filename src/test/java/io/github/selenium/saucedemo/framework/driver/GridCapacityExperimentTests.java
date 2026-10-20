@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,7 +113,10 @@ public class GridCapacityExperimentTests {
       driver.get("data:text/html,<title>grid-capacity-probe</title>");
       assertThat(driver.getTitle()).isEqualTo("grid-capacity-probe");
       String browserVersion = driver.getCapabilities().getBrowserVersion();
-      String sessionId = driver.getSessionId().toString();
+      String sessionId =
+          Objects.requireNonNull(
+                  driver.getSessionId(), "Grid session ID must exist after session creation")
+              .toString();
       String sessionIdSha256 = sessionIdDigest(sessionId);
       driver.quit();
       driver = null;
