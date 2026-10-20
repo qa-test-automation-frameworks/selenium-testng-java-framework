@@ -320,6 +320,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <!--
+                    Surefire 3.6.0 removed its native TestNG provider and no longer honors
+                    suiteXmlFiles through the JUnit Platform TestNG engine. Keep the legacy
+                    provider temporarily so the repository's explicit TestNG suite selection
+                    remains effective while the test execution model is migrated deliberately.
+                -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-testng</artifactId>
+                        <version>3.5.5</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <suiteXmlFiles>
                         <suiteXmlFile>${testng.suite.file}</suiteXmlFile>
