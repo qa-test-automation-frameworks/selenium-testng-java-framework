@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Diagnostics Attacher Unit Tests" parallel="none">
+    <test name="Sensitive DOM Protection Controls">
+        <classes>
+            <class name="io.github.selenium.saucedemo.framework.util.DiagnosticsAttacherTests"/>
+        </classes>
+    </test>
+</suite>
