@@ -232,7 +232,7 @@ public class WebDriverLifecycleExperimentTests {
           return switch (method.getName()) {
             case "toString" -> "diagnostic-protection-cleanup-driver";
             case "hashCode" -> System.identityHashCode(proxy);
-            case "equals" -> proxy == arguments[0];
+            case "equals" -> proxy == arguments[0]; // NOPMD - preserve proxy identity
             case "quit" -> {
               quitCalls.incrementAndGet();
               yield null;

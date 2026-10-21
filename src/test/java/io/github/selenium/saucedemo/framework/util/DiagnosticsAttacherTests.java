@@ -296,7 +296,7 @@ public class DiagnosticsAttacherTests {
         }
         case "toString" -> "synthetic diagnostics driver";
         case "hashCode" -> System.identityHashCode(proxy);
-        case "equals" -> proxy == arguments[0];
+        case "equals" -> proxy == arguments[0]; // NOPMD - preserve proxy identity
         default -> defaultValue(method.getReturnType());
       };
     }
