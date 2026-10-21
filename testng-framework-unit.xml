@@ -8,6 +8,7 @@
         <classes>
             <class name="io.github.selenium.saucedemo.framework.FrameworkUnitTests"/>
             <class name="io.github.selenium.saucedemo.framework.driver.WebDriverLifecycleExperimentTests"/>
+            <class name="io.github.selenium.saucedemo.tests.SharedAppCoordinationTests"/>
         </classes>
     </test>
 </suite>

@@ -1,100 +1,291 @@
 package io.github.selenium.saucedemo.tests;
 
+import io.github.selenium.saucedemo.framework.driver.WebDriverFactory;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
+import java.util.HexFormat;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-/** Small Grid-backed smoke of the shared fictional claims application. */
+/** One complete two-session review journey against the isolated fictional claims application. */
 public class SharedReferenceApplicationTests extends BaseTestCase {
 
-  private static final CountDownLatch claimSubmitted = new CountDownLatch(1);
-  private static final AtomicReference<String> memberAClaimId = new AtomicReference<>();
+  private static final String EVIDENCE_ATTRIBUTE = "sharedAppScenarioEvidence";
+  private static final Duration BROWSER_WAIT = Duration.ofSeconds(20);
+  private static final Duration HANDOFF_WAIT = Duration.ofSeconds(25);
+  private static final Duration WORKER_SHUTDOWN_WAIT = Duration.ofSeconds(5);
 
-  @Test(description = "member claim can be reviewed while another member remains isolated")
-  public void memberAClaimCanBeReviewed() {
-    var wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30));
-    getDriver().get(referenceAppUrl());
-    startSession(wait, "member-a");
+  @Test(
+      invocationCount = 2,
+      description = "member claim review stays isolated across two fresh scenario invocations")
+  public void memberClaimCanBeReviewedWhileAnotherMemberRemainsIsolated(ITestResult testResult)
+      throws Exception {
+    WebDriver reviewer = getDriver();
+    CompletableFuture<String> memberBReady = new CompletableFuture<>();
+    CompletableFuture<String> claimIdForMemberB = new CompletableFuture<>();
+    ExecutorService memberBExecutor =
+        Executors.newSingleThreadExecutor(
+            task -> new Thread(task, "shared-app-member-b-" + UUID.randomUUID()));
+    Future<MemberBObservation> memberBTask =
+        memberBExecutor.submit(
+            () -> observeAsMemberB(memberBReady, claimIdForMemberB));
 
-    wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("claim-form-section")));
-    new Select(getDriver().findElement(By.id("policy"))).selectByIndex(0);
-    getDriver().findElement(By.id("amount")).sendKeys("123.45");
-    new Select(getDriver().findElement(By.id("category"))).selectByValue("auto");
-    getDriver().findElement(By.cssSelector("#claim-form button[type='submit']")).click();
+    try {
+      reviewer.get(referenceAppUrl());
+      startSession(reviewer, "member-a");
+      String memberASessionHash = sessionIdentityHash(reviewer);
+
+      String memberBSessionHash = SharedAppCoordination.await(memberBReady, HANDOFF_WAIT);
+      Assert.assertNotEquals(
+          memberASessionHash,
+          memberBSessionHash,
+          "member A and member B must own different remote sessions");
+
+      WebDriverWait reviewerWait = new WebDriverWait(reviewer, BROWSER_WAIT);
+      Set<String> existingClaimIds = visibleClaimIds(reviewer, reviewerWait);
+      String claimId = submitNewClaim(reviewer, reviewerWait, existingClaimIds);
+      Assert.assertTrue(
+          claimIdForMemberB.complete(claimId), "the new claim ID should be delivered exactly once");
+
+      reviewClaimAsReviewer(reviewer, reviewerWait, claimId);
+      MemberBObservation memberB = SharedAppCoordination.await(memberBTask, HANDOFF_WAIT);
+      Assert.assertEquals(memberB.sessionIdentityHash(), memberBSessionHash);
+      Assert.assertEquals(memberB.claimIdentityHash(), sha256(claimId));
+      Assert.assertTrue(memberB.cleaned(), "member B must clean up its own driver thread");
+
+      testResult.setAttribute(
+          EVIDENCE_ATTRIBUTE,
+          new ScenarioEvidence(
+              UUID.randomUUID().toString(),
+              memberASessionHash,
+              memberBSessionHash,
+              sha256(claimId),
+              memberB.cleaned()));
+    } catch (Exception | Error failure) {
+      SharedAppCoordination.completeExceptionallyIfPending(memberBReady, failure);
+      SharedAppCoordination.completeExceptionallyIfPending(claimIdForMemberB, failure);
+      throw failure;
+    } finally {
+      CancellationException cancellation =
+          new CancellationException("shared-app scenario is closing");
+      SharedAppCoordination.completeExceptionallyIfPending(memberBReady, cancellation);
+      SharedAppCoordination.completeExceptionallyIfPending(claimIdForMemberB, cancellation);
+      if (!memberBTask.isDone()) {
+        memberBTask.cancel(true);
+      }
+      memberBExecutor.shutdownNow();
+      if (!memberBExecutor.awaitTermination(WORKER_SHUTDOWN_WAIT.toSeconds(), TimeUnit.SECONDS)) {
+        throw new IllegalStateException("member B worker did not stop within five seconds");
+      }
+    }
+  }
+
+  @Override
+  @AfterMethod(alwaysRun = true)
+  public void afterMethod(ITestResult result) {
+    try {
+      super.afterMethod(result);
+    } finally {
+      boolean memberACleaned = WebDriverFactory.getThreadLocalWebDriver() == null;
+      Object evidence = result.getAttribute(EVIDENCE_ATTRIBUTE);
+      if (evidence instanceof ScenarioEvidence scenario) {
+        writeSanitizedEvidence(scenario, memberACleaned);
+        Assert.assertTrue(memberACleaned, "BaseTestCase must clean up member A's driver");
+      }
+    }
+  }
+
+  private MemberBObservation observeAsMemberB(
+      CompletableFuture<String> memberBReady, CompletableFuture<String> claimIdForMemberB)
+      throws Exception {
+    MemberBObservation observation;
+    try {
+      String memberBSessionHash =
+          SharedAppCoordination.produce(
+              memberBReady,
+              () -> {
+                WebDriverFactory.initThreadLocalDriver();
+                WebDriver memberB = WebDriverFactory.getThreadLocalWebDriver();
+                Assert.assertNotNull(memberB, "member B must initialize its own driver");
+                memberB.get(referenceAppUrl());
+                startSession(memberB, "member-b");
+                return sessionIdentityHash(memberB);
+              });
+
+      String claimId = SharedAppCoordination.await(claimIdForMemberB, HANDOFF_WAIT);
+      WebDriver memberB = WebDriverFactory.getThreadLocalWebDriver();
+      Assert.assertNotNull(memberB, "member B must keep using its own session");
+      memberB.navigate().refresh();
+      startSession(memberB, "member-b");
+      WebDriverWait memberBWait = new WebDriverWait(memberB, BROWSER_WAIT);
+      Set<String> visibleClaimsAfterRefresh = visibleClaimIds(memberB, memberBWait);
+      Assert.assertFalse(
+          visibleClaimsAfterRefresh.contains(claimId),
+          "member B must not see the exact claim created by member A after refresh");
+      observation = new MemberBObservation(memberBSessionHash, sha256(claimId), false);
+    } catch (Exception | Error failure) {
+      SharedAppCoordination.completeExceptionallyIfPending(memberBReady, failure);
+      SharedAppCoordination.completeExceptionallyIfPending(claimIdForMemberB, failure);
+      throw failure;
+    } finally {
+      WebDriverFactory.cleanUpDriver();
+    }
+
+    boolean memberBCleaned = WebDriverFactory.getThreadLocalWebDriver() == null;
+    if (!memberBCleaned) {
+      throw new AssertionError("member B thread still owns a WebDriver after cleanup");
+    }
+    return new MemberBObservation(
+        observation.sessionIdentityHash(), observation.claimIdentityHash(), memberBCleaned);
+  }
+
+  private static void startSession(WebDriver driver, String identity) {
+    new Select(driver.findElement(By.id("identity"))).selectByValue(identity);
+    driver.findElement(By.cssSelector("#session-form button[type='submit']")).click();
+    new WebDriverWait(driver, BROWSER_WAIT)
+        .until(
+            ExpectedConditions.textToBePresentInElementLocated(
+                By.id("notice"), "Data is scoped to this application run"));
+  }
+
+  private static Set<String> visibleClaimIds(WebDriver driver, WebDriverWait wait) {
+    wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("claims-section")));
+    return driver.findElements(By.cssSelector("#claims-body tr")).stream()
+        .map(SharedReferenceApplicationTests::claimId)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private static String submitNewClaim(
+      WebDriver driver, WebDriverWait wait, Set<String> existingClaimIds) {
+    new Select(driver.findElement(By.id("policy"))).selectByIndex(0);
+    driver.findElement(By.id("amount")).sendKeys("123.45");
+    new Select(driver.findElement(By.id("category"))).selectByValue("auto");
+    driver.findElement(By.cssSelector("#claim-form button[type='submit']")).click();
     wait.until(
-        ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "claim was submitted"));
+        ExpectedConditions.textToBePresentInElementLocated(
+            By.id("notice"), "claim was submitted"));
 
-    WebElement claimRow =
+    String claimId =
         wait.until(
-            driver -> {
-              var rows = driver.findElements(By.cssSelector("#claims-body tr"));
-              return rows.isEmpty() ? null : rows.get(0);
-            });
-    String claimId = claimRow.findElement(By.cssSelector("td:first-child")).getText();
+            currentDriver ->
+                currentDriver.findElements(By.cssSelector("#claims-body tr")).stream()
+                    .map(SharedReferenceApplicationTests::claimId)
+                    .filter(candidate -> !existingClaimIds.contains(candidate))
+                    .findFirst()
+                    .orElse(null));
     Assert.assertTrue(
-        claimId.matches("[0-9a-f-]{36}"), "the UI should expose the persisted claim UUID");
-    memberAClaimId.set(claimId);
-    claimSubmitted.countDown();
+        claimId.matches("[0-9a-f-]{36}"), "the UI should expose a persisted claim UUID");
+    return claimId;
+  }
 
-    getDriver().findElement(By.id("sign-out")).click();
-    startSession(wait, "reviewer");
-    WebElement reviewerRow = wait.until(driver -> rowWithStatus(claimId, "submitted"));
-    reviewerRow.findElement(By.xpath(".//button[normalize-space()='Set under review']")).click();
+  private static void reviewClaimAsReviewer(WebDriver driver, WebDriverWait wait, String claimId) {
+    driver.findElement(By.id("sign-out")).click();
+    startSession(driver, "reviewer");
+    WebElement claimRow =
+        wait.until(currentDriver -> rowWithStatus(currentDriver, claimId, "submitted"));
+    claimRow.findElement(By.xpath(".//button[normalize-space()='Set under review']")).click();
     wait.until(
         ExpectedConditions.textToBePresentInElementLocated(
             By.id("notice"), "moved to under review"));
-    reviewerRow = wait.until(driver -> rowWithStatus(claimId, "under review"));
-    reviewerRow.findElement(By.xpath(".//button[normalize-space()='Set approved']")).click();
+    claimRow = wait.until(currentDriver -> rowWithStatus(currentDriver, claimId, "under review"));
+    claimRow.findElement(By.xpath(".//button[normalize-space()='Set approved']")).click();
     wait.until(
         ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "moved to approved"));
-    Assert.assertNotNull(wait.until(driver -> rowWithStatus(claimId, "approved")));
+    Assert.assertNotNull(
+        wait.until(currentDriver -> rowWithStatus(currentDriver, claimId, "approved")));
   }
 
-  @Test(description = "member B cannot see member A's claim in a separate Grid session")
-  public void memberBDoesNotSeeMemberAClaim() throws InterruptedException {
-    Assert.assertTrue(
-        claimSubmitted.await(120, TimeUnit.SECONDS), "member A must submit a claim first");
-    var wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30));
-    getDriver().get(referenceAppUrl());
-    startSession(wait, "member-b");
-    wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("claims-section")));
-    Assert.assertEquals(getDriver().findElements(By.cssSelector("#claims-body tr")).size(), 0);
-    Assert.assertFalse(
-        getDriver().findElement(By.id("claims-body")).getText().contains(memberAClaimId.get()),
-        "cross-member data must remain hidden in the UI");
-  }
-
-  private void startSession(WebDriverWait wait, String identity) {
-    new Select(getDriver().findElement(By.id("identity"))).selectByValue(identity);
-    getDriver().findElement(By.cssSelector("#session-form button[type='submit']")).click();
-    wait.until(
-        ExpectedConditions.textToBePresentInElementLocated(
-            By.id("notice"), "Data is scoped to this application run"));
-  }
-
-  private WebElement rowForClaim(String claimId) {
-    return getDriver().findElements(By.cssSelector("#claims-body tr")).stream()
-        .filter(row -> row.findElement(By.cssSelector("td:first-child")).getText().equals(claimId))
+  private static WebElement rowWithStatus(WebDriver driver, String claimId, String status) {
+    return driver.findElements(By.cssSelector("#claims-body tr")).stream()
+        .filter(row -> claimId(row).equals(claimId))
+        .filter(row -> row.getText().contains(status))
         .findFirst()
         .orElse(null);
   }
 
-  private WebElement rowWithStatus(String claimId, String status) {
-    WebElement row = rowForClaim(claimId);
-    return row != null && row.getText().contains(status) ? row : null;
+  private static String claimId(WebElement row) {
+    return row.findElement(By.cssSelector("td:first-child")).getText();
   }
 
-  private String referenceAppUrl() {
+  private static String sessionIdentityHash(WebDriver driver) {
+    if (!(driver instanceof RemoteWebDriver remoteDriver) || remoteDriver.getSessionId() == null) {
+      throw new AssertionError("shared-app experiment requires an identifiable remote session");
+    }
+    return sha256(remoteDriver.getSessionId().toString());
+  }
+
+  private static String sha256(String value) {
+    try {
+      byte[] digest =
+          MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(digest);
+    } catch (NoSuchAlgorithmException impossible) {
+      throw new IllegalStateException("SHA-256 is unavailable", impossible);
+    }
+  }
+
+  private static String referenceAppUrl() {
     String url = System.getProperty("app.url", "");
     Assert.assertFalse(url.isBlank(), "pass -Dapp.url for the shared reference target");
     return url.endsWith("/") ? url : url + "/";
   }
+
+  private static void writeSanitizedEvidence(ScenarioEvidence evidence, boolean memberACleaned) {
+    Path output =
+        Path.of("target", "shared-app-controls", "control-" + evidence.scenarioId() + ".json");
+    String json =
+        "{\"scenarioId\":\""
+            + evidence.scenarioId()
+            + "\",\"memberASessionSha256\":\""
+            + evidence.memberASessionHash()
+            + "\",\"memberBSessionSha256\":\""
+            + evidence.memberBSessionHash()
+            + "\",\"claimIdSha256\":\""
+            + evidence.claimIdentityHash()
+            + "\",\"memberACleaned\":"
+            + memberACleaned
+            + ",\"memberBCleaned\":"
+            + evidence.memberBCleaned()
+            + "}\n";
+    try {
+      Files.createDirectories(output.getParent());
+      Files.writeString(output, json, StandardCharsets.UTF_8);
+    } catch (IOException failure) {
+      throw new IllegalStateException(
+          "Unable to write sanitized shared-app control record", failure);
+    }
+  }
+
+  private record MemberBObservation(
+      String sessionIdentityHash, String claimIdentityHash, boolean cleaned) {}
+
+  private record ScenarioEvidence(
+      String scenarioId,
+      String memberASessionHash,
+      String memberBSessionHash,
+      String claimIdentityHash,
+      boolean memberBCleaned) {}
 }

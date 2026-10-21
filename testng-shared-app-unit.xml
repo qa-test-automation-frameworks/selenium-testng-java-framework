@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Shared App Coordination Unit Tests" parallel="none">
+  <listeners>
+    <listener class-name="io.github.selenium.saucedemo.framework.listener.FrameworkListener"/>
+  </listeners>
+  <test name="Method-local two-session handoffs">
+    <classes>
+      <class name="io.github.selenium.saucedemo.tests.SharedAppCoordinationTests"/>
+    </classes>
+  </test>
+</suite>
