@@ -16,10 +16,10 @@ const ownedId = 'owned:session-1';
 const origin = 'http://127.0.0.1:4444';
 const grid = { origin, endpoint: `${origin}/wd/hub` };
 
-function statusPayload(sessions = [], browserName = 'chrome') {
+function statusPayload(sessions = [], browserName = 'chrome', ready = true) {
   return {
     value: {
-      ready: true,
+      ready,
       nodes: [{
         id: 'node-test',
         slots: [{
@@ -84,7 +84,17 @@ test('capability classification follows the validated slot inventory and structu
 test('missing or changed Grid inventory schemas fail closed', () => {
   assert.throws(() => parseGridInventory({ value: { ready: true } }), /GRID_INVENTORY_SCHEMA_UNAVAILABLE/);
   assert.throws(() => parseGridInventory({ value: { ready: true, nodes: [{ slots: [{}] }] } }), /GRID_INVENTORY_SCHEMA_UNAVAILABLE/);
-  assert.throws(() => parseGridInventory({ value: { ready: false, nodes: [] } }), /GRID_INVENTORY_SCHEMA_UNAVAILABLE/);
+  assert.throws(() => parseGridInventory({ value: { nodes: [] } }), /GRID_INVENTORY_SCHEMA_UNAVAILABLE/);
+});
+
+test('a full single-slot Grid can be not ready and still expose its live session', () => {
+  const inventory = parseGridInventory(
+    statusPayload([{ sessionId: ownedId }], 'chrome', false),
+  );
+
+  assert.equal(inventory.ready, false);
+  assert.equal(inventory.sessions.length, 1);
+  assert.equal(inventory.sessions[0].sessionId, ownedId);
 });
 
 test('private Grid URL rejects remote hosts, credentials, query strings and fragments', () => {
