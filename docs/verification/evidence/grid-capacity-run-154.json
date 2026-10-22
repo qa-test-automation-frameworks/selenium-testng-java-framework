@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+    "workflowRunId": 39709314143,
+    "workflowUrl": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/39709314143",
+    "sourceCommit": "7f583aa49c101224bd7aa1b5b7e0f886f5f1c3eb",
+    "branch": "portfolio/shared-app-run-23-evidence-2026-10-22",
+    "artifactId": 12395873318,
+    "artifactArchiveDigest": "sha256:1ce6680076ee7a46a0bf7677e5783e403af6f9b87f9ea585ed1b8252be03f79e",
+    "artifactCreatedAt": "2026-10-22T02:05:19Z",
+    "sampleFileSha256": "4d984bb47893087ef4b0e5e5f12c6c217b9d5cb426008ceb04cf9e90511b7042",
+    "sourceArtifactFile": "grid-capacity-sample.json",
+    "retrievedAt": "2026-10-22T02:31:33Z"
+  },
+  "measurement": {
+    "schemaVersion": 1,
+    "target": "local Selenium Grid",
+    "remoteUrl": "http://localhost:4444/wd/hub",
+    "browserNodeImage": "selenium/node-chrome:4.43.0@sha256:9e60c032f8f0950bb962868e73263fb503cb6fbf3f14fdd31e81c1f14b6f247b",
+    "declaredResourceLimit": "2 GiB container memory limit and 2 GiB shared memory per Chrome node",
+    "actualMemoryLimitBytes": 2147483648,
+    "actualSharedMemoryBytes": 2147483648,
+    "workerCounts": [
+      1,
+      2,
+      4
+    ],
+    "samplesPerWorkerCount": 3,
+    "samples": [
+      {
+        "workers": 1,
+        "repetition": 1,
+        "worker": 1,
+        "sessionIdSha256": "18a63196cf89f428f7579fe03685d4dc5a2b480c508a1aa89c78c6f4c229e079",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1717.179897,
+        "fullCycleMilliseconds": 2129.304934
+      },
+      {
+        "workers": 1,
+        "repetition": 2,
+        "worker": 1,
+        "sessionIdSha256": "ebba06c171f08a2198dfe436dc2bcd3bafed24242b99b4a8b0e9bc35fcf4d7d1",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 383.215908,
+        "fullCycleMilliseconds": 550.895456
+      },
+      {
+        "workers": 1,
+        "repetition": 3,
+        "worker": 1,
+        "sessionIdSha256": "10a8af6b7715aed44d8f9926b2e3e62aac86ec8691b71de1669ee2af8174f878",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 377.05234,
+        "fullCycleMilliseconds": 565.817491
+      },
+      {
+        "workers": 2,
+        "repetition": 1,
+        "worker": 1,
+        "sessionIdSha256": "9d3b1662631685e413652b01489fa6b8ecca7eda3d33c2425cba8c76101e3290",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 381.759658,
+        "fullCycleMilliseconds": 549.251397
+      },
+      {
+        "workers": 2,
+        "repetition": 1,
+        "worker": 2,
+        "sessionIdSha256": "b8edb058c55a8170e59c631997280df17bcd3f2fbf206122fa5db0ff87033850",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 924.088082,
+        "fullCycleMilliseconds": 1089.616989
+      },
+      {
+        "workers": 2,
+        "repetition": 2,
+        "worker": 1,
+        "sessionIdSha256": "749f6013934a9eb7d64b0d3138a5aa7f176b3e930f0cd5b01a66778f1a394b95",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 869.217087,
+        "fullCycleMilliseconds": 1043.856854
+      },
+      {
+        "workers": 2,
+        "repetition": 2,
+        "worker": 2,
+        "sessionIdSha256": "3329111564ec9815a4665e6554c251b8d50a676245525aa4b857e2b3602329ed",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 366.427997,
+        "fullCycleMilliseconds": 528.829761
+      },
+      {
+        "workers": 2,
+        "repetition": 3,
+        "worker": 1,
+        "sessionIdSha256": "55f693b2fa7b9277419082aa6b0d9d16ca0009bd84088aec57c8cd9f561a9038",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 407.859248,
+        "fullCycleMilliseconds": 589.196111
+      },
+      {
+        "workers": 2,
+        "repetition": 3,
+        "worker": 2,
+        "sessionIdSha256": "0ceba078df2b35c75e7f20838624c12de2106450b047e777dee38407d2c169a3",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 948.360635,
+        "fullCycleMilliseconds": 1133.196662
+      },
+      {
+        "workers": 4,
+        "repetition": 1,
+        "worker": 1,
+        "sessionIdSha256": "3f2397dd434bb7b563197af5f4d15fc7e753695754a94e15a12f92b7f56f1852",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 884.488475,
+        "fullCycleMilliseconds": 1041.945462
+      },
+      {
+        "workers": 4,
+        "repetition": 1,
+        "worker": 2,
+        "sessionIdSha256": "65762d0ea4ce47e2eaf681688dffc7b629013c22d11ddc6499f1c63ba2ab5520",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1945.257848,
+        "fullCycleMilliseconds": 2161.392216
+      },
+      {
+        "workers": 4,
+        "repetition": 1,
+        "worker": 3,
+        "sessionIdSha256": "c2a26faa049c4ea541d5c18ce3b513ea87ccf67c9cf255a45472c21f99f6cfb7",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1409.346816,
+        "fullCycleMilliseconds": 1571.934077
+      },
+      {
+        "workers": 4,
+        "repetition": 1,
+        "worker": 4,
+        "sessionIdSha256": "a729ae89684198379563cc4b7a9ee0cf01ec9a7e0a24b3c216f587d317797d64",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 371.039118,
+        "fullCycleMilliseconds": 537.284466
+      },
+      {
+        "workers": 4,
+        "repetition": 2,
+        "worker": 1,
+        "sessionIdSha256": "b1ba47b50c31051d657388941ae8aaaabceede0e3716b3f394fb496317455c1a",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 876.339302,
+        "fullCycleMilliseconds": 1037.116705
+      },
+      {
+        "workers": 4,
+        "repetition": 2,
+        "worker": 2,
+        "sessionIdSha256": "04ce8352d762114ccfb1c834b1411c088bbc600a8141226ac3216f6574986d3d",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1881.906115,
+        "fullCycleMilliseconds": 2047.777249
+      },
+      {
+        "workers": 4,
+        "repetition": 2,
+        "worker": 3,
+        "sessionIdSha256": "0802aef1b7c2c6d8ccea578dd0137e5af8628b206925e6cfbe25e2066d1a444e",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 356.101863,
+        "fullCycleMilliseconds": 525.74372
+      },
+      {
+        "workers": 4,
+        "repetition": 2,
+        "worker": 4,
+        "sessionIdSha256": "1729f6fb94a5338528b919f1bfa2241247f6d16f9addb5169d8de28df6b18af5",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1383.309611,
+        "fullCycleMilliseconds": 1544.070661
+      },
+      {
+        "workers": 4,
+        "repetition": 3,
+        "worker": 1,
+        "sessionIdSha256": "29128b169bcb63282411d6b175db3186409052d97e053cdc5b3e0ec3f1db008c",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 353.882313,
+        "fullCycleMilliseconds": 516.444248
+      },
+      {
+        "workers": 4,
+        "repetition": 3,
+        "worker": 2,
+        "sessionIdSha256": "f9b6ebc3775cdc31b1771b2db630bcbd92d97e0830dd06708b73f74574b0e961",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1894.561332,
+        "fullCycleMilliseconds": 2052.805853
+      },
+      {
+        "workers": 4,
+        "repetition": 3,
+        "worker": 3,
+        "sessionIdSha256": "fbc607aac4d7c623cdcec581b28dc50e6b74c29de84420bb0974db2414e3d7d5",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 855.390622,
+        "fullCycleMilliseconds": 1027.975807
+      },
+      {
+        "workers": 4,
+        "repetition": 3,
+        "worker": 4,
+        "sessionIdSha256": "c0d91503ccf4e83672a5b20782e957dd767380b5b314eb12e0e0199e6bff8fee",
+        "browserVersion": "147.0.7727.55",
+        "sessionRequestToCreatedMilliseconds": 1397.579897,
+        "fullCycleMilliseconds": 1557.952043
+      }
+    ],
+    "activeSessionsAfterTeardown": 0,
+    "failures": [],
+    "limitation": "Small owned Grid sample; not a general throughput or production capacity claim."
+  },
+  "summary": {
+    "repetitionsPerConcurrencyLevel": 3,
+    "levels": [
+      {
+        "concurrentWorkers": 1,
+        "repetitionBatches": 3,
+        "sessionObservations": 3,
+        "batchSummaries": [
+          {
+            "repetition": 1,
+            "sessionCount": 1,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1717.18,
+              "fullCycleMilliseconds": 2129.305
+            }
+          },
+          {
+            "repetition": 2,
+            "sessionCount": 1,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 383.216,
+              "fullCycleMilliseconds": 550.895
+            }
+          },
+          {
+            "repetition": 3,
+            "sessionCount": 1,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 377.052,
+              "fullCycleMilliseconds": 565.817
+            }
+          }
+        ],
+        "metrics": {
+          "sessionRequestToCreatedMilliseconds": {
+            "unit": "milliseconds",
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 383.216,
+            "min": 377.052,
+            "max": 1717.18,
+            "range": 1340.128
+          },
+          "fullCycleMilliseconds": {
+            "unit": "milliseconds",
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 565.817,
+            "min": 550.895,
+            "max": 2129.305,
+            "range": 1578.41
+          }
+        }
+      },
+      {
+        "concurrentWorkers": 2,
+        "repetitionBatches": 3,
+        "sessionObservations": 6,
+        "batchSummaries": [
+          {
+            "repetition": 1,
+            "sessionCount": 2,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 652.924,
+              "fullCycleMilliseconds": 819.434
+            }
+          },
+          {
+            "repetition": 2,
+            "sessionCount": 2,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 617.823,
+              "fullCycleMilliseconds": 786.343
+            }
+          },
+          {
+            "repetition": 3,
+            "sessionCount": 2,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 678.11,
+              "fullCycleMilliseconds": 861.196
+            }
+          }
+        ],
+        "metrics": {
+          "sessionRequestToCreatedMilliseconds": {
+            "unit": "milliseconds",
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 652.924,
+            "min": 617.823,
+            "max": 678.11,
+            "range": 60.287
+          },
+          "fullCycleMilliseconds": {
+            "unit": "milliseconds",
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 819.434,
+            "min": 786.343,
+            "max": 861.196,
+            "range": 74.853
+          }
+        }
+      },
+      {
+        "concurrentWorkers": 4,
+        "repetitionBatches": 3,
+        "sessionObservations": 12,
+        "batchSummaries": [
+          {
+            "repetition": 1,
+            "sessionCount": 4,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1146.918,
+              "fullCycleMilliseconds": 1306.94
+            }
+          },
+          {
+            "repetition": 2,
+            "sessionCount": 4,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1129.824,
+              "fullCycleMilliseconds": 1290.594
+            }
+          },
+          {
+            "repetition": 3,
+            "sessionCount": 4,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1126.485,
+              "fullCycleMilliseconds": 1292.964
+            }
+          }
+        ],
+        "metrics": {
+          "sessionRequestToCreatedMilliseconds": {
+            "unit": "milliseconds",
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 1129.824,
+            "min": 1126.485,
+            "max": 1146.918,
+            "range": 20.433
+          },
+          "fullCycleMilliseconds": {
+            "unit": "milliseconds",
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 1292.964,
+            "min": 1290.594,
+            "max": 1306.94,
+            "range": 16.346
+          }
+        }
+      }
+    ],
+    "interpretation": "Each batch summarizes the concurrent session rows with a median. Reported medians and ranges summarize the three repetition-level medians (n=3 per concurrency level); raw session rows remain available in measurement.samples. The request-to-session-created metric includes Grid queueing and browser startup; the client measurement cannot split them. Full cycle covers the local data-page lifecycle through quit. This sample is descriptive and does not establish product or Grid capacity.",
+    "decision": "Keep the existing bounded experiment and 2 GiB node limits. Three repetition batches per concurrency level do not support a capacity claim or configuration change."
+  }
+}

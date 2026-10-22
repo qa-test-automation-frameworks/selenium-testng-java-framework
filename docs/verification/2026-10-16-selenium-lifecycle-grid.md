@@ -4,9 +4,7 @@ The lifecycle controls run without a browser. They inject a fake `WebDriver` thr
 
 `BaseTestCase.afterMethod` now puts teardown in a `finally` block around failure diagnostics. `FrameworkListener` also clears the thread-local session after a TestNG configuration failure. The factory closes any driver it created if timeout configuration, window setup, diagnostics initialization, or wait-helper setup fails.
 
-The `grid-capacity-experiment` job runs a small real Chrome Grid sample using the pinned Selenium 4.43.0 hub and node images. It starts one Grid node with the compose-declared 2 GiB memory and 2 GiB shared-memory limits, then checks the running container's effective limits with `docker inspect` and records their byte values. The probe opens 3 repetitions at each concurrency level (1, 2, and 4 workers), loads a local `data:` page, and records browser version, request-to-session-created latency (which includes queueing and browser startup), and full session-cycle duration. The client-side measurement cannot separate Grid queue time from node/browser startup. The job uploads `grid-capacity-sample.json`; the measurements are descriptive and do not establish production capacity.
-
-The exact-head workflow result and uploaded JSON are the evidence for the sample. This checkout has no local Java or Docker runtime, so local verification is limited to source review and workflow/YAML checks until CI executes the suite.
+The current bounded Chrome Grid sample is documented in [the 22 October 2026 report](2026-10-22-grid-capacity.md), with the exact-head workflow run and sanitized source rows. The request-to-session-created timer includes Grid queueing and browser startup; the client measurement cannot split them. The sample uses three repetition batches per concurrency level, and its medians and ranges are descriptive only. It does not establish product capacity or production throughput.
 
 The sample records SHA-256 digests of session identifiers only, so independent sessions can be checked without publishing raw session IDs. On successful runs, the workflow summary includes the resource limits and redacted sample JSON.
 
