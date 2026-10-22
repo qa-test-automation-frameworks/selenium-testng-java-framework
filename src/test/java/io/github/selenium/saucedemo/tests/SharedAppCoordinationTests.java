@@ -34,7 +34,13 @@ public class SharedAppCoordinationTests {
     CompletableFuture<String> memberBReady = new CompletableFuture<>();
     IllegalStateException failure = new IllegalStateException("controlled producer failure");
 
-    assertThatThrownBy(() -> SharedAppCoordination.produce(memberBReady, () -> { throw failure; }))
+    assertThatThrownBy(
+            () ->
+                SharedAppCoordination.produce(
+                    memberBReady,
+                    () -> {
+                      throw failure;
+                    }))
         .isSameAs(failure);
     assertThatThrownBy(() -> SharedAppCoordination.await(memberBReady, Duration.ofSeconds(2)))
         .isSameAs(failure);

@@ -48,8 +48,7 @@ final class SharedAppCoordination {
     }
   }
 
-  static void completeExceptionallyIfPending(
-      CompletableFuture<?> future, Throwable failure) {
+  static void completeExceptionallyIfPending(CompletableFuture<?> future, Throwable failure) {
     if (!future.isDone()) {
       future.completeExceptionally(failure);
     }

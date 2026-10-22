@@ -52,8 +52,7 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
         Executors.newSingleThreadExecutor(
             task -> new Thread(task, "shared-app-member-b-" + UUID.randomUUID()));
     Future<MemberBObservation> memberBTask =
-        memberBExecutor.submit(
-            () -> observeAsMemberB(memberBReady, claimIdForMemberB));
+        memberBExecutor.submit(() -> observeAsMemberB(memberBReady, claimIdForMemberB));
 
     try {
       reviewer.get(referenceAppUrl());
@@ -78,14 +77,15 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
       Assert.assertEquals(memberB.claimIdentityHash(), sha256(claimId));
       Assert.assertTrue(memberB.cleaned(), "member B must clean up its own driver thread");
 
-      Reporter.getCurrentTestResult().setAttribute(
-          EVIDENCE_ATTRIBUTE,
-          new ScenarioEvidence(
-              UUID.randomUUID().toString(),
-              memberASessionHash,
-              memberBSessionHash,
-              sha256(claimId),
-              memberB.cleaned()));
+      Reporter.getCurrentTestResult()
+          .setAttribute(
+              EVIDENCE_ATTRIBUTE,
+              new ScenarioEvidence(
+                  UUID.randomUUID().toString(),
+                  memberASessionHash,
+                  memberBSessionHash,
+                  sha256(claimId),
+                  memberB.cleaned()));
     } catch (Exception | Error failure) {
       SharedAppCoordination.completeExceptionallyIfPending(memberBReady, failure);
       SharedAppCoordination.completeExceptionallyIfPending(claimIdForMemberB, failure);
@@ -187,8 +187,7 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
     new Select(driver.findElement(By.id("category"))).selectByValue("auto");
     driver.findElement(By.cssSelector("#claim-form button[type='submit']")).click();
     wait.until(
-        ExpectedConditions.textToBePresentInElementLocated(
-            By.id("notice"), "claim was submitted"));
+        ExpectedConditions.textToBePresentInElementLocated(By.id("notice"), "claim was submitted"));
 
     String claimId =
         wait.until(
