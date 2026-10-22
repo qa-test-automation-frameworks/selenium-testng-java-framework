@@ -22,6 +22,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.SessionId;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -232,10 +233,14 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
   }
 
   private static String sessionIdentityHash(WebDriver driver) {
-    if (!(driver instanceof RemoteWebDriver remoteDriver) || remoteDriver.getSessionId() == null) {
+    if (!(driver instanceof RemoteWebDriver remoteDriver)) {
       throw new AssertionError("shared-app experiment requires an identifiable remote session");
     }
-    return sha256(remoteDriver.getSessionId().toString());
+    SessionId sessionId = remoteDriver.getSessionId();
+    if (sessionId == null) {
+      throw new AssertionError("shared-app experiment requires an identifiable remote session");
+    }
+    return sha256(sessionId.toString());
   }
 
   private static String sha256(String value) {
@@ -255,8 +260,8 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
   }
 
   private static void writeSanitizedEvidence(ScenarioEvidence evidence, boolean memberACleaned) {
-    Path output =
-        Path.of("target", "shared-app-controls", "control-" + evidence.scenarioId() + ".json");
+    Path outputDirectory = Path.of("target", "shared-app-controls");
+    Path output = outputDirectory.resolve("control-" + evidence.scenarioId() + ".json");
     String json =
         "{\"scenarioId\":\""
             + evidence.scenarioId()
@@ -272,7 +277,7 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
             + evidence.memberBCleaned()
             + "}\n";
     try {
-      Files.createDirectories(output.getParent());
+      Files.createDirectories(outputDirectory);
       Files.writeString(output, json, StandardCharsets.UTF_8);
     } catch (IOException failure) {
       throw new IllegalStateException(
