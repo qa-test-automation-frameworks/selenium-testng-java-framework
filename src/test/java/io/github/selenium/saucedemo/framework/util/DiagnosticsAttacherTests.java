@@ -136,8 +136,7 @@ public class DiagnosticsAttacherTests {
 
     assertThat(fakeDriver.screenshotCalls).isEqualTo(1);
     assertThat(sink.named("Screenshot")).hasSize(1);
-    assertThat(sink.text("Sensitive DOM Masking"))
-        .contains("not configured", "unmasked");
+    assertThat(sink.text("Sensitive DOM Masking")).contains("not configured", "unmasked");
   }
 
   @Test
@@ -147,17 +146,14 @@ public class DiagnosticsAttacherTests {
 
     FrameworkConfig config =
         new ConfigLoader()
-            .load(
-                new ConfigSources(
-                    Map.of(), overrides, ConfigSources.class.getClassLoader()));
+            .load(new ConfigSources(Map.of(), overrides, ConfigSources.class.getClassLoader()));
 
     assertThat(config.sensitiveDomSelectors()).isEmpty();
   }
 
   private static DiagnosticsAttacher attacher(
       String selectors, boolean attachScreenshot, boolean attachPageSource, RecordingSink sink) {
-    return new DiagnosticsAttacher(
-        config(selectors, attachScreenshot, attachPageSource), sink);
+    return new DiagnosticsAttacher(config(selectors, attachScreenshot, attachPageSource), sink);
   }
 
   private static FrameworkConfig config(
@@ -171,8 +167,10 @@ public class DiagnosticsAttacherTests {
                 case "sensitiveDomSelectors" -> selectors;
                 case "attachScreenshotsOnFailure" -> attachScreenshot;
                 case "attachPageSourceOnFailure" -> attachPageSource;
-                case "attachBrowserLogsOnFailure", "attachFrameworkLogsOnFailure",
-                    "networkLogsEnabled" -> false;
+                case "attachBrowserLogsOnFailure",
+                    "attachFrameworkLogsOnFailure",
+                    "networkLogsEnabled" ->
+                    false;
                 case "gridVideoBaseUrl" -> "";
                 case "environment" -> "synthetic";
                 case "browser" -> "Chrome";
@@ -280,8 +278,7 @@ public class DiagnosticsAttacherTests {
         case "executeScript" -> {
           calls.add("mask");
           if (failScript) throw new JavascriptException("script-error-canary");
-          if (scriptResult instanceof Map<?, ?> result
-              && "applied".equals(result.get("status"))) {
+          if (scriptResult instanceof Map<?, ?> result && "applied".equals(result.get("status"))) {
             pageSource = "<main><redacted></main>";
           }
           yield scriptResult;

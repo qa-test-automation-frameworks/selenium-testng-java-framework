@@ -351,11 +351,7 @@ public final class DiagnosticsAttacher {
 
     @Override
     public void addBytes(String name, String contentType, byte[] bytes, String fileExtension) {
-      Allure.addAttachment(
-          name,
-          contentType,
-          new ByteArrayInputStream(bytes),
-          fileExtension);
+      Allure.addAttachment(name, contentType, new ByteArrayInputStream(bytes), fileExtension);
     }
   }
 }
