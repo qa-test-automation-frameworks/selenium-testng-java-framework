@@ -41,7 +41,7 @@ public class GridRecoveryDrillTests {
     String nonce = requiredProperty("grid.recovery.nonce");
     FrameworkConfig config = ConfigFactory.getConfig();
     Map<String, Object> observedCapabilities = new LinkedHashMap<>();
-    boolean cleanupCalled = false;
+    boolean cleanupCalled;
     boolean passed = false;
     String failureCategory = "UNKNOWN";
 
