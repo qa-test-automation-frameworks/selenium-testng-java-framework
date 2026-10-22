@@ -148,8 +148,7 @@ public class GridRecoveryDrillTests {
     Path temporary = Files.createTempFile(directory, ".owned-session-", ".tmp");
     try {
       setPermissions(
-          temporary,
-          EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
+          temporary, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
       byte[] bytes = JSON.writeValueAsBytes(receipt);
       try (FileChannel channel = FileChannel.open(temporary, StandardOpenOption.WRITE)) {
         channel.write(java.nio.ByteBuffer.wrap(bytes));
@@ -194,14 +193,13 @@ public class GridRecoveryDrillTests {
         StandardOpenOption.TRUNCATE_EXISTING,
         StandardOpenOption.WRITE);
     setPermissions(
-        temporary,
-        EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
+        temporary, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
     try {
-      Files.move(temporary, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+      Files.move(
+          temporary, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
     } catch (AtomicMoveNotSupportedException unsupported) {
       Files.deleteIfExists(temporary);
-      throw new IOException(
-          "Control result storage does not support atomic rename.", unsupported);
+      throw new IOException("Control result storage does not support atomic rename.", unsupported);
     }
   }
 
