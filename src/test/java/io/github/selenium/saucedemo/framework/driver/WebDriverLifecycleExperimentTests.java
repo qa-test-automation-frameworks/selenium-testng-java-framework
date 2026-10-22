@@ -81,8 +81,7 @@ public class WebDriverLifecycleExperimentTests {
     for (boolean javascriptSupported : List.of(true, false)) {
       AtomicInteger quitCalls = new AtomicInteger();
       AtomicInteger screenshotCalls = new AtomicInteger();
-      WebDriver driver =
-          diagnosticDriver(javascriptSupported, quitCalls, screenshotCalls);
+      WebDriver driver = diagnosticDriver(javascriptSupported, quitCalls, screenshotCalls);
       WebDriverFactory.setDriverProviderForTesting(ignored -> driver);
       WebDriverFactory.initThreadLocalDriver(config());
 

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 import org.openqa.selenium.JavascriptException;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -120,8 +119,7 @@ public class DiagnosticsAttacherTests {
 
     assertThat(fakeDriver.screenshotCalls).isEqualTo(1);
     assertThat(sink.named("Screenshot")).hasSize(1);
-    assertThat(sink.text("Screenshot"))
-        .isEqualTo("Screenshot capture failed after DOM masking.");
+    assertThat(sink.text("Screenshot")).isEqualTo("Screenshot capture failed after DOM masking.");
     assertThat(sink.named("Current URL")).hasSize(1);
     assertThat(sink.named("Page Source")).hasSize(1);
     assertThat(!sink.allText().contains("screenshot-error-canary"))

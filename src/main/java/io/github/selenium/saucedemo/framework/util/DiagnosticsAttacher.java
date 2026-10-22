@@ -57,8 +57,7 @@ public final class DiagnosticsAttacher {
     this(() -> config, attachmentSink);
   }
 
-  DiagnosticsAttacher(
-      Supplier<FrameworkConfig> configSupplier, AttachmentSink attachmentSink) {
+  DiagnosticsAttacher(Supplier<FrameworkConfig> configSupplier, AttachmentSink attachmentSink) {
     this.configSupplier = Objects.requireNonNull(configSupplier);
     this.attachmentSink = Objects.requireNonNull(attachmentSink);
   }
@@ -147,8 +146,7 @@ public final class DiagnosticsAttacher {
     }
 
     try {
-      Object response =
-          javascriptExecutor.executeScript(MASK_SENSITIVE_DOM_SCRIPT, selectors);
+      Object response = javascriptExecutor.executeScript(MASK_SENSITIVE_DOM_SCRIPT, selectors);
       if (response instanceof Map<?, ?> result
           && "applied".equals(result.get("status"))
           && result.get("selectedCount") instanceof Number selectedCount

@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -61,15 +60,19 @@ public class DiagnosticsAttacherBrowserTests extends BaseTestCase {
           return switch (method.getName()) {
             case "sensitiveDomSelectors" -> "[data-sensitive='true']";
             case "attachScreenshotsOnFailure", "attachPageSourceOnFailure" -> true;
-            case "attachBrowserLogsOnFailure", "attachFrameworkLogsOnFailure",
-                "networkLogsEnabled" -> false;
+            case "attachBrowserLogsOnFailure",
+                "attachFrameworkLogsOnFailure",
+                "networkLogsEnabled" ->
+                false;
             case "gridVideoBaseUrl" -> "";
             default -> method.invoke(delegate, arguments);
           };
         };
     return (FrameworkConfig)
         Proxy.newProxyInstance(
-            FrameworkConfig.class.getClassLoader(), new Class<?>[] {FrameworkConfig.class}, handler);
+            FrameworkConfig.class.getClassLoader(),
+            new Class<?>[] {FrameworkConfig.class},
+            handler);
   }
 
   private static final class RecordingSink implements DiagnosticsAttacher.AttachmentSink {
