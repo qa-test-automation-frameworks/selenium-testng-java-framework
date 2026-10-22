@@ -127,9 +127,7 @@ public final class DiagnosticsAttacher {
       log.warn("Screenshot capture failed after DOM protection; continuing with other diagnostics");
       safeAttach(
           "Screenshot failure status",
-          () ->
-              attachmentSink.addText(
-                  "Screenshot", "Screenshot capture failed after DOM masking."));
+          () -> attachmentSink.addText("Screenshot", "Screenshot capture failed after DOM masking."));
     }
   }
 
@@ -164,8 +162,7 @@ public final class DiagnosticsAttacher {
       case APPLIED -> "Sensitive DOM masking applied before browser artifacts were captured.";
       case NOT_CONFIGURED ->
           "Sensitive DOM masking is not configured; screenshots and page source are unmasked.";
-      case FAILED ->
-          "Sensitive DOM masking failed; screenshot and page source are omitted.";
+      case FAILED -> "Sensitive DOM masking failed; screenshot and page source are omitted.";
       case UNSUPPORTED ->
           "Sensitive DOM masking is unsupported by this driver; "
               + "screenshot and page source are omitted.";
@@ -221,10 +218,7 @@ public final class DiagnosticsAttacher {
               .map(Object::toString)
               .collect(Collectors.joining(System.lineSeparator()));
       attachmentSink.addText(
-          "Browser Network Logs",
-          "application/json",
-          safeAttachmentText(payload, config),
-          ".json");
+          "Browser Network Logs", "application/json", safeAttachmentText(payload, config), ".json");
     } catch (Exception e) {
       attachmentSink.addText(
           "Browser Network Logs", "Network logs unavailable for this browser/session");
@@ -301,8 +295,7 @@ public final class DiagnosticsAttacher {
             "Thread: " + Thread.currentThread().getName(),
             "Current URL: " + driver.getCurrentUrl(),
             "Page title: " + driver.getTitle());
-    attachmentSink.addText(
-        "Execution Environment", safeAttachmentText(environmentSummary, config));
+    attachmentSink.addText("Execution Environment", safeAttachmentText(environmentSummary, config));
   }
 
   private String safeAttachmentText(String rawValue, FrameworkConfig config) {
