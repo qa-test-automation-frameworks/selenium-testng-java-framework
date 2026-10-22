@@ -54,7 +54,7 @@ export function validatePrivateGridUrl(value) {
 
 export function parseGridInventory(payload) {
   const value = payload?.value;
-  if (!value || value.ready !== true || !Array.isArray(value.nodes)) {
+  if (!value || typeof value.ready !== 'boolean' || !Array.isArray(value.nodes)) {
     throw failure('GRID_INVENTORY_SCHEMA_UNAVAILABLE', 'UNKNOWN', 'inventory');
   }
   const sessions = [];
@@ -90,7 +90,7 @@ export function parseGridInventory(payload) {
     }
   }
   return Object.freeze({
-    ready: true,
+    ready: value.ready,
     nodeCount: value.nodes.length,
     sessions: Object.freeze(sessions),
     stereotypes: Object.freeze(stereotypes),
@@ -362,6 +362,7 @@ async function waitForGrid(grid, fetchImpl = fetch) {
     try {
       const inventory = await readGridInventory(grid, fetchImpl);
       if (
+        inventory.ready &&
         inventory.nodeCount > 0 &&
         inventory.stereotypes.includes('chrome')
       ) {
