@@ -6,12 +6,12 @@ The run used Java 21, Selenium 4.51.0, Chrome `147.0.7727.55`, and the pinned `s
 
 ## Results
 
-Each level ran three coordinated batches. A batch at two or four workers produced two or four session-level measurements, respectively; `session samples` shows the denominator used for each median and range.
+Each level ran three coordinated batches. For each batch, the value is the median across the concurrent sessions in that repetition. The table reports the median and min–max range of those three batch medians (`n=3` per level); the JSON retains the raw 3, 6, and 12 session rows as well as each batch median.
 
-| Concurrent workers | Batches | Session samples | Request to session created, ms (median; min–max) | Full cycle, ms (median; min–max) |
+| Concurrent workers | Repetition batches | Request to session created, ms (median of batch medians; range) | Full cycle, ms (median of batch medians; range) |
 |---:|---:|---:|---:|---:|
-| 1 | 3 | 3 | 383.216; 377.052–1717.180 | 565.817; 550.895–2129.305 |
-| 2 | 3 | 6 | 638.538; 366.428–948.361 | 816.526; 528.830–1133.197 |
-| 4 | 3 | 12 | 1133.899; 353.882–1945.258 | 1293.008; 516.444–2161.392 |
+| 1 | 3 | 383.216; 377.052–1717.180 | 565.817; 550.895–2129.305 |
+| 2 | 3 | 652.924; 617.823–678.110 | 819.434; 786.343–861.196 |
+| 4 | 3 | 1129.824; 1126.485–1146.918 | 1292.964; 1290.594–1306.940 |
 
-The request-to-session-created timer covers both Grid queueing and browser startup; this client measurement cannot separate those parts. Full cycle includes that interval, loading and checking the data page, and quitting the session. The first one-worker batch had a notably slower observation, and the ranges are broad at four workers. With only three batches per level, these results support no capacity claim or configuration change. Keep the existing bounded sample and 2 GiB node limits; treat this as a descriptive local-Grid check, not product capacity or production throughput evidence.
+The request-to-session-created timer covers both Grid queueing and browser startup; this client measurement cannot separate those parts. Full cycle includes that interval, loading and checking the data page, and quitting the session. The first one-worker batch was much slower than the next two. The individual four-worker session rows also span 353.882–1945.258 ms for creation and 516.444–2161.392 ms for the full cycle, despite tighter batch medians. With only three batches per level, these results support no capacity claim or configuration change. Keep the existing bounded sample and 2 GiB node limits; treat this as a descriptive local-Grid check, not product capacity or production throughput evidence.

@@ -11,7 +11,7 @@
     "artifactCreatedAt": "2026-10-22T02:05:19Z",
     "sampleFileSha256": "4d984bb47893087ef4b0e5e5f12c6c217b9d5cb426008ceb04cf9e90511b7042",
     "sourceArtifactFile": "grid-capacity-sample.json",
-    "retrievedAt": "2026-10-22T02:27:33Z"
+    "retrievedAt": "2026-10-22T02:31:33Z"
   },
   "measurement": {
     "schemaVersion": 1,
@@ -228,11 +228,38 @@
       {
         "concurrentWorkers": 1,
         "repetitionBatches": 3,
-        "sessionSamples": 3,
+        "sessionObservations": 3,
+        "batchSummaries": [
+          {
+            "repetition": 1,
+            "sessionCount": 1,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1717.18,
+              "fullCycleMilliseconds": 2129.305
+            }
+          },
+          {
+            "repetition": 2,
+            "sessionCount": 1,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 383.216,
+              "fullCycleMilliseconds": 550.895
+            }
+          },
+          {
+            "repetition": 3,
+            "sessionCount": 1,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 377.052,
+              "fullCycleMilliseconds": 565.817
+            }
+          }
+        ],
         "metrics": {
           "sessionRequestToCreatedMilliseconds": {
             "unit": "milliseconds",
             "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
             "median": 383.216,
             "min": 377.052,
             "max": 1717.18,
@@ -241,61 +268,118 @@
           "fullCycleMilliseconds": {
             "unit": "milliseconds",
             "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
             "median": 565.817,
             "min": 550.895,
             "max": 2129.305,
-            "range": 1578.409
+            "range": 1578.41
           }
         }
       },
       {
         "concurrentWorkers": 2,
         "repetitionBatches": 3,
-        "sessionSamples": 6,
+        "sessionObservations": 6,
+        "batchSummaries": [
+          {
+            "repetition": 1,
+            "sessionCount": 2,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 652.924,
+              "fullCycleMilliseconds": 819.434
+            }
+          },
+          {
+            "repetition": 2,
+            "sessionCount": 2,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 617.823,
+              "fullCycleMilliseconds": 786.343
+            }
+          },
+          {
+            "repetition": 3,
+            "sessionCount": 2,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 678.11,
+              "fullCycleMilliseconds": 861.196
+            }
+          }
+        ],
         "metrics": {
           "sessionRequestToCreatedMilliseconds": {
             "unit": "milliseconds",
-            "sampleCount": 6,
-            "median": 638.538,
-            "min": 366.428,
-            "max": 948.361,
-            "range": 581.933
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 652.924,
+            "min": 617.823,
+            "max": 678.11,
+            "range": 60.287
           },
           "fullCycleMilliseconds": {
             "unit": "milliseconds",
-            "sampleCount": 6,
-            "median": 816.526,
-            "min": 528.83,
-            "max": 1133.197,
-            "range": 604.367
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 819.434,
+            "min": 786.343,
+            "max": 861.196,
+            "range": 74.853
           }
         }
       },
       {
         "concurrentWorkers": 4,
         "repetitionBatches": 3,
-        "sessionSamples": 12,
+        "sessionObservations": 12,
+        "batchSummaries": [
+          {
+            "repetition": 1,
+            "sessionCount": 4,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1146.918,
+              "fullCycleMilliseconds": 1306.94
+            }
+          },
+          {
+            "repetition": 2,
+            "sessionCount": 4,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1129.824,
+              "fullCycleMilliseconds": 1290.594
+            }
+          },
+          {
+            "repetition": 3,
+            "sessionCount": 4,
+            "metrics": {
+              "sessionRequestToCreatedMilliseconds": 1126.485,
+              "fullCycleMilliseconds": 1292.964
+            }
+          }
+        ],
         "metrics": {
           "sessionRequestToCreatedMilliseconds": {
             "unit": "milliseconds",
-            "sampleCount": 12,
-            "median": 1133.899,
-            "min": 353.882,
-            "max": 1945.258,
-            "range": 1591.376
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 1129.824,
+            "min": 1126.485,
+            "max": 1146.918,
+            "range": 20.433
           },
           "fullCycleMilliseconds": {
             "unit": "milliseconds",
-            "sampleCount": 12,
-            "median": 1293.008,
-            "min": 516.444,
-            "max": 2161.392,
-            "range": 1644.948
+            "sampleCount": 3,
+            "statistic": "median of repetition-level session medians",
+            "median": 1292.964,
+            "min": 1290.594,
+            "max": 1306.94,
+            "range": 16.346
           }
         }
       }
     ],
-    "interpretation": "The request-to-session-created metric includes Grid queueing and browser startup; the client measurement cannot split them. Full cycle covers the local data-page lifecycle through quit. This sample is descriptive and does not establish product or Grid capacity.",
-    "decision": "Keep the existing bounded experiment and 2 GiB node limits. These 3 repetition batches per concurrency level do not support a capacity claim or a configuration change."
+    "interpretation": "Each batch summarizes the concurrent session rows with a median. Reported medians and ranges summarize the three repetition-level medians (n=3 per concurrency level); raw session rows remain available in measurement.samples. The request-to-session-created metric includes Grid queueing and browser startup; the client measurement cannot split them. Full cycle covers the local data-page lifecycle through quit. This sample is descriptive and does not establish product or Grid capacity.",
+    "decision": "Keep the existing bounded experiment and 2 GiB node limits. Three repetition batches per concurrency level do not support a capacity claim or configuration change."
   }
 }
