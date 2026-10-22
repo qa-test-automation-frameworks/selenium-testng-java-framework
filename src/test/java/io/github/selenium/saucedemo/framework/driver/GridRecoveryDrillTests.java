@@ -19,6 +19,7 @@ import java.util.Base64;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
@@ -121,7 +122,8 @@ public class GridRecoveryDrillTests {
       String sourceSha,
       String remoteUrl)
       throws IOException {
-    Path directory = receiptPath.getParent();
+    Path directory =
+        Objects.requireNonNull(receiptPath.getParent(), "Receipt path must have a parent directory.");
     Files.createDirectories(directory);
     setPermissions(
         directory,
@@ -135,7 +137,10 @@ public class GridRecoveryDrillTests {
     receipt.put("sourceSha", sourceSha);
     java.net.URI remoteUri = java.net.URI.create(remoteUrl);
     receipt.put("gridOrigin", remoteUri.getScheme() + "://" + remoteUri.getAuthority());
-    receipt.put("sessionId", driver.getSessionId().toString());
+    String sessionId =
+        Objects.requireNonNull(driver.getSessionId(), "Created Grid session must have an ID.")
+            .toString();
+    receipt.put("sessionId", sessionId);
     receipt.put("createdAt", Instant.now().toString());
     receipt.put("requestedCapabilities", Map.of(
         "browserName", "chrome",
@@ -177,8 +182,10 @@ public class GridRecoveryDrillTests {
     result.put("requestedCapabilities", Map.of("browserName", "chrome"));
     result.put("observedCapabilities", observedCapabilities);
     result.put("failureCategory", failureCategory);
-    Path temporary = path.resolveSibling(path.getFileName() + ".tmp");
-    Files.createDirectories(path.getParent());
+    Path parent =
+        Objects.requireNonNull(path.getParent(), "Control result path must have a parent directory.");
+    Path temporary = parent.resolve(path.getFileName() + ".tmp");
+    Files.createDirectories(parent);
     Files.write(
         temporary,
         JSON.writeValueAsBytes(result),
