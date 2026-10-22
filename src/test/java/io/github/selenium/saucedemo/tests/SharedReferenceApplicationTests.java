@@ -27,6 +27,7 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.ITestResult;
+import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -41,8 +42,8 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
   @Test(
       invocationCount = 2,
       description = "member claim review stays isolated across two fresh scenario invocations")
-  public void memberClaimCanBeReviewedWhileAnotherMemberRemainsIsolated(ITestResult testResult)
-      throws Exception {
+  @SuppressWarnings("PMD.CloseResource")
+  public void memberClaimCanBeReviewedWhileAnotherMemberRemainsIsolated() throws Exception {
     WebDriver reviewer = getDriver();
     CompletableFuture<String> memberBReady = new CompletableFuture<>();
     CompletableFuture<String> claimIdForMemberB = new CompletableFuture<>();
@@ -76,7 +77,7 @@ public class SharedReferenceApplicationTests extends BaseTestCase {
       Assert.assertEquals(memberB.claimIdentityHash(), sha256(claimId));
       Assert.assertTrue(memberB.cleaned(), "member B must clean up its own driver thread");
 
-      testResult.setAttribute(
+      Reporter.getCurrentTestResult().setAttribute(
           EVIDENCE_ATTRIBUTE,
           new ScenarioEvidence(
               UUID.randomUUID().toString(),

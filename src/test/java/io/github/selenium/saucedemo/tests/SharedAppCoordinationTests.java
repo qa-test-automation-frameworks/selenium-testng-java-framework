@@ -64,6 +64,7 @@ public class SharedAppCoordinationTests {
   }
 
   @Test
+  @SuppressWarnings("PMD.CloseResource")
   public void cancellationStopsTheWorkerAndCompletesUnresolvedHandoffs() throws Exception {
     CompletableFuture<String> memberBReady = new CompletableFuture<>();
     CompletableFuture<String> claimIdForMemberB = new CompletableFuture<>();
