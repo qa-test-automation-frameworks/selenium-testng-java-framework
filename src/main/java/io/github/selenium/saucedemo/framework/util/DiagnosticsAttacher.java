@@ -127,7 +127,8 @@ public final class DiagnosticsAttacher {
       log.warn("Screenshot capture failed after DOM protection; continuing with other diagnostics");
       safeAttach(
           "Screenshot failure status",
-          () -> attachmentSink.addText("Screenshot", "Screenshot capture failed after DOM masking."));
+          () ->
+              attachmentSink.addText("Screenshot", "Screenshot capture failed after DOM masking."));
     }
   }
 
