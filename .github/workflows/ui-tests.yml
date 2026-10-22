@@ -141,6 +141,9 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Check the fake Grid recovery safety controls
+        run: node --test scripts/grid-recovery.test.mjs
+
       - name: Set up JDK 21
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
