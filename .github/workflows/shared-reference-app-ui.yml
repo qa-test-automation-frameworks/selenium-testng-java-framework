@@ -5,12 +5,22 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/shared-reference-app-ui.yml'
+      - '.github/workflows/publish-portfolio-evidence.yml'
       - 'docker/shared-app.compose.yaml'
-      - 'src/test/java/io/github/selenium/saucedemo/tests/SharedReferenceApplicationTests.java'
-      - 'testng-shared-app.xml'
+      - 'src/main/java/**'
+      - 'src/test/java/**'
+      - 'src/test/resources/**'
+      - 'docs/shared-reference-app.md'
+      - 'docs/verification/2026-10-16-selenium-lifecycle-grid.md'
+      - 'testng*.xml'
+      - '.mvn/**'
+      - 'mvnw*'
+      - 'pom.xml'
       - 'scripts/emit_evidence.py'
       - 'scripts/test_emit_evidence.py'
-      - 'pom.xml'
+      - 'scripts/validate-evidence.mjs'
+      - 'scripts/verify_shared_app_controls.py'
+      - 'scripts/test_shared_app_controls.py'
   workflow_dispatch:
 
 permissions:
@@ -33,21 +43,27 @@ jobs:
       TARGET_ENVIRONMENT: isolated-compose
       TARGET_PROFILE: chrome-grid-4.43.0
       FRESHNESS_POLICY: quarterly_experiment_v1
+      SCOPE_REQUIRED: 'false'
       EVIDENCE_CLASS: controlled
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up the repository-pinned Node runtime for evidence validation
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
 
       - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           java-version: '21'
           distribution: temurin
+
+      - name: Check the browser-free scenario coordination controls
+        run: |
+          python3 -m unittest discover -s scripts -p 'test_shared_app_controls.py' -v
+          python3 -m unittest discover -s scripts -p 'test_emit_evidence.py' -v
 
       - name: Record exact runtime versions for evidence
         shell: bash
@@ -104,13 +120,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p target
+          rm -rf target/shared-app-controls
           echo "STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           set +e
           ./mvnw -B -ntp -C -Dtestng.suite.file=testng-shared-app.xml \
             -Dexecution.type=remote -Dremote.url=http://127.0.0.1:4444/wd/hub \
-            -Dbrowser=CHROME -Dheadless=true -Dthread.count=2 \
+            -Dbrowser=CHROME -Dheadless=true -Dthread.count=1 \
             -Dapp.url=http://reference-app:4300/ test 2>&1 | tee target/shared-app-ui.log
           status=${PIPESTATUS[0]}
+          if [[ "$status" -eq 0 ]]; then
+            python3 scripts/verify_shared_app_controls.py target/shared-app-controls
+            status=$?
+          fi
           set -e
           echo "COMPLETED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           echo "TEST_OUTCOME=$([[ $status -eq 0 ]] && echo success || echo failure)" >> "$GITHUB_ENV"
@@ -134,13 +155,26 @@ jobs:
         if: always() && hashFiles('target/portfolio-evidence/evidence-v3.json') != ''
         run: node scripts/validate-evidence.mjs target/portfolio-evidence/evidence-v3.json
 
+      - name: Summarize the exact compatibility scope
+        if: always()
+        run: |
+          {
+            echo '## Shared-app compatibility scope'
+            echo
+            echo "- Run: [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
+            echo "- Tested checkout SHA: ${GITHUB_SHA}"
+            echo "- Target ID and revision: ${TARGET_ID} / ${TARGET_REVISION}"
+            echo '- This run applies only to that source and target pair; current compatibility is not established after either changes.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Preserve logs, native reports, and evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: selenium-shared-app-evidence-${{ github.run_attempt }}
           path: |
             target/shared-app-ui.log
+            target/shared-app-controls/*.json
             target/portfolio-evidence/evidence-v3.json
             target/surefire-reports/TEST-*.xml
             target-app-ready.json

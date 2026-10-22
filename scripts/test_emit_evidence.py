@@ -40,6 +40,16 @@ class EvidenceEmitterTest(unittest.TestCase):
         self.assertEqual(record["target"]["fixtureVersion"], "v0.1.0")
         self.assertEqual(record["target"]["identity"], "quality-reference-application")
 
+    def test_repeated_testng_invocations_count_as_separate_testcases(self):
+        (self.report / "TEST-suite.xml").write_text(
+            '<testsuite tests="1" failures="0" errors="0" skipped="0">'
+            '<testcase classname="sample.Check" name="repeats"/>'
+            '<testcase classname="sample.Check" name="repeats"/></testsuite>')
+        result = build_record(self.env, self.report, self.root / "repeated.json")
+        counts = result["execution"]["counts"]
+        self.assertEqual((counts["selected"], counts["executed"], counts["passed"]), (2, 2, 2))
+        self.assertEqual(result["execution"]["integrity"], "complete")
+
     def test_missing_and_inconsistent_reports_never_pass(self):
         self.assertEqual(build_record(self.env, self.report, self.root / "none.json")["execution"]["integrity"], "unavailable")
         (self.report / "TEST-suite.xml").write_text('<testsuite tests="2" failures="0" errors="0" skipped="0"><testcase/></testsuite>')
