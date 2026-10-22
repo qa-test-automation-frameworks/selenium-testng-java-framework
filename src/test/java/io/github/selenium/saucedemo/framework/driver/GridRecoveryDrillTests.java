@@ -25,7 +25,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /** One manual hosted worker-interruption and exact-session recovery control. */
@@ -73,7 +72,8 @@ public class GridRecoveryDrillTests {
         // The owning Node harness kills this whole child process group after it sees the receipt
         // and independently observes this exact session in the pinned Grid inventory.
         Thread.sleep(300_000);
-        throw new IllegalStateException("The worker reached its bounded wait without interruption.");
+        throw new IllegalStateException(
+            "The worker reached its bounded wait without interruption.");
       }
 
       if (!"control".equals(mode)) {
@@ -102,7 +102,8 @@ public class GridRecoveryDrillTests {
   }
 
   private static String probeUrl() {
-    String encoded = Base64.getEncoder().encodeToString(PROBE_HTML.getBytes(StandardCharsets.UTF_8));
+    String encoded =
+        Base64.getEncoder().encodeToString(PROBE_HTML.getBytes(StandardCharsets.UTF_8));
     return "data:text/html;charset=utf-8;base64," + encoded;
   }
 
@@ -116,14 +117,11 @@ public class GridRecoveryDrillTests {
   }
 
   private static void writePrivateReceipt(
-      Path receiptPath,
-      RemoteWebDriver driver,
-      String nonce,
-      String sourceSha,
-      String remoteUrl)
+      Path receiptPath, RemoteWebDriver driver, String nonce, String sourceSha, String remoteUrl)
       throws IOException {
     Path directory =
-        Objects.requireNonNull(receiptPath.getParent(), "Receipt path must have a parent directory.");
+        Objects.requireNonNull(
+            receiptPath.getParent(), "Receipt path must have a parent directory.");
     Files.createDirectories(directory);
     setPermissions(
         directory,
@@ -142,9 +140,9 @@ public class GridRecoveryDrillTests {
             .toString();
     receipt.put("sessionId", sessionId);
     receipt.put("createdAt", Instant.now().toString());
-    receipt.put("requestedCapabilities", Map.of(
-        "browserName", "chrome",
-        "se:name", "grid-recovery:" + nonce));
+    receipt.put(
+        "requestedCapabilities",
+        Map.of("browserName", "chrome", "se:name", "grid-recovery:" + nonce));
     receipt.put("observedCapabilities", safeCapabilities(driver.getCapabilities()));
 
     Path temporary = Files.createTempFile(directory, ".owned-session-", ".tmp");
@@ -160,9 +158,11 @@ public class GridRecoveryDrillTests {
       try {
         Files.move(temporary, receiptPath, StandardCopyOption.ATOMIC_MOVE);
       } catch (AtomicMoveNotSupportedException unsupported) {
-        throw new IOException("Private receipt storage does not support atomic rename.", unsupported);
+        throw new IOException(
+            "Private receipt storage does not support atomic rename.", unsupported);
       }
-      setPermissions(receiptPath, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
+      setPermissions(
+          receiptPath, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
     } finally {
       Files.deleteIfExists(temporary);
     }
@@ -183,7 +183,8 @@ public class GridRecoveryDrillTests {
     result.put("observedCapabilities", observedCapabilities);
     result.put("failureCategory", failureCategory);
     Path parent =
-        Objects.requireNonNull(path.getParent(), "Control result path must have a parent directory.");
+        Objects.requireNonNull(
+            path.getParent(), "Control result path must have a parent directory.");
     Path temporary = parent.resolve(path.getFileName() + ".tmp");
     Files.createDirectories(parent);
     Files.write(
@@ -199,7 +200,8 @@ public class GridRecoveryDrillTests {
       Files.move(temporary, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
     } catch (AtomicMoveNotSupportedException unsupported) {
       Files.deleteIfExists(temporary);
-      throw new IOException("Control result storage does not support atomic rename.", unsupported);
+      throw new IOException(
+          "Control result storage does not support atomic rename.", unsupported);
     }
   }
 
