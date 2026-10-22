@@ -190,10 +190,6 @@ public final class ConfigLoader {
   }
 
   private void validateRequiredStrings(FrameworkConfig config) {
-    if (config.sensitiveDomSelectors() == null || config.sensitiveDomSelectors().isBlank()) {
-      throw new FrameworkConfigurationException(
-          "diagnostics.sensitive.dom.selectors must be provided");
-    }
     if (config.appUrl() == null || config.appUrl().isBlank()) {
       throw new FrameworkConfigurationException("app.url must be provided");
     }

@@ -101,7 +101,7 @@ The default artifact set is:
 
 | Artifact | What to use it for |
 |---|---|
-| `Screenshot` | Confirm what the user would have seen at failure time. Fields matched by `diagnostics.sensitive.dom.selectors` are masked before capture. |
+| `Screenshot` | Confirm what the user would have seen at failure time. Capture requires successful masking when selectors are configured. A failed/unsupported mask omits the screenshot; explicitly blank selectors mean the screenshot is unmasked. Grid video recorded before masking is a separate boundary. |
 | `Current URL` | Verify route, redirect behavior, and environment targeting. |
 | `Browser Capabilities` | Confirm browser name/version, platform, headless mode, remote/local execution, and CDP metadata. |
 | `Browser Console Logs` | Look for client-side errors, warnings, and unsupported browser logging. |

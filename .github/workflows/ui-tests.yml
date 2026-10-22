@@ -468,6 +468,24 @@ jobs:
             sleep 2
           done
 
+      - name: Run synthetic DOM protection on Chrome
+        if: matrix.browser == 'CHROME'
+        run: >-
+          ./mvnw -B -ntp
+          -Dtestng.suite.file=testng-diagnostics-browser.xml
+          -Dexecution.type=remote
+          -Dremote.url=http://localhost:4444/wd/hub
+          -Dbrowser=CHROME -Dheadless=true -Dthread.count=1 test
+
+      - name: Upload synthetic DOM protection result
+        if: always() && matrix.browser == 'CHROME'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: diagnostics-protection-chrome-control
+          path: target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Validate required secrets for trusted full regression
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: test -n "$APP_PASSWORD"
