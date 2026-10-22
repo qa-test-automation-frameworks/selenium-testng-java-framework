@@ -1,0 +1,91 @@
+name: Grid Worker Recovery Drill
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: grid-worker-recovery-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  owned-session-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      COMPOSE_PROJECT_NAME: grid-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Check out the requested source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node for the fake Grid controls
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x mvnw
+
+      - name: Run fake Grid safety controls on the hosted runner
+        run: node --test scripts/grid-recovery.test.mjs
+
+      - name: Start this run's pinned single-slot Grid
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml -f docker-compose.grid-recovery.yml \
+            -p "$COMPOSE_PROJECT_NAME" up -d selenium-hub chrome
+          hub_container="$(docker compose -f docker-compose.yml -f docker-compose.grid-recovery.yml -p "$COMPOSE_PROJECT_NAME" ps -q selenium-hub)"
+          chrome_container="$(docker compose -f docker-compose.yml -f docker-compose.grid-recovery.yml -p "$COMPOSE_PROJECT_NAME" ps -q chrome)"
+          memory_limit="$(docker inspect --format '{{.HostConfig.Memory}}' "$chrome_container")"
+          shared_memory="$(docker inspect --format '{{.HostConfig.ShmSize}}' "$chrome_container")"
+          test "$memory_limit" -ge 2147483648
+          test "$shared_memory" -ge 2147483648
+          echo "GRID_MEMORY_LIMIT_BYTES=$memory_limit" >> "$GITHUB_ENV"
+          echo "GRID_SHARED_MEMORY_BYTES=$shared_memory" >> "$GITHUB_ENV"
+          echo "GRID_HUB_IMAGE=$(docker inspect --format '{{.Config.Image}}' "$hub_container")" >> "$GITHUB_ENV"
+          echo "GRID_CHROME_IMAGE=$(docker inspect --format '{{.Config.Image}}' "$chrome_container")" >> "$GITHUB_ENV"
+          echo "GRID_HUB_IMAGE_ID=$(docker inspect --format '{{.Image}}' "$hub_container")" >> "$GITHUB_ENV"
+          echo "GRID_CHROME_IMAGE_ID=$(docker inspect --format '{{.Image}}' "$chrome_container")" >> "$GITHUB_ENV"
+
+      - name: Create a private run nonce
+        shell: bash
+        run: echo "GRID_RECOVERY_NONCE=$(node -e 'process.stdout.write(require("node:crypto").randomBytes(16).toString("hex"))')" >> "$GITHUB_ENV"
+
+      - name: Run the bounded worker interruption and recovery drill
+        run: |
+          mkdir -p target
+          node scripts/grid-recovery-drill.mjs \
+            --private-grid \
+            --grid-url http://127.0.0.1:4444/wd/hub \
+            --nonce "$GRID_RECOVERY_NONCE" \
+            --source-sha "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --project-name "$COMPOSE_PROJECT_NAME" \
+            --receipt-dir "$RUNNER_TEMP/grid-recovery-$GRID_RECOVERY_NONCE" \
+            --summary target/grid-recovery-summary.json
+
+      - name: Stop only this run's Grid project
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.grid-recovery.yml -p "$COMPOSE_PROJECT_NAME" down --remove-orphans
+
+      - name: Upload the sanitized drill summary and native disposition
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: selenium-grid-worker-recovery-${{ github.run_id }}
+          path: |
+            target/grid-recovery-summary.json
+            target/grid-recovery-native.json
+          if-no-files-found: warn
+          retention-days: 30
