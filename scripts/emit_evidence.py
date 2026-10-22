@@ -53,6 +53,13 @@ def build_record(env, report_dir, output):
                         sums[key] += int(suite.attrib[key])
                     testcases = suite.findall("testcase")
                     cases += len(testcases)
+                    aggregate_tests = int(suite.attrib["tests"])
+                    identities = {(case.get("classname"), case.get("name")) for case in testcases}
+                    if aggregate_tests != len(testcases):
+                        if any(not classname or not name for classname, name in identities):
+                            raise ValueError("repeated testcase rows must include class and method identity")
+                        if aggregate_tests != len(identities):
+                            raise ValueError("native test count does not match testcase rows or unique methods")
                     case_failures = sum(any(child.tag == "failure" for child in case) for case in testcases)
                     case_errors = sum(any(child.tag == "error" for child in case) for case in testcases)
                     case_skips = sum(any(child.tag == "skipped" for child in case) for case in testcases)
@@ -62,8 +69,8 @@ def build_record(env, report_dir, output):
                         raise ValueError("native aggregate failure/error/skip counters do not match testcase outcomes")
                     retried_cases += sum(any(child.tag in ("flakyFailure", "flakyError") for child in case) for case in testcases)
                     raw_retries += sum(child.tag in ("flakyFailure", "flakyError") for case in testcases for child in case)
-            selected = sums["tests"]
-            failed = sums["failures"] + sums["errors"]
+            selected = cases
+            failed = sum(sums[key] for key in ("failures", "errors"))
             skipped = sums["skipped"]
             passed = selected - failed - skipped
             retried = retried_cases
