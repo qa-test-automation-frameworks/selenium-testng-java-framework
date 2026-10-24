@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "scopes": {
+    "framework-quality": {
+      "runId": "40085155335",
+      "attempt": 1,
+      "completedAt": "2026-10-24T10:20:55.000Z",
+      "sourceSha": "f1592bec548ef80ca950c3369355a6f11bb45774",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/40085155335/1",
+      "manifestSha256": "35e48eb69f89300111604b5c4dac339f03040ef0401521259785ad5ac09eee16"
+    },
+    "evidence-negative-control": {
+      "runId": "40085155335",
+      "attempt": 1,
+      "completedAt": "2026-10-24T10:20:55.000Z",
+      "sourceSha": "f1592bec548ef80ca950c3369355a6f11bb45774",
+      "execution": "failed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/40085155335/1",
+      "manifestSha256": "35e48eb69f89300111604b5c4dac339f03040ef0401521259785ad5ac09eee16"
+    },
+    "ui.CHROME": {
+      "runId": "40085155335",
+      "attempt": 1,
+      "completedAt": "2026-10-24T10:20:55.000Z",
+      "sourceSha": "f1592bec548ef80ca950c3369355a6f11bb45774",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/40085155335/1",
+      "manifestSha256": "35e48eb69f89300111604b5c4dac339f03040ef0401521259785ad5ac09eee16"
+    },
+    "ui.EDGE": {
+      "runId": "40085155335",
+      "attempt": 1,
+      "completedAt": "2026-10-24T10:20:55.000Z",
+      "sourceSha": "f1592bec548ef80ca950c3369355a6f11bb45774",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/40085155335/1",
+      "manifestSha256": "35e48eb69f89300111604b5c4dac339f03040ef0401521259785ad5ac09eee16"
+    },
+    "ui.FIREFOX": {
+      "runId": "40085155335",
+      "attempt": 1,
+      "completedAt": "2026-10-24T10:20:55.000Z",
+      "sourceSha": "f1592bec548ef80ca950c3369355a6f11bb45774",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/40085155335/1",
+      "manifestSha256": "35e48eb69f89300111604b5c4dac339f03040ef0401521259785ad5ac09eee16"
+    },
+    "cloud.browserstack.CHROME": {
+      "runId": "39237189282",
+      "attempt": 1,
+      "completedAt": "2026-10-19T10:24:15.000Z",
+      "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+      "execution": "skipped",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/39237189282/1",
+      "manifestSha256": "0ac56d1c4b4cd1be4d9e7e46aa97b4b2d7829a1539b92346e12705579aa8c84e"
+    },
+    "accessibility.CHROME": {
+      "runId": "40085155335",
+      "attempt": 1,
+      "completedAt": "2026-10-24T10:20:55.000Z",
+      "sourceSha": "f1592bec548ef80ca950c3369355a6f11bb45774",
+      "execution": "passed",
+      "workflowConclusion": "success",
+      "bundle": "repositories/qa-test-automation-frameworks/selenium-testng-java-framework/runs/40085155335/1",
+      "manifestSha256": "35e48eb69f89300111604b5c4dac339f03040ef0401521259785ad5ac09eee16"
+    }
+  }
+}

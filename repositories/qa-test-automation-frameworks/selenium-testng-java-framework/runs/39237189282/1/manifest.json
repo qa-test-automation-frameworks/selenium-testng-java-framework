@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "run": {
+    "id": "39237189282",
+    "attempt": 1,
+    "sourceSha": "2301fd730988b0885e561d6a1a7eee690d0d399a",
+    "event": "schedule",
+    "branch": "main",
+    "workflowName": "Cloud Grid Smoke",
+    "conclusion": "success",
+    "completedAt": "2026-10-19T10:24:15.000Z",
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/39237189282"
+  },
+  "records": [
+    {
+      "scope": "cloud.browserstack.CHROME",
+      "evidenceClass": "credentialed",
+      "execution": "skipped",
+      "integrity": "unavailable",
+      "path": "records/83cb2df6d0179c8a27ba088c.json",
+      "sha256": "27b68f3fe0323729a82fd11de75bcc86c58d783606121a34e35b22fe741c0092"
+    }
+  ]
+}

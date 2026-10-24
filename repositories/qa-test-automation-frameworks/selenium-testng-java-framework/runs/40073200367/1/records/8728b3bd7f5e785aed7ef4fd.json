@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 3,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "sourceSha": "3dc98bfdbb89e7c0a165a34e62a7045e534f8ab3",
+  "limitations": [
+    "Surefire XML contains aggregate outcomes only; testcase names, parameters, traces and environment values are intentionally omitted.",
+    "SauceDemo is vendor-managed; this run did not discover an application release or fixture revision.",
+    "Native Surefire XML SHA-256: 3737058418a759015b939269f26106158560c7d6534f87e0afa01420ec42125c"
+  ],
+  "kind": "execution",
+  "workflow": {
+    "id": "qa-test-automation-frameworks/selenium-testng-java-framework/.github/workflows/ui-tests.yml@refs/heads/main",
+    "name": "UI Tests",
+    "runId": "40073200367",
+    "attempt": 1,
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/40073200367",
+    "trigger": "push",
+    "branch": "main"
+  },
+  "scope": {
+    "id": "accessibility.CHROME",
+    "evidenceClass": "controlled",
+    "required": true,
+    "freshnessPolicy": "daily_gate_v1"
+  },
+  "target": {
+    "identity": "saucedemo-public-demo",
+    "revision": null,
+    "fixtureVersion": null,
+    "environment": "public-demo",
+    "profile": "accessibility",
+    "tools": {
+      "java": "21",
+      "maven": "3.9.15",
+      "selenium": "4.39.0",
+      "testng": "7.12.0"
+    }
+  },
+  "execution": {
+    "disposition": "passed",
+    "reason": null,
+    "startedAt": "2026-10-24T07:13:49Z",
+    "completedAt": "2026-10-24T07:14:11Z",
+    "integrity": "complete",
+    "counts": {
+      "unit": "parameter_case",
+      "selected": 2,
+      "executed": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "retried": 0,
+      "semantics": "Final Surefire JUnit testcase invocations (each TestNG data-provider invocation is a testcase); selected includes skips; retried counts unique testcase entries with native flakyFailure/flakyError children."
+    },
+    "measurements": [
+      {
+        "name": "native_retry_attempts",
+        "value": 0,
+        "unit": "attempt",
+        "sampleCount": 1,
+        "semantics": "Count of native Surefire flakyFailure/flakyError attempt elements across the current aggregate XML files."
+      }
+    ],
+    "shards": {
+      "expected": [
+        "accessibility.CHROME"
+      ],
+      "received": [
+        "accessibility.CHROME"
+      ]
+    }
+  },
+  "publication": {
+    "disposition": "pending",
+    "reason": null,
+    "publishedAt": null,
+    "reportUrl": null,
+    "artifacts": []
+  },
+  "generator": {
+    "name": "selenium-surefire-evidence",
+    "version": "1.0.0"
+  }
+}

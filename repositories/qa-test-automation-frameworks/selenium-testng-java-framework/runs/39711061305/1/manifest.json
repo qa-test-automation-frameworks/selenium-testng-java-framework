@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "run": {
+    "id": "39711061305",
+    "attempt": 1,
+    "sourceSha": "f44a6c72921a5367ad737fdcad5220b98abf5e9a",
+    "event": "push",
+    "branch": "main",
+    "workflowName": "UI Tests",
+    "conclusion": "success",
+    "completedAt": "2026-10-22T02:27:35.000Z",
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/39711061305"
+  },
+  "records": [
+    {
+      "scope": "framework-quality",
+      "evidenceClass": "hermetic",
+      "execution": "passed",
+      "integrity": "complete",
+      "path": "records/1ac6d839c746edfef17cab9b.json",
+      "sha256": "398445b729e881aba52e5ddda8644a39cc741b99c894ee88279ccc7c8d2aee8c"
+    },
+    {
+      "scope": "evidence-negative-control",
+      "evidenceClass": "hermetic",
+      "execution": "failed",
+      "integrity": "complete",
+      "path": "records/70c2d15b1e2ccd96686ff07d.json",
+      "sha256": "df0969a330e04daffe1ee054d65ed564426a80715c877ac9df3544310c9d7b00"
+    },
+    {
+      "scope": "ui.CHROME",
+      "evidenceClass": "controlled",
+      "execution": "passed",
+      "integrity": "complete",
+      "path": "records/72b199c638f8c5ed52ba969f.json",
+      "sha256": "dee7bb5c3fe1c81e5b1238b50588b4f42f885498d60b021b984702a758c85f42"
+    },
+    {
+      "scope": "ui.EDGE",
+      "evidenceClass": "controlled",
+      "execution": "passed",
+      "integrity": "complete",
+      "path": "records/bfa823454860ba70dce62b0a.json",
+      "sha256": "25a659339dc968beba6cecd336602b410ef041401b0ab603a4987b698b585257"
+    },
+    {
+      "scope": "ui.FIREFOX",
+      "evidenceClass": "controlled",
+      "execution": "passed",
+      "integrity": "complete",
+      "path": "records/bb9356f6fab014ab0f9cc653.json",
+      "sha256": "e5feabb03e7f2928776f453dc8e25683c54455f7209f0b350756e35fb89385df"
+    }
+  ]
+}

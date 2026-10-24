@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 3,
+  "repository": "qa-test-automation-frameworks/selenium-testng-java-framework",
+  "sourceSha": "f52117dcc96a90b5d3d4316393c848c9dc11f6ce",
+  "limitations": [
+    "Surefire XML contains aggregate outcomes only; testcase names, parameters, traces and environment values are intentionally omitted.",
+    "SauceDemo is vendor-managed; this run did not discover an application release or fixture revision.",
+    "Native Surefire XML SHA-256: 25578bdce97f5654fa5ae98f923be84c694c1901e6d829ea2b02a74dde5e367f"
+  ],
+  "kind": "execution",
+  "workflow": {
+    "id": "qa-test-automation-frameworks/selenium-testng-java-framework/.github/workflows/ui-tests.yml@refs/heads/main",
+    "name": "UI Tests",
+    "runId": "39289053598",
+    "attempt": 1,
+    "url": "https://github.com/qa-test-automation-frameworks/selenium-testng-java-framework/actions/runs/39289053598",
+    "trigger": "push",
+    "branch": "main"
+  },
+  "scope": {
+    "id": "ui.FIREFOX",
+    "evidenceClass": "controlled",
+    "required": true,
+    "freshnessPolicy": "quarterly_experiment_v1"
+  },
+  "target": {
+    "identity": "saucedemo-public-demo",
+    "revision": null,
+    "fixtureVersion": null,
+    "environment": "public-demo",
+    "profile": "FIREFOX",
+    "tools": {
+      "java": "21",
+      "maven": "3.9.15",
+      "selenium": "4.39.0",
+      "testng": "7.12.0"
+    }
+  },
+  "execution": {
+    "disposition": "passed",
+    "reason": null,
+    "startedAt": "2026-10-19T16:53:22Z",
+    "completedAt": "2026-10-19T16:56:07Z",
+    "integrity": "complete",
+    "counts": {
+      "unit": "parameter_case",
+      "selected": 34,
+      "executed": 34,
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0,
+      "retried": 0,
+      "semantics": "Final Surefire JUnit testcase invocations (each TestNG data-provider invocation is a testcase); selected includes skips; retried counts unique testcase entries with native flakyFailure/flakyError children."
+    },
+    "measurements": [
+      {
+        "name": "native_retry_attempts",
+        "value": 0,
+        "unit": "attempt",
+        "sampleCount": 1,
+        "semantics": "Count of native Surefire flakyFailure/flakyError attempt elements across the current aggregate XML files."
+      }
+    ],
+    "shards": {
+      "expected": [
+        "ui.FIREFOX"
+      ],
+      "received": [
+        "ui.FIREFOX"
+      ]
+    }
+  },
+  "publication": {
+    "disposition": "pending",
+    "reason": null,
+    "publishedAt": null,
+    "reportUrl": null,
+    "artifacts": []
+  },
+  "generator": {
+    "name": "selenium-surefire-evidence",
+    "version": "1.0.0"
+  }
+}
