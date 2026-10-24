@@ -32,11 +32,11 @@ non-execution path produces a reasoned skip record without contacting the
 BrowserStack hub.
 
 The checked-in schema and dependency-free Node validator are portable snapshots
-of the organization E01 contract. Schema SHA-256:
+of the organization evidence contract. Schema SHA-256:
 `40502a47e825755d216e35ea19716ad7de69e47accd6aed1cfb3607160e4d1b9`.
 Freshness policy SHA-256:
 `1313329c1c06bd3a056dd1ed7d25c631036cae58480fdc4e767f22a0a01a568e`.
-Update these snapshots deliberately when E01 changes. Node is pinned by
+Update these snapshots deliberately when the shared evidence contract changes. Node is pinned by
 `.nvmrc`; the workflow uses setup-node before invoking the validator.
 
 GitHub API inspection on 2026-10-04 found an active `main-protection` ruleset.
