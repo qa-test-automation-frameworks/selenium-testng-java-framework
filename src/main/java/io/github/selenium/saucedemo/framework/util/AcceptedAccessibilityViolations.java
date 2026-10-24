@@ -9,6 +9,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,13 @@ public final class AcceptedAccessibilityViolations {
       String issueUrl) {}
 
   /** Outcome of applying the register to the blocking rules found on one page. */
-  public record Evaluation(Set<String> unaccepted, Set<String> accepted, List<String> problems) {}
+  public record Evaluation(Set<String> unaccepted, Set<String> accepted, List<String> problems) {
+    public Evaluation {
+      unaccepted = Collections.unmodifiableSet(new LinkedHashSet<>(unaccepted));
+      accepted = Collections.unmodifiableSet(new LinkedHashSet<>(accepted));
+      problems = List.copyOf(problems);
+    }
+  }
 
   private AcceptedAccessibilityViolations() {}
 

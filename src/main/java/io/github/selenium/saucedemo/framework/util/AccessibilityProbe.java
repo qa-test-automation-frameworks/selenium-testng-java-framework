@@ -55,7 +55,12 @@ public final class AccessibilityProbe {
       Set.of("wcag2a", "wcag2aa", "wcag21a", "wcag21aa");
 
   /** Axe violations of one scan, split into WCAG A/AA rules and everything else. */
-  public record AxeScan(List<Rule> blocking, List<Rule> advisory) {}
+  public record AxeScan(List<Rule> blocking, List<Rule> advisory) {
+    public AxeScan {
+      blocking = List.copyOf(blocking);
+      advisory = List.copyOf(advisory);
+    }
+  }
 
   /**
    * Runs axe-core once with all rules. Violations tagged WCAG 2.0/2.1 A or AA are blocking; best
