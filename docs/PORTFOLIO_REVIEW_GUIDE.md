@@ -22,7 +22,7 @@ Use this guide when reviewing the repository as a QA Automation, SDET, or test-f
 - Cookie authentication shortcuts for non-login scenarios, with separate UI login coverage.
 - Docker Compose Selenium Grid execution for Chrome, Firefox, and Edge.
 - CI quality gates with Spotless, Checkstyle, PMD, SpotBugs, Maven Enforcer, browser matrix tests, artifact uploads, Allure Pages deployment, secret scanning, dependency review, and SBOM generation.
-- Opt-in accessibility and visual-regression extension points without destabilizing the default functional regression suite.
+- A separate accessibility job (WCAG A/AA blocking, advisories recorded) and an opt-in visual-regression extension point, neither of which destabilizes the default functional regression suite.
 
 ## Suggested Reviewer Checks
 

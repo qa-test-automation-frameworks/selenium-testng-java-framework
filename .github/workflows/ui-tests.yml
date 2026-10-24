@@ -3,24 +3,16 @@ name: UI Tests
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
   pull_request:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      run_accessibility:
-        description: 'Run the optional accessibility smoke suite'
-        required: false
-        type: boolean
-        default: false
   schedule:
+    - cron: '13 6 * * *'
     - cron: '0 6 1 1,4,7,10 *'
 
 concurrency:
   group: ui-tests-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -249,7 +241,7 @@ jobs:
           TARGET_REVISION: ${{ github.sha }}
           TARGET_ENVIRONMENT: ci-hermetic
           TARGET_PROFILE: framework-unit
-          FRESHNESS_POLICY: quarterly_experiment_v1
+          FRESHNESS_POLICY: daily_gate_v1
           SCOPE_REQUIRED: 'true'
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           JAVA_VERSION: '21'
@@ -295,7 +287,7 @@ jobs:
           test -f target/portfolio-metrics-v1.json
 
   dependency-governance:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 6 1 1,4,7,10 *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -523,7 +515,7 @@ jobs:
           EVIDENCE_CLASS: controlled
           TARGET_ID: saucedemo-public-demo
           TARGET_ENVIRONMENT: public-demo
-          FRESHNESS_POLICY: quarterly_experiment_v1
+          FRESHNESS_POLICY: daily_gate_v1
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           JAVA_VERSION: '21'
           MAVEN_VERSION: '3.9.15'
@@ -600,7 +592,6 @@ jobs:
 
   accessibility:
     needs: quality-gates
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_accessibility == true)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -658,7 +649,7 @@ jobs:
           EVIDENCE_CLASS: controlled
           TARGET_ID: saucedemo-public-demo
           TARGET_ENVIRONMENT: public-demo
-          FRESHNESS_POLICY: quarterly_experiment_v1
+          FRESHNESS_POLICY: daily_gate_v1
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           JAVA_VERSION: '21'
           MAVEN_VERSION: '3.9.15'
@@ -802,8 +793,6 @@ jobs:
       ACCESSIBILITY_RESULT: ${{ needs.accessibility.result }}
       GRID_CAPACITY_RESULT: ${{ needs.grid-capacity-experiment.result }}
       FAILURE_CONTROL_RESULT: ${{ needs.evidence-failure-control.result }}
-      EVENT_NAME: ${{ github.event_name }}
-      ACCESSIBILITY_REQUESTED: ${{ inputs.run_accessibility }}
     steps:
       - name: Enforce mandatory scopes
         shell: bash
@@ -815,9 +804,7 @@ jobs:
           test "$FAILURE_CONTROL_RESULT" = success
           test "$MATRIX_RESULT" = success
           test "$GRID_CAPACITY_RESULT" = success
-          if [[ "$EVENT_NAME" == schedule || ( "$EVENT_NAME" == workflow_dispatch && "$ACCESSIBILITY_REQUESTED" == true ) ]]; then
-            test "$ACCESSIBILITY_RESULT" = success
-          fi
+          test "$ACCESSIBILITY_RESULT" = success
 
   publish-allure-report:
     needs: [test, accessibility, required-ci]

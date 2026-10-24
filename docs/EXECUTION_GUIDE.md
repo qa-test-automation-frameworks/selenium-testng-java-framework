@@ -34,7 +34,7 @@ PowerShell examples must quote comma-separated groups and dotted Maven propertie
 - `-Dbrowser`: Browser type (`CHROME` default, `FIREFOX`, `EDGE`).
 - `-Dheadless`: Run in headless mode (`true`, `false`).
 - `-Dgroups`: Run a subset of TestNG groups, for example `smoke` or `login`.
-- `-Dtestng.suite.file`: Select an alternative TestNG suite file, for example `testng-accessibility.xml` for the opt-in accessibility smoke path.
+- `-Dtestng.suite.file`: Select an alternative TestNG suite file, for example `testng-accessibility.xml` for the accessibility path.
 - `-Dconfig.file`: Optional external properties file for private local overrides.
 - `-Dbrowser.version`, `-Dplatform.name`, `-Daccept.insecure.certs`, `-Dremote.capabilities`: Optional Selenium capability overrides for remote Grids and cloud providers. `remote.capabilities` must be a flat JSON object.
 - `-Dretry.enabled`: Enable retry analyzer for tests explicitly marked with `@Retryable(reason = "...")` when investigating infrastructure flakes.
