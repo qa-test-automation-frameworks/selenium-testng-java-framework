@@ -1,9 +1,8 @@
 package io.github.selenium.saucedemo.framework.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -12,7 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.openqa.selenium.json.Json;
+import org.openqa.selenium.json.JsonException;
 
 /**
  * Register of axe violations accepted for a limited time. Every entry needs a reason, an issue and
@@ -21,7 +23,7 @@ import java.util.Set;
 public final class AcceptedAccessibilityViolations {
 
   public static final long MAX_ACCEPTANCE_DAYS = 90;
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final Json JSON = new Json();
 
   public record Entry(
       String ruleId,
@@ -41,26 +43,27 @@ public final class AcceptedAccessibilityViolations {
       if (stream == null) {
         throw new IllegalStateException("Accepted accessibility violations not found: " + resource);
       }
-      return parse(MAPPER.readTree(stream));
+      return parse(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new IllegalStateException("Cannot read accepted accessibility violations", e);
     }
   }
 
   public static List<Entry> parse(String json) {
+    Object root;
     try {
-      return parse(MAPPER.readTree(json));
-    } catch (IOException e) {
+      root = JSON.toType(json, Object.class);
+    } catch (JsonException e) {
       throw new IllegalArgumentException("Accepted accessibility violations are not valid JSON", e);
     }
-  }
-
-  private static List<Entry> parse(JsonNode root) {
-    if (root == null || !root.isArray()) {
+    if (!(root instanceof List<?> items)) {
       throw new IllegalArgumentException("Accepted accessibility violations must be a JSON array");
     }
     List<Entry> entries = new ArrayList<>();
-    for (JsonNode node : root) {
+    for (Object item : items) {
+      if (!(item instanceof Map<?, ?> node)) {
+        throw new IllegalArgumentException("Each accepted violation must be a JSON object");
+      }
       LocalDate acceptedOn = date(node, "acceptedOn");
       LocalDate expiresOn = date(node, "expiresOn");
       String ruleId = text(node, "ruleId");
@@ -70,7 +73,7 @@ public final class AcceptedAccessibilityViolations {
             "Acceptance for " + ruleId + " must expire within " + MAX_ACCEPTANCE_DAYS + " days");
       }
       String issueUrl = text(node, "issueUrl");
-      if (!URI.create(issueUrl).getScheme().equals("https")) {
+      if (!"https".equals(URI.create(issueUrl).getScheme())) {
         throw new IllegalArgumentException("Acceptance for " + ruleId + " needs an https issueUrl");
       }
       entries.add(
@@ -80,15 +83,15 @@ public final class AcceptedAccessibilityViolations {
     return List.copyOf(entries);
   }
 
-  private static String text(JsonNode node, String field) {
-    JsonNode value = node.get(field);
-    if (value == null || !value.isTextual() || value.asText().isBlank()) {
+  private static String text(Map<?, ?> node, String field) {
+    Object value = node.get(field);
+    if (!(value instanceof String text) || text.isBlank()) {
       throw new IllegalArgumentException("Accepted violation field '" + field + "' is required");
     }
-    return value.asText();
+    return text;
   }
 
-  private static LocalDate date(JsonNode node, String field) {
+  private static LocalDate date(Map<?, ?> node, String field) {
     try {
       return LocalDate.parse(text(node, field));
     } catch (DateTimeParseException e) {
