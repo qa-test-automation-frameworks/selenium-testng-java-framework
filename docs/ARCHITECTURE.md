@@ -124,7 +124,7 @@ flowchart LR
 ### 4. Test Layer (`tests`)
 - **BaseTestCase**: Handles setup (`BeforeMethod`) and teardown (`AfterMethod`) of the driver.
 - **UITests**: Implementation of business scenarios, including focused negative checks and end-to-end user journeys that increase coverage quality without inflating metrics.
-- **Accessibility Smoke**: An opt-in `testng-accessibility.xml` suite runs a narrow baseline accessibility probe without polluting the default functional regression path.
+- **Accessibility**: The `testng-accessibility.xml` suite runs a baseline probe plus axe-core. WCAG 2.0/2.1 A/AA violations block (with a dated acceptance register); other axe results are advisories. It runs as its own CI job on every run, separate from the functional matrix.
 - **AssertJ**: Used for fluent, descriptive assertions with business-level error messages.
 
 ### 5. Reporting Layer (`io.github.selenium.saucedemo.framework.listener`)

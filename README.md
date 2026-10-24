@@ -112,7 +112,7 @@ graph TD;
 ## Scope and Limits
 
 - The bundled Grid is a lightweight reference Grid, not a high-availability browser farm.
-- Accessibility coverage is an opt-in axe-core structural smoke suite over the selected pages; it is not WCAG conformance evidence or a full product audit.
+- Accessibility coverage is an axe-core scan of the inventory page that runs on every CI run and daily. WCAG 2.0/2.1 A and AA violations fail the job unless they are in the dated register (`src/test/resources/accessibility/accepted-violations.json`, 90 days at most); best-practice and other axe results are recorded as advisories. A planted-defect control test (an image without alt text) must be reported as blocking. The target is a vendor-operated demo site, and this is not WCAG conformance evidence or a full product audit.
 - Visual checks use a baseline scaffold and whole-image hash comparisons; they are not pixel-diff tooling.
 - Safari remains local headed macOS-only and requires Safari remote automation.
 - The product catalog assertions intentionally use static Sauce Demo data.

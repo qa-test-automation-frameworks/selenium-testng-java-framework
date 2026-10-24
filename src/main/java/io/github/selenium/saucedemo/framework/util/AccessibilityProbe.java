@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -49,13 +50,31 @@ public final class AccessibilityProbe {
     return advisories;
   }
 
-  /** Runs axe-core against the current page and returns violation summaries. */
-  public List<String> findAxeViolations() {
+  /** Axe rule tags that block: WCAG 2.0 and 2.1 level A and AA success criteria. */
+  public static final Set<String> BLOCKING_TAGS =
+      Set.of("wcag2a", "wcag2aa", "wcag21a", "wcag21aa");
+
+  /** Axe violations of one scan, split into WCAG A/AA rules and everything else. */
+  public record AxeScan(List<Rule> blocking, List<Rule> advisory) {}
+
+  /**
+   * Runs axe-core once with all rules. Violations tagged WCAG 2.0/2.1 A or AA are blocking; best
+   * practices and other rules are advisory.
+   */
+  public AxeScan scanAxe() {
     Results results = new AxeBuilder().analyze(driver);
-    return results.getViolations().stream().map(AccessibilityProbe::formatAxeViolation).toList();
+    List<Rule> blocking = new ArrayList<>();
+    List<Rule> advisory = new ArrayList<>();
+    for (Rule rule : results.getViolations()) {
+      boolean wcag =
+          rule.getTags() != null && rule.getTags().stream().anyMatch(BLOCKING_TAGS::contains);
+      (wcag ? blocking : advisory).add(rule);
+    }
+    return new AxeScan(List.copyOf(blocking), List.copyOf(advisory));
   }
 
-  private static String formatAxeViolation(Rule rule) {
+  /** Formats a violation as rule id, impact, description and affected node count. */
+  public static String formatAxeViolation(Rule rule) {
     return String.format(
         "%s [%s]: %s (%d node%s)",
         rule.getId(),
